@@ -7,12 +7,14 @@ import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
 import { MobileNav } from "./MobileNav";
+import ConnectButton from "./ConnectButton";
 
 interface NavBarProps {
   isHome?: boolean;
+  isApp?: boolean;
 }
 
-export default function Header({ isHome =false }: NavBarProps) {
+export default function Header({ isHome = false, isApp = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -37,7 +39,28 @@ export default function Header({ isHome =false }: NavBarProps) {
           <Image src={logo} alt="Ongrid-logo" className="w-32 lg:w-40" />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
-          {isHome ? (
+          {isApp ? (
+            <>
+              <Link
+                href="/"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Home
+              </Link>
+              <Link
+                href="/discover"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Discover
+              </Link>
+              <Link
+                href="/portfolio"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Portfolio
+              </Link>
+            </>
+          ) : isHome ? (
             <>
               <ScrollLink
                 to={"about"}
@@ -57,6 +80,18 @@ export default function Header({ isHome =false }: NavBarProps) {
               >
                 How It Works
               </ScrollLink>
+              <Link
+                href="/projects"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Projects
+              </Link>
+              <Link
+                href="/impact"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Impact
+              </Link>
             </>
           ) : (
             <>
@@ -66,36 +101,36 @@ export default function Header({ isHome =false }: NavBarProps) {
               >
                 About
               </Link>
-        
               <Link
                 href="/?#how-it-works"
                 className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
               >
                 How It Works
               </Link>
+              <Link
+                href="/projects"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Projects
+              </Link>
+              <Link
+                href="/impact"
+                className="cursor-pointer hover:text-oga-yellow-dark"
+              >
+                Impact
+              </Link>
             </>
           )}
-
-          <Link
-            href="/projects"
-            className="cursor-pointer hover:text-oga-yellow-dark"
-          >
-            Projects
-          </Link>
-
-          <Link
-            href="/impact"
-            className="cursor-pointer hover:text-oga-yellow-dark"
-          >
-            Impact
-          </Link>
         </div>
-        <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
-          <Button className="hidden md:inline-flex bg-oga-green p-4  border border-oga-green-dark  text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900  lg:text-lg lg:px-6 lg:py-3">
-            Build with us
-          </Button>
-        </Link>
-
+        {isApp ? (
+          <ConnectButton />
+        ) : (
+          <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
+            <Button className="hidden md:inline-flex bg-oga-green p-4 border border-oga-green-dark text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900 lg:text-lg lg:px-6 lg:py-3">
+              Build with us
+            </Button>
+          </Link>
+        )}
         <div className="block md:hidden">
           <MobileNav isHome={isHome} />
         </div>
