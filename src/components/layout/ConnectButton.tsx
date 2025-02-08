@@ -1,13 +1,12 @@
 "use client";
 
-import { useAppKit, useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
-export default function ConnectButton({ isApp }: { isApp?: boolean }) {
+export default function ConnectButton() {
   const { open,  } = useAppKit();
-  const { caipNetwork } = useAppKitNetwork();
   const { isConnected,  } = useAppKitAccount();
   const [isClient, setIsClient] = useState(false);
 

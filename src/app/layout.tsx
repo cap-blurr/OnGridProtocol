@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AppKit } from "@/connection";
+import { ToastProvider } from "@/providers/toast-provider";
 
 // Load B612 font family
 const b612 = localFont({
@@ -38,6 +39,7 @@ export default function RootLayout({
           className={`${b612.variable} font-b612 bg-neutral-950 antialiased`}
         >
           {children}
+          <ToastProvider />
         </body>
       </AppKit>
     </html>

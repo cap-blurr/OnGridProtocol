@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-// import { InvestmentModal } from "@/components/investment-modal"
+import { InvestmentModal } from "./investment-modal"
 
 interface ProjectCardProps {
   project: {
@@ -44,7 +44,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               <h2 className="text-xl text-white font-bold">{project.title}</h2>
               <p className="text-sm text-gray-300">{project.description}</p>
             </div>
-            <div className="space-y-2 w-full hidden group-hover:block">
+            <div className="space-y-2 w-full ">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-white/60">Progress</span>
                 <span>{progress.toFixed(0)}%</span>
@@ -66,7 +66,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </CardFooter>
       </div>
 
-      {/* <InvestmentModal project={project} isOpen={showInvestModal} onClose={() => setShowInvestModal(false)} /> */}
+      <InvestmentModal project={project} isOpen={showInvestModal} onClose={() => setShowInvestModal(false)} />
     </Card>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import Link from "next/link";
 import { ProjectGrid } from "@/components/project/project.grid";
 import GradientSection from "@/components/ui/gradient-section";
 

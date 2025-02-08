@@ -28,7 +28,7 @@ const metadata = {
 
 createAppKit({
   adapters: [ethersAdapter, solanaWeb3JsAdapter],
-  networks: [base, baseSepolia, solanaTestnet, solanaDevnet],
+  networks: [base, baseSepolia, solana, solanaTestnet, solanaDevnet],
   metadata,
   projectId,
   features: {
