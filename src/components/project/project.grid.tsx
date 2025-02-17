@@ -76,7 +76,7 @@ const projects = [
     description:
       "Automated yield farming protocol offering optimized returns with multi-chain liquidity aggregation.",
     image:
-      "https://images.unsplash.com/photo-1548613053-22087dd8edb8?q=80&w=2730&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1523774294084-94691d7bb289?q=80&w=2976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     status: "Live",
     participants: 1250,
     timeLeft: "12 days",

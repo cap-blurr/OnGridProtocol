@@ -48,13 +48,13 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
                 Home
               </Link>
               <Link
-                href="/discover"
+                href="/projects"
                 className="cursor-pointer hover:text-oga-yellow-dark"
               >
                 Discover
               </Link>
               <Link
-                href="/portfolio"
+                href="/"
                 className="cursor-pointer hover:text-oga-yellow-dark"
               >
                 Portfolio

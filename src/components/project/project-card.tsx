@@ -51,6 +51,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <Image
         src={project.image || "/placeholder.svg"}
         alt={project.name}
+        width={500}
+        height={500}
         className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
       />
       <div className="absolute top-4 right-4 flex gap-2">

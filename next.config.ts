@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["pbs.twimg.com", "hebbkx1anhila5yf.public.blob.vercel-storage.com"],
+    domains: ["pbs.twimg.com", "images.unsplash.com"],
   },
   webpack: config => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
