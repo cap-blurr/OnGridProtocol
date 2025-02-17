@@ -33,8 +33,12 @@ createAppKit({
   projectId,
   features: {
     analytics: true,
-    connectMethodsOrder: ['wallet'],
-  }
+  },
+  allWallets: 'HIDE',
+  includeWalletIds: [
+    '1ca0bdd4747578705b1939af023d120677c64fe6ca76add81fda36e350605e79',
+    'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa',
+  ]
 })
 
 export function AppKit({ children }: { children: ReactNode }) {

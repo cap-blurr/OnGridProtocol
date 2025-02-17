@@ -1,13 +1,10 @@
 "use client";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { ProjectGrid } from "@/components/project/project.grid";
 import GradientSection from "@/components/ui/gradient-section";
 
 export default function Projects() {
   return (
     <>
-      <Header isApp={true} />
       <GradientSection>
         <main className="min-h-screen relative pt-40">
           {/* <div className="relative min-h-screen  overflow-scroll">
@@ -20,18 +17,17 @@ export default function Projects() {
                 Carbon Credit Projects
               </h2>
               <p className="mx-auto max-w-[800px] mt-4 mb-2 text-center md:text-xl text-gray-400">
-                Check out and invest in verified carbon credit projects across
-                multiple chains.
+                Explore and support high-impact carbon credit projects across
+                multiple blockchain networks. Contribute to global
+                sustainability efforts while benefiting from eco-friendly
+                investments.
               </p>
             </div>
-            {/* <ProjectFilters /> */}
-            <ProjectGrid />
             <ProjectGrid />
           </div>
           {/* </div> */}
         </main>
       </GradientSection>
-      <Footer />
     </>
   );
 }
