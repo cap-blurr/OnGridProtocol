@@ -184,7 +184,7 @@ export function ProjectGrid() {
           value={selectedCategory}
           onValueChange={setSelectedCategory}
         >
-          <TabsList className="w-full mx-auto justify-start rounded-full">
+          <TabsList className="w-full mx-auto overflow-scroll  justify-start rounded-full">
             {categories.map((category) => (
               <TabsTrigger
                 key={category}

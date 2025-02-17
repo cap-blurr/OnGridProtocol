@@ -122,7 +122,8 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
             </>
           )}
         </div>
-        {isApp ? (
+      <div className="flex items-center">
+      {isApp ? (
           <ConnectButton />
         ) : (
           <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
@@ -134,6 +135,8 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
         <div className="block md:hidden">
           <MobileNav isHome={isHome} />
         </div>
+      </div>
+        
       </nav>
     </header>
   );
