@@ -141,14 +141,16 @@ export default function DashboardPage() {
           <div className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-gray-200 mb-1">
-                  Carbon Credit Dashboard
+                <h1 className="text-4xl font-bold text-gray-200 mb-4">
+                   My Dashboard
                 </h1>
                 <p className="text-zinc-400">
                   Monitor your carbon credits and returns across chains
                 </p>
               </div>
-              <CreateProjectModal />
+             <div className="mt-4">
+             <CreateProjectModal />
+             </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

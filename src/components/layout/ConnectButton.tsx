@@ -4,9 +4,10 @@ import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { Profile } from "./profile";
 
 export default function ConnectButton() {
-  const { open,  } = useAppKit();
+  const { open } = useAppKit();
   const { isConnected,  } = useAppKitAccount();
   const [isClient, setIsClient] = useState(false);
 
@@ -16,13 +17,6 @@ export default function ConnectButton() {
 
   const handleConnect = async () => {
     if (!isConnected) {
-      //   open({ view: "Networks" });
-      //   setTimeout(() => {
-      //     open({ view: "Connect" });
-      //   }, 3000);
-      // } else {
-      //   open({ view: "Connect" });
-      // }
       open()
     }
   };
@@ -31,7 +25,8 @@ export default function ConnectButton() {
   return (
     <>
       {isClient && isConnected ? (
-        <appkit-button />
+        // <appkit-button />
+        <Profile />
       ) : (
         <Button
           onClick={() => {

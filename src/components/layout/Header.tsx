@@ -53,10 +53,10 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
                 Discover
               </Link>
               <Link
-                href="/portfolio"
+                href="/dashboard"
                 className="cursor-pointer hover:text-oga-yellow-dark"
               >
-                Portfolio
+                Dashboard
               </Link>
             </>
           ) : isHome ? (
@@ -124,7 +124,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
       <div className="flex items-center">
       <ConnectButton />
         <div className="block md:hidden">
-          <MobileNav isHome={isHome} />
+          <MobileNav isHome={isHome} isApp={isApp}/>
         </div>
       </div>
         
