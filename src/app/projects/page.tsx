@@ -11,7 +11,7 @@ export default function Projects() {
           <div className="fixed inset-0">
             <div className="absolute inset-0  bg-[url('/landing/landing-bg.svg')] bg-bottom bg-no-repeat bg-opacity-20" />
           </div> */}
-          <div className="space-y-6 relative max-w-6xl mx-auto">
+          <div className="space-y-6 relative max-w-6xl mx-auto mb-10">
             <div className="flex flex-col gap-2 mb-20">
               <h2 className="text-center text-3xl md:text-5xl font-bold  leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
                 Carbon Credit Projects

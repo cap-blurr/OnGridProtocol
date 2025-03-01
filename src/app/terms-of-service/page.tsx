@@ -26,7 +26,7 @@ export default function TermsOfService() {
               <p>
                 The following Terms govern the contractual relationships between
                 you and [OnGrid Protocol Limited, a business company
-                incorporated in the British Virgin Islands] (doing business as
+                incorporated in the State of Delaware] (doing business as
                   &ldquo;OnGrid Protocol&ldquo;, also referred to as &ldquo;Company&ldquo;). The Company
                 reserves the right to modify or discontinue, temporarily or
                 permanently, the Terms of Service in whole or in part with or
@@ -443,7 +443,7 @@ export default function TermsOfService() {
                 <li>Good-faith negotiation;</li>
                 <li>Mediation if necessary;</li>
                 <li>
-                  Legal proceedings in the courts of the British Virgin Islands.
+                  Legal proceedings in the courts of the State of Delaware.
                 </li>
               </ul>
             </section>

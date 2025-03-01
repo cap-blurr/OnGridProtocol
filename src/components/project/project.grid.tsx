@@ -5,13 +5,6 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
 // Sample project data with enhanced details
 const projects = [
@@ -108,37 +101,24 @@ const categories = [
   "Cross-chain",
   "Web3",
 ];
-const chains = ["All Chains", "Base", "Solana"];
-const statuses = ["All", "Live", "Upcoming", "Ended"];
 
 export function ProjectGrid() {
-  // const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedChain, setSelectedChain] = useState("All Chains");
-  const [selectedStatus, setSelectedStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProjects = projects.filter((project) => {
-    const matchesCategory =
-      selectedCategory === "All" || project.tags.includes(selectedCategory);
-    const matchesChain =
-      selectedChain === "All Chains" || project.chain === selectedChain;
-    const matchesStatus =
-      selectedStatus === "All" || project.status === selectedStatus;
     const matchesSearch =
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesCategory && matchesChain && matchesStatus && matchesSearch;
+    return matchesSearch;
   });
 
-  // const featuredProjects = projects.filter((p) => p.featured)
-  // const trendingProjects = projects.filter((p) => p.trending)
   return (
     <>
-      <div className="sticky top-0 z-10 bg-transparent backdrop-blur py-4 border-b mb-8">
+      <div className="sticky top-0 z-10 bg-transparent backdrop-blur py-4 border-b border-b-zinc-800 mb-8">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="flex-1 relative rounded-full">
+          <div className="w-full md:w-8/12 mx-auto relative rounded-full">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search projects..."
@@ -148,7 +128,7 @@ export function ProjectGrid() {
             />
           </div>
           <div className="flex gap-2">
-            <Select value={selectedChain} onValueChange={setSelectedChain}>
+            {/* <Select value={selectedChain} onValueChange={setSelectedChain}>
               <SelectTrigger className="w-[140px] border-oga-green rounded-full">
                 <SelectValue placeholder="Chain" />
               </SelectTrigger>
@@ -171,10 +151,7 @@ export function ProjectGrid() {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
-            {/* <Button variant="outline" size="icon" onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}>
-                {viewMode === "grid" ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-              </Button> */}
+            </Select> */}
           </div>
         </div>
 
@@ -184,7 +161,7 @@ export function ProjectGrid() {
           value={selectedCategory}
           onValueChange={setSelectedCategory}
         >
-          <TabsList className="w-full mx-auto overflow-scroll  justify-start rounded-full">
+          <TabsList className="bg-transparent flex mx-auto overflow-scroll">
             {categories.map((category) => (
               <TabsTrigger
                 key={category}

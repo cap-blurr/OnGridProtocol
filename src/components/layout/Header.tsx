@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
@@ -36,7 +35,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
         <Link href="/" className="text-4xl font-bold text-white">
-          <Image src={logo} alt="Ongrid-logo" className="w-32 lg:w-40" />
+          <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
           {isApp ? (
@@ -54,7 +53,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
                 Discover
               </Link>
               <Link
-                href="/"
+                href="/portfolio"
                 className="cursor-pointer hover:text-oga-yellow-dark"
               >
                 Portfolio
@@ -123,15 +122,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
           )}
         </div>
       <div className="flex items-center">
-      {isApp ? (
-          <ConnectButton />
-        ) : (
-          <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
-            <Button className="hidden md:inline-flex bg-oga-green p-4 border border-oga-green-dark text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900 lg:text-lg lg:px-6 lg:py-3">
-              Build with us
-            </Button>
-          </Link>
-        )}
+      <ConnectButton />
         <div className="block md:hidden">
           <MobileNav isHome={isHome} />
         </div>

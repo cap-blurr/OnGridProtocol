@@ -113,9 +113,9 @@ export default function ProjectDashboard() {
         <div className="min-h-screen pt-24 dark">
           <div className="bg-transparent text-foreground">
             {/* Hero Section */}
-            <div className="relative">
+            <div className="relative ">
               <div className="absolute inset-0 bg-gradient-to-r opacity-15 from-[#28a745]/20 to-[#2E7D32]/20" />
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523774294084-94691d7bb289?q=80&w=2976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] opacity-90" />
+              <div className="absolute rounded-xl inset-0 bg-[url('https://images.unsplash.com/photo-1523774294084-94691d7bb289?q=80&w=2976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] opacity-90" />
 
               <div className="container mx-auto px-6 py-4 relative">
                 <div className="flex justify-end items-center py-4">
@@ -198,7 +198,7 @@ export default function ProjectDashboard() {
               </div>
             </div>
 
-            <div className="container mx-auto bg-transparent md:px-6 py-8">
+            <div className="mx-auto bg-transparent md:px-6 py-8">
               {/* Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <Card className="bg-card/50 backdrop-blur-sm border-white/20">
@@ -274,31 +274,31 @@ export default function ProjectDashboard() {
               </div>
 
               {/* Main Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
                 <div className="lg:col-span-2">
-                  <Tabs defaultValue="overview" className="space-y-4">
-                    <TabsList className="w-full rounded-full">
+                  <Tabs defaultValue="overview" className="space-y-5">
+                    <TabsList className="bg-transparent h-10 rounded-full">
                       <TabsTrigger
                         value="overview"
-                        className="flex-1 rounded-full  data-[state=active]:bg-oga-green"
+                        className="flex-1 rounded-full h-full  data-[state=active]:bg-oga-green"
                       >
                         Overview
                       </TabsTrigger>
                       <TabsTrigger
                         value="tokenomics"
-                        className="flex-1 rounded-full  data-[state=active]:bg-oga-green"
+                        className="flex-1 rounded-full h-full   data-[state=active]:bg-oga-green"
                       >
                         Tokenomics
                       </TabsTrigger>
                       <TabsTrigger
                         value="roadmap"
-                        className="flex-1 rounded-full data-[state=active]:bg-oga-green"
+                        className="flex-1 rounded-full h-full  data-[state=active]:bg-oga-green"
                       >
                         Roadmap
                       </TabsTrigger>
                       <TabsTrigger
                         value="team"
-                        className="flex-1 rounded-full  data-[state=active]:bg-oga-green"
+                        className="flex-1 rounded-full h-full data-[state=active]:bg-oga-green"
                       >
                         Team
                       </TabsTrigger>

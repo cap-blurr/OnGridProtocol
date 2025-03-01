@@ -37,7 +37,7 @@ export default function ConnectButton() {
           onClick={() => {
             handleConnect();
           }}
-          className="bg-oga-green p-3 sm:p-4 border border-oga-green-dark text-white  text-sm md:text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900 lg:text-lg lg:px-6 lg:py-3"
+          className="bg-oga-green h-10 p-3 sm:p-4 lg:px-6 lg:py-4 border border-oga-green-dark text-white text-sm lg:text-base rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
           translate="no"
         >
           Connect Wallet
