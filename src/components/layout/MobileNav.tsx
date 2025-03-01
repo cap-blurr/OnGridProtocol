@@ -16,10 +16,9 @@ import { Link as ScrollLink } from "react-scroll";
 
 interface NavBarProps {
   isHome?: boolean;
-  isApp?: boolean;
 }
 
-export function MobileNav({ isHome, isApp }: NavBarProps) {
+export function MobileNav({ isHome }: NavBarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -36,28 +35,7 @@ export function MobileNav({ isHome, isApp }: NavBarProps) {
         </SheetHeader>
 
         <div className="flex flex-col gap-10 mt-12">
-          {isApp ? (
-            <>
-              <Link
-                href="/"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Home
-              </Link>
-              <Link
-                href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Discover
-              </Link>
-              <Link
-                href="/dashboard"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Dashboard
-              </Link>
-            </>
-          ) : isHome ? (
+          {isHome ? (
             <>
               <ScrollLink
                 to={"about"}

@@ -8,7 +8,7 @@ export default function ProjectLayout({
 }>) {
   return (
     <>
-      <Header isApp={true} />
+      <Header/>
       {children}
       <Footer />
     </>

@@ -8,15 +8,15 @@ import {
   useAppKit,
 } from "@reown/appkit/react";
 
-import { ArrowRight, Check, ChevronDown, Shield, Wallet } from "lucide-react";
+import { ArrowRight, ChevronDown, Sidebar, Wallet } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { KYCModal } from "../kyc/kyc-modal";
 
 export function Profile() {
   const { address } = useAppKitAccount();
@@ -86,6 +86,9 @@ export function Profile() {
               )}
             </span>
           </div>
+          
+
+          <div className="py-2">
           <div
             className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
             onClick={handleWalletActions}
@@ -97,17 +100,18 @@ export function Profile() {
             <ArrowRight className="w-5 h-5" />
           </div>
 
-          <div className="py-2">
-            <Link
-              href="#"
+          <Link
+              href="/dashboard"
               className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
             >
               <span className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                KYC
+                <Sidebar className="w-5 h-5" />
+                Dashboard
               </span>
               <ArrowRight className="w-5 h-5" />
             </Link>
+
+          <KYCModal/>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>

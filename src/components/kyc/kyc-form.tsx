@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { format } from "date-fns"
+// import { format } from "date-fns"
 import {
   Check,
   ChevronRight,
@@ -14,7 +14,6 @@ import {
   FileText,
   Building2,
   Loader2,
-  CalendarIcon,
   InfoIcon,
 } from "lucide-react"
 
@@ -26,9 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
+
 
 export default function KycForm() {
   const [step, setStep] = useState(1)
@@ -110,10 +107,10 @@ export default function KycForm() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto w-full">
       {renderStepIndicator()}
 
-      <Card className="border-[#2A2D35] bg-zinc-900">
+      <Card className="border-0 ">
         {step === 1 && (
           <>
             <CardHeader>
@@ -198,44 +195,6 @@ export default function KycForm() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="dateOfBirth"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-zinc-300">Date of Birth</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal border-[#2A2D35] hover:bg-[#252832] transition-colors duration-200",
-                                  !field.value && "text-zinc-500",
-                                )}
-                              >
-                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            {/* <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() || date > new Date().setFullYear(new Date().getFullYear() - 18)
-                              }
-                              initialFocus
-                              className="border-[#2A2D35] text-white"
-                            /> */}
-                          </PopoverContent>
-                        </Popover>
-                        <FormDescription className="text-zinc-500">You must be at least 18 years old</FormDescription>
-                      </FormItem>
-                    )}
-                  />
 
                   <div className="flex justify-end">
                     <Button
@@ -364,13 +323,13 @@ export default function KycForm() {
                                 <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="bg-zinc-900 border-[#2A2D35]">
+                            <SelectContent className="bg-zinc-900 text-white border-[#2A2D35]">
                               <SelectItem value="US">United States</SelectItem>
                               <SelectItem value="CA">Canada</SelectItem>
                               <SelectItem value="UK">United Kingdom</SelectItem>
                               <SelectItem value="AU">Australia</SelectItem>
-                              <SelectItem value="DE">Germany</SelectItem>
-                              <SelectItem value="FR">France</SelectItem>
+                              <SelectItem value="KE">Kenya</SelectItem>
+                              <SelectItem value="NG">Nigeria</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -481,13 +440,13 @@ export default function KycForm() {
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="space-y-2">
                       <FormLabel className="text-zinc-300">Front Side of Document</FormLabel>
-                      <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-800/50 p-6 text-center">
+                      <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-950 p-6 text-center">
                         <Upload className="mb-2 h-8 w-8 text-zinc-400" />
                         <p className="mb-2 text-sm text-zinc-400">Click to upload or drag and drop</p>
                         <p className="text-xs text-zinc-500">PNG, JPG or PDF (max. 5MB)</p>
                         <Input
                           type="file"
-                          className="mt-2 w-full cursor-pointer border-[#2A2D35] text-white"
+                          className="mt-2 w-full cursor-pointer border-none opacity-0 text-white"
                           accept="image/png, image/jpeg, application/pdf"
                         />
                       </div>
@@ -495,13 +454,13 @@ export default function KycForm() {
 
                     <div className="space-y-2">
                       <FormLabel className="text-zinc-300">Back Side of Document</FormLabel>
-                      <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-800/50 p-6 text-center">
+                      <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-950 p-6 text-center">
                         <Upload className="mb-2 h-8 w-8 text-zinc-400" />
                         <p className="mb-2 text-sm text-zinc-400">Click to upload or drag and drop</p>
                         <p className="text-xs text-zinc-500">PNG, JPG or PDF (max. 5MB)</p>
                         <Input
                           type="file"
-                          className="mt-2 w-full cursor-pointer border-[#2A2D35] text-white"
+                          className="mt-2 w-full cursor-pointer opacity-0 text-white"
                           accept="image/png, image/jpeg, application/pdf"
                         />
                       </div>
@@ -510,13 +469,13 @@ export default function KycForm() {
 
                   <div className="space-y-2">
                     <FormLabel className="text-zinc-300">Selfie with Document</FormLabel>
-                    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-800/50 p-6 text-center">
+                    <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-[#2A2D35] bg-zinc-950 p-6 text-center">
                       <Upload className="mb-2 h-8 w-8 text-zinc-400" />
                       <p className="mb-2 text-sm text-zinc-400">Click to upload or drag and drop</p>
                       <p className="text-xs text-zinc-500">PNG or JPG (max. 5MB)</p>
                       <Input
                         type="file"
-                        className="mt-2 w-full cursor-pointer border-[#2A2D35] text-white"
+                        className="mt-2 w-full cursor-pointer opacity-0 text-white"
                         accept="image/png, image/jpeg"
                       />
                     </div>

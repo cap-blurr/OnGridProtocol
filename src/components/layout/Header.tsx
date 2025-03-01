@@ -10,10 +10,9 @@ import ConnectButton from "./ConnectButton";
 
 interface NavBarProps {
   isHome?: boolean;
-  isApp?: boolean;
 }
 
-export default function Header({ isHome = false, isApp = false }: NavBarProps) {
+export default function Header({ isHome = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -38,28 +37,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
           <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
-          {isApp ? (
-            <>
-              <Link
-                href="/"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Home
-              </Link>
-              <Link
-                href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Discover
-              </Link>
-              <Link
-                href="/dashboard"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Dashboard
-              </Link>
-            </>
-          ) : isHome ? (
+          {isHome ? (
             <>
               <ScrollLink
                 to={"about"}
@@ -124,7 +102,7 @@ export default function Header({ isHome = false, isApp = false }: NavBarProps) {
       <div className="flex items-center">
       <ConnectButton />
         <div className="block md:hidden">
-          <MobileNav isHome={isHome} isApp={isApp}/>
+          <MobileNav isHome={isHome}/>
         </div>
       </div>
         
