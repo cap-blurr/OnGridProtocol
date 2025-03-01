@@ -70,13 +70,17 @@ export function Profile() {
           className="w-[280px] p-0 bg-zinc-950 border border-oga-green-dark rounded-xl font-mono"
         >
           <div className="flex flex-col items-center py-6 px-4 ">
-            <Image
-              src={walletInfo?.icon || ""}
-              alt="Fox Logo"
-              width={48}
-              height={48}
-              className="mb-4"
-            />
+            {walletInfo?.icon ? (
+              <Image
+                src={walletInfo.icon}
+                alt="Wallet Logo"
+                width={48}
+                height={48}
+                className="mb-4"
+              />
+            ) : (
+              ""
+            )}
             {/* <p className="text-black font-bold mb-2">0xDdb3...453C</p> */}
             <span className="text-oga-green-light text-sm md:text-base font-bold mb-2">
               {String(address).substring(0, 8)}...
@@ -86,21 +90,20 @@ export function Profile() {
               )}
             </span>
           </div>
-          
 
           <div className="py-2">
-          <div
-            className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
-            onClick={handleWalletActions}
-          >
-            <span className="flex items-center gap-2">
-              <Wallet className="w-5 h-5" />
-              Wallet
-            </span>
-            <ArrowRight className="w-5 h-5" />
-          </div>
+            <div
+              className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
+              onClick={handleWalletActions}
+            >
+              <span className="flex items-center gap-2">
+                <Wallet className="w-5 h-5" />
+                Wallet
+              </span>
+              <ArrowRight className="w-5 h-5" />
+            </div>
 
-          <Link
+            <Link
               href="/dashboard"
               className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
             >
@@ -111,7 +114,7 @@ export function Profile() {
               <ArrowRight className="w-5 h-5" />
             </Link>
 
-          <KYCModal/>
+            <KYCModal />
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
