@@ -78,7 +78,7 @@ export function Profile() {
               className="mb-4"
             />
             {/* <p className="text-black font-bold mb-2">0xDdb3...453C</p> */}
-            <span className="text-oga-green-light font-bold mb-2">
+            <span className="text-oga-green-light text-sm md:text-base font-bold mb-2">
               {String(address).substring(0, 8)}...
               {String(address).substring(
                 String(address).length - 9,
