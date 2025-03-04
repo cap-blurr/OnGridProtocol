@@ -1,13 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
-import {
-  useWalletInfo,
-  useAppKitAccount,
-  useAppKit,
-} from "@reown/appkit/react";
-
 import { ArrowRight, ChevronDown, Sidebar, Wallet } from "lucide-react";
 import {
   DropdownMenu,
@@ -17,15 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { KYCModal } from "../kyc/kyc-modal";
+import { usePrivy } from "@privy-io/react-auth";
 
 export function Profile() {
-  const { address } = useAppKitAccount();
-  const { walletInfo } = useWalletInfo();
-  const { open } = useAppKit();
-
-  const handleWalletActions = async () => {
-    open();
-  };
+  const { user } = usePrivy();
 
   return (
     <div className="font-mono">
@@ -54,13 +41,16 @@ export function Profile() {
                   />
                 </svg>
               </div>
+              {user?.wallet ? 
               <span className="text-oga-green-light font-bold">
-                {String(address).substring(0, 8)}...
-                {String(address).substring(
-                  String(address).length - 9,
-                  String(address).length - 1
+             
+                {String(user.wallet.address).substring(0, 8)}...
+                {String(user.wallet.address).substring(
+                  String(user.wallet.address).length - 9,
+                  String(user.wallet.address).length - 1
                 )}
               </span>
+                : ''}
             </div>
             <ChevronDown className="w-5 h-5 text-oga-green-light" />
           </Button>
@@ -70,7 +60,7 @@ export function Profile() {
           className="w-[280px] p-0 bg-zinc-950 border border-oga-green-dark rounded-xl font-mono"
         >
           <div className="flex flex-col items-center py-6 px-4 ">
-            {walletInfo?.icon ? (
+            {/* {walletInfo?.icon ? (
               <Image
                 src={walletInfo.icon}
                 alt="Wallet Logo"
@@ -80,21 +70,24 @@ export function Profile() {
               />
             ) : (
               ""
-            )}
-            {/* <p className="text-black font-bold mb-2">0xDdb3...453C</p> */}
-            <span className="text-oga-green-light text-sm md:text-base font-bold mb-2">
-              {String(address).substring(0, 8)}...
-              {String(address).substring(
-                String(address).length - 9,
-                String(address).length - 1
-              )}
-            </span>
+            )} */}
+   
+            {user?.wallet ? 
+              <span className="text-oga-green-light font-bold text-sm md:text-base mb-2">
+             
+                {String(user.wallet.address).substring(0, 8)}...
+                {String(user.wallet.address).substring(
+                  String(user.wallet.address).length - 9,
+                  String(user.wallet.address).length - 1
+                )}
+              </span>
+                : ''}
           </div>
 
           <div className="py-2">
             <div
               className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
-              onClick={handleWalletActions}
+              // onClick={handleWalletActions}
             >
               <span className="flex items-center gap-2">
                 <Wallet className="w-5 h-5" />

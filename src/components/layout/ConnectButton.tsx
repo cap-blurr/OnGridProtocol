@@ -1,43 +1,34 @@
 "use client";
 
-import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+import { useState, useEffect } from "react";
+import { useLogin, usePrivy } from "@privy-io/react-auth";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 import { Profile } from "./profile";
 
 export default function ConnectButton() {
-  const { open } = useAppKit();
-  const { isConnected,  } = useAppKitAccount();
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
+
+  const { authenticated } = usePrivy();
+  const { login } = useLogin({
+    onComplete: () => router.push("/dashboard"),
+  });
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleConnect = async () => {
-    if (!isConnected) {
-      open()
-    }
-  };
-
-
-  return (
-    <>
-      {isClient && isConnected ? (
-        // <appkit-button />
-        <Profile />
-      ) : (
-        <Button
-          onClick={() => {
-            handleConnect();
-          }}
-          className="bg-oga-green h-10 p-3 sm:p-4 lg:px-6 lg:py-4 border border-oga-green-dark text-white text-sm lg:text-base rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
-          translate="no"
-        >
-          Connect Wallet
-        </Button>
-      )}
-    </>
+  return isClient && authenticated ?(
+    <Profile/>
+  ) : (
+    <Button
+      onClick={login}
+      className="bg-oga-green h-10 p-3 sm:p-4 lg:px-6 lg:py-4 border border-oga-green-dark text-white text-sm lg:text-base rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
+      translate="no"
+    >
+      Connect Wallet
+    </Button>
   );
 }
