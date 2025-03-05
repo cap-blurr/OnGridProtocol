@@ -12,8 +12,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         appearance: {
           walletChainType: "ethereum-and-solana",
           theme: "dark",
-          accentColor: "#676FFF",
-          logo: '/ongrid-logo.png"',
+          accentColor: "#28a745",
+          logo: '/ongrid-logo.png',
         },
         externalWallets: {
           solana: { connectors: solanaConnectors },
