@@ -136,7 +136,7 @@ export default function DashboardPage() {
   return (
     <GradientSection>
       <div className="min-h-screen pt-32 dark">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto md:px-4 py-8">
           {/* Chain Selector and Stats */}
           <div className="mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -260,7 +260,7 @@ export default function DashboardPage() {
                     <CardHeader>
                       <CardTitle>Active Projects</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0 md:p-6">
                       <div className="space-y-4">
                         {projects
                           // .filter((project) => project.chain === selectedChain)
@@ -279,10 +279,10 @@ export default function DashboardPage() {
                                     <span>{project.chain}</span>
                                   </div>
                                 </div>
-                                <div className="flex gap-3 items-center">
+                                <div className="flex flex-col-reverse md:flex-row gap-3  items-center">
                                   <Link href="/projects/1" className="text-white text-xs cursor-pointer hover:underline hover:text-oga-yellow-light">View Details </Link>
                                   <Button
-                                    className="rounded-full bg-gradient-to-r from-[#28a745] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#28a745] text-white"
+                                    className="rounded-full bg-gradient-to-r from-[#28a745] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#28a745] px-2 text-white text-sm md:text-base"
                                     onClick={handleDistribute}
                                     disabled={isDistributing}
                                   >
@@ -397,15 +397,15 @@ export default function DashboardPage() {
                     <CardHeader>
                       <CardTitle>Transaction History</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0 md:p-6">
                       <div className="space-y-4">
                         {data.distributions.map((dist) => (
                           <div
                             key={dist.id}
                             className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-zinc-700"
                           >
-                            <div className="flex items-center gap-4">
-                              <div className="p-2 rounded-full bg-zinc-800">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                              <div className="w-fit p-2 rounded-full bg-zinc-800">
                                 <History className="h-4 w-4 text-green-500" />
                               </div>
                               <div>
