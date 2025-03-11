@@ -13,7 +13,7 @@ export default function ConnectButton() {
 
   const { authenticated } = usePrivy();
   const { login } = useLogin({
-    onComplete: () => router.push("/dashboard"),
+    // onComplete: () => router.push("/dashboard"),
   });
 
   useEffect(() => {
