@@ -3,8 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeviceData } from "@/types/device";
 
-
-
 export function PowerStats({ data }: { data: DeviceData }) {
 
   const efficiency = (data.power.power_produced / data.pzem.power) * 100

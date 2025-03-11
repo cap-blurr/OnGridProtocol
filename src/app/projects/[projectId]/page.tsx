@@ -190,13 +190,13 @@ export default function ProjectDashboard() {
               <TabsList className="bg-transparent h-10 pb-5 gap-12 w-full justify-start border-b border-white/20">
                 <TabsTrigger
                   value="overview"
-                  className="text-white text-xl pb-5 rounded-none data-[state=active]:text-oga-green data-[state=active]:border-b data-[state=active]:border-b-oga-green"
+                  className="text-white text-base sm:text-xl pb-5 rounded-none data-[state=active]:text-oga-green data-[state=active]:border-b data-[state=active]:border-b-oga-green"
                 >
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
                   value="device"
-                  className="text-white text-xl pb-5 rounded-none data-[state=active]:text-oga-green data-[state=active]:border-b data-[state=active]:border-b-oga-green"
+                  className="text-white text-base sm:text-xl pb-5 rounded-none data-[state=active]:text-oga-green data-[state=active]:border-b data-[state=active]:border-b-oga-green"
                 >
                   Device
                 </TabsTrigger>
