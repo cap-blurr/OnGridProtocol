@@ -19,11 +19,11 @@ export function Profile() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
+            
             className="flex items-center justify-between w-full px-4 py-3 bg-zinc-900 rounded-lg border-none hover:bg-zinc-950"
           >
             <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full  flex items-center justify-center">
                 <svg
                   width="16"
                   height="16"
@@ -42,7 +42,7 @@ export function Profile() {
                 </svg>
               </div>
               {user?.wallet ? 
-              <span className="text-oga-green-light font-bold">
+              <span className="hidden sm:block text-oga-green-light font-bold">
              
                 {String(user.wallet.address).substring(0, 8)}...
                 {String(user.wallet.address).substring(

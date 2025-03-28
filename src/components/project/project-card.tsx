@@ -45,7 +45,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Card
     key={project.id}
-    className="dark overflow-hidden hover:shadow-xl transition-all duration-300 border-2 group cursor-pointer"
+    className="dark bg-oga-black overflow-hidden hover:shadow-xl transition-all duration-300 border-2 group cursor-pointer"
   >
     <div className="aspect-[2/1] relative overflow-hidden">
       <Image

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
-import { AppKit } from "@/connection";
+import "../globals.css";
 import { ToastProvider } from "@/providers/toast-provider";
 import Providers from "@/providers/privy-provider";
 
@@ -9,12 +8,12 @@ import Providers from "@/providers/privy-provider";
 const b612 = localFont({
   src: [
     {
-      path: "./fonts/B612.ttf",
+      path: "../fonts/B612.ttf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "./fonts/B612.ttf",
+      path: "../fonts/B612.ttf",
       weight: "700",
       style: "normal",
     },
@@ -37,11 +36,14 @@ export default function RootLayout({
     <html lang="en">
       {/* <AppKit> */}
 
-      <body className={`${b612.variable} font-b612 bg-neutral-950 antialiased`}>
-        <Providers>{children}</Providers>
-        <ToastProvider />
-      </body>
-      {/* </AppKit> */}
+        <body
+          className={`${b612.variable} font-b612 bg-neutral-950 antialiased`}
+        >      <Providers>
+          {children}
+          <ToastProvider />
+          </Providers>
+        </body>
+
     </html>
   );
 }

@@ -99,7 +99,7 @@ export default function ProjectDashboard() {
   return (
     <>
       <GradientSection>
-        <div className="min-h-screen pt-24 dark">
+        <div className="min-h-screen dark">
           <div className="bg-transparent text-foreground">
             <div className="relative ">
               <div className="absolute inset-0 bg-gradient-to-r opacity-15 from-[#28a745]/20 to-[#2E7D32]/20" />
@@ -111,7 +111,7 @@ export default function ProjectDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-white/20 text-white hover:text-white hover:border-white/40"
+                      className="bg-oga-black border-white/20 text-white hover:text-white hover:border-white/40"
                     >
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
@@ -119,7 +119,7 @@ export default function ProjectDashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-white/20 text-white hover:text-white hover:border-white/40"
+                      className="bg-oga-black border-white/20 text-white hover:text-white hover:border-white/40"
                     >
                       <Globe className="h-4 w-4 mr-2" />
                       Website
@@ -186,7 +186,9 @@ export default function ProjectDashboard() {
               </div>
             </div>
 
-            <Tabs defaultValue="overview" className=" mt-8">
+            <ProjectFinancing project={project} />
+
+            {/* <Tabs defaultValue="overview" className=" mt-8">
               <TabsList className="bg-transparent h-10 pb-5 gap-12 w-full justify-start border-b border-white/20">
                 <TabsTrigger
                   value="overview"
@@ -203,13 +205,13 @@ export default function ProjectDashboard() {
               </TabsList>
 
               <TabsContent value="overview">
-                <ProjectFinancing project={project} />
+        
               </TabsContent>
 
               <TabsContent value="device">
                 <DeviceOverview/>
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
           </div>
         </div>
       </GradientSection>

@@ -116,13 +116,13 @@ export function ProjectGrid() {
 
   return (
     <>
-      <div className="sticky top-0 z-10 bg-transparent backdrop-blur py-4 border-b border-b-zinc-800 mb-8">
+      <div className="sticky top-0 z-10 bg-transparent backdrop-blur py-4 border-b border-b-zinc-800 mb-12">
         <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="w-full md:w-8/12 mx-auto relative rounded-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="w-full md:w-9/12 mx-auto relative rounded-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Search projects..."
-              className="pl-9 rounded-full dark"
+              className="pl-9 py-4 h-12 rounded-full dark bg-zinc-900"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -182,10 +182,12 @@ export function ProjectGrid() {
       </div>
 
       {filteredProjects.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No projects found matching your criteria.</p>
-          </div>
-        )}
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            No projects found matching your criteria.
+          </p>
+        </div>
+      )}
     </>
   );
 }

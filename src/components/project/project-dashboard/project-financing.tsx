@@ -31,7 +31,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
   return (
     <div className="mx-auto bg-transparent md:px-6 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+        <Card className="bg-oga-black backdrop-blur-sm border-white/20">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -50,7 +50,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+        <Card className="bg-oga-black backdrop-blur-sm border-white/20">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -67,7 +67,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+        <Card className="bg-oga-black backdrop-blur-sm border-white/20">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -84,7 +84,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+        <Card className="bg-oga-black backdrop-blur-sm border-white/20">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -134,7 +134,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
-              <Card>
+              <Card className="bg-oga-black">
                 <CardHeader>
                   <CardTitle>Project Overview</CardTitle>
                 </CardHeader>
@@ -148,7 +148,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
               </Card>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
+                <Card className="bg-oga-black">
                   <CardHeader>
                     <CardTitle>Project Information</CardTitle>
                   </CardHeader>
@@ -188,7 +188,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="bg-oga-black">
                   <CardHeader>
                     <CardTitle>Pool Information</CardTitle>
                   </CardHeader>
@@ -223,7 +223,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
             </TabsContent>
 
             <TabsContent value="tokenomics">
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+              <Card className="bg-oga-black backdrop-blur-sm border-white/20">
                 <CardContent className="pt-6 space-y-6">
                   {project.tokenomics.distribution.map((item) => (
                     <div key={item.category} className="space-y-2">
@@ -250,7 +250,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
                 {project.team.map((member) => (
                   <Card
                     key={member.name}
-                    className="bg-card/50 backdrop-blur-sm border-white/20"
+                    className="bg-oga-black backdrop-blur-sm border-white/20"
                   >
                     <CardContent className="pt-6">
                       <div className="flex items-center gap-4">
@@ -277,7 +277,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
             </TabsContent>
 
             <TabsContent value="roadmap">
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+              <Card className="bg-oga-black backdrop-blur-sm border-white/20">
                 <CardContent className="pt-6">
                   <div className="space-y-8">
                     {project.roadmap.map((phase) => (
@@ -323,7 +323,7 @@ const ProjectFinancing: React.FC<ProjectContentProps> = ({ project }) => {
         </div>
 
         <div>
-          <Card className="bg-card/50 backdrop-blur-sm border-white/20">
+          <Card className="bg-oga-black backdrop-blur-sm border-white/20">
             <CardContent className="pt-6">
               <div className="space-y-6">
                 <div>
