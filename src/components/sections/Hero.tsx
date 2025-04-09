@@ -49,10 +49,10 @@ export default function Hero() {
                 </p>
                 <Link href="https://forms.gle/weTesyUcPou2Snug9" target="blank">
                 <Button
-                  className="mt-8 bg-oga-green  border border-oga-green-dark  text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
+                  className="mt-8 bg-oga-green px-8 py-3 h-12 border border-oga-green-dark  text-white ext-base md:text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
                   size="lg"
                 >
-                  Get Whitelisted <ArrowRight size={20} className="ml-2"  />
+                  Get Access <ArrowRight size={20} className="ml-2"  />
                 </Button>
                 </Link>
               </motion.div>

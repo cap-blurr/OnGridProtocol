@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
@@ -14,6 +15,7 @@ interface NavBarProps {
 
 export default function Header({ isHome = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,10 @@ export default function Header({ isHome = false }: NavBarProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const isActive = (path: string) => {
+    return pathname === path ? "text-oga-yellow-dark" : "text-white";
+  };
 
   return (
     <header
@@ -36,7 +42,7 @@ export default function Header({ isHome = false }: NavBarProps) {
         <Link href="/" className="text-4xl font-bold text-white">
           <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
-        <div className="hidden md:flex space-x-12 text-white md:text-lg">
+        <div className="hidden md:flex space-x-12 md:text-lg">
           {isHome ? (
             <>
               <ScrollLink
@@ -44,7 +50,7 @@ export default function Header({ isHome = false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/#about")}`}
               >
                 About
               </ScrollLink>
@@ -53,19 +59,19 @@ export default function Header({ isHome = false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/#how-it-works")}`}
               >
                 How It Works
               </ScrollLink>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/projects")}`}
               >
                 Projects
               </Link>
               <Link
                 href="/impact"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/impact")}`}
               >
                 Impact
               </Link>
@@ -74,38 +80,37 @@ export default function Header({ isHome = false }: NavBarProps) {
             <>
               <Link
                 href="/?#about"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className={`hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark ${isActive("/")}`}
               >
                 About
               </Link>
               <Link
                 href="/?#how-it-works"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className={`hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark ${isActive("/")}`}
               >
                 How It Works
               </Link>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/projects")}`}
               >
                 Projects
               </Link>
               <Link
                 href="/impact"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/impact")}`}
               >
                 Impact
               </Link>
             </>
           )}
         </div>
-      <div className="flex items-center">
-      <ConnectButton />
-        <div className="block md:hidden">
-          <MobileNav isHome={isHome}/>
+        <div className="flex items-center">
+          <ConnectButton />
+          <div className="block md:hidden">
+            <MobileNav isHome={isHome} />
+          </div>
         </div>
-      </div>
-        
       </nav>
     </header>
   );

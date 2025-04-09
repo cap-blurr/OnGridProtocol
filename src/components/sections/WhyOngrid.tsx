@@ -1,29 +1,31 @@
-import { Brain, Leaf, Coins, Zap } from "lucide-react";
+"use client";
+
+import { Leaf, Coins } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import GradientSection from "../ui/gradient-section";
-import { IconMoneybag } from "@tabler/icons-react";
+import { IconChartPie2Filled, IconGraph, IconStackForward } from "@tabler/icons-react";
 
-export function AboutSection() {
+export default function WhyOngrid() {
   const advantages = [
     {
-      icon: IconMoneybag,
-      title: "Invest in Clean Energy",
+      icon: Leaf,
+      title: "Direct Impact",
       description:
-        "We bridge the financing gap by matching private investors with solar companies that need capital to scale.",
+        "Your investment fuels real change—providing electricity to homes, schools, and businesses while cutting CO₂ emissions.",
     },
     {
-      icon: Zap,
-      title: "Track Energy Data",
+      icon: IconStackForward,
+      title: "Trust & Transparency",
       description:
-        "Our technology ensures real-time monitoring of energy production and consumption, enhancing transparency and efficiency.",
+        "Blockchain-powered tracking ensures security and accountability in all transactions",
     },
     {
-      icon: Coins,
-      title: "Earn & Trade Carbon Credits",
+      icon: IconChartPie2Filled,
+      title: "Sustainable Growth",
       description:
-        "By verifying and issuing carbon credits on-chain, we create a seamless way for companies and investors to benefit from their environmental impact.",
+        "Empowering communities with clean energy drives long-term economic development.",
     },
   ];
 
@@ -70,33 +72,7 @@ export function AboutSection() {
         {/* <div className="glowing-ellipse h-[100px] w-[100px] top-[25%] ml-0 mr-0 left-0 right-0"></div> */}
         <section className="py-12 md:py-24 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-              <div className="relative">
-                <div className="absolute -top-4 -left-4 w-24 h-24 bg-green-500/10 rounded-full blur-2xl" />
-                <div className="relative">
-                  <div className="inline-flex items-center justify-center p-2 bg-green-500/10 rounded-lg mb-6">
-                    <Leaf className="w-5 h-5 text-green-500 mr-2" />
-                    <span className="text-green-500 font-medium">
-                      About OnGrid Protocol
-                    </span>
-                  </div>
-                  <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
-                    Powering the Future of Clean Energy
-                  </h2>
-                  <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed">
-                    Ongrid Protocol is transforming how clean energy is
-                    financed, tracked, and scaled in emerging markets. By
-                    leveraging blockchain technology, we connect investors with
-                    solar companies, ensuring capital flows seamlessly to
-                    projects that bring affordable and sustainable energy to
-                    underserved regions. Our mission is to accelerate the
-                    transition to clean energy while providing transparent,
-                    data-driven solutions for carbon credit issuance and
-                    trading.
-                  </p>
-                </div>
-              </div>
-
+            <div className="grid reverse lg:grid-cols-2 gap-12 lg:gap-24 items-center">
               <div className="grid gap-6">
                 {advantages.map((advantage, index) => (
                   <motion.div
@@ -136,6 +112,31 @@ export function AboutSection() {
                     </Card>
                   </motion.div>
                 ))}
+              </div>
+
+              <div className="relative">
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-green-500/10 rounded-full blur-2xl" />
+                <div className="relative">
+                  <div className="inline-flex items-center justify-center p-2 bg-green-500/10 rounded-lg mb-6">
+                    <Leaf className="w-5 h-5 text-green-500 mr-2" />
+                    <span className="text-green-500 font-medium">
+                      Why OnGrid Protocol
+                    </span>
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
+                  Why Ongrid Protocol?
+                  </h2>
+                  <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed">
+                    High energy costs and unreliable power hinder economic
+                    growth in emerging markets. Solar companies can bridge this
+                    gap, but they need capital to scale. Ongrid Protocol
+                    connects these companies with private investors, enabling
+                    the expansion of clean, affordable energy while offering
+                    investment opportunities that drive real-world
+                    impact—powering communities, reducing CO₂ emissions, and
+                    fostering sustainable development.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

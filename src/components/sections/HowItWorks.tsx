@@ -1,70 +1,87 @@
-"use client";
-import React from "react";
-import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
-import Image from "next/image";
+import { ArrowRight, SunIcon } from "lucide-react";
 
-const Skeleton = () => (
-  <div className="flex flex-1 w-full h-full min-h-[10rem] rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-800">
-    <Image
-      src="https://pbs.twimg.com/profile_images/1417752099488636931/cs2R59eW_400x400.jpg"
-      alt="avatar"
-      height="100"
-      width="100"
-      className="h-full w-full object-cover rounded-lg"
-    />
-  </div>
-);
+import { Button } from "@/components/ui/button";
+import {
+  IconBrandCodesandbox,
+  IconCpu,
+  IconDatabaseDollar,
+  IconSpeakerphone,
+} from "@tabler/icons-react";
+import Link from "next/link";
 
-const items = [
-  {
-    title: "Tokenized Asset Staking",
-    description: "Explore the birth of groundbreaking ideas and inventions.",
-    header: <Skeleton />,
-  },
-  {
-    title: "Project Tracking",
-    description: "Dive into the transformative power of technology.",
-    header: <Skeleton />,
-  },
-  {
-    title: "Green DAO Participation",
-    description: "Join the quest for understanding and enlightenment.",
-    header: <Skeleton />,
-  },
-  {
-    title: "AI Insights",
-    description: "Discover the beauty of thoughtful and functional design.",
-    header: <Skeleton />,
-  },
-  {
-    title: "DePin Carbon Mining",
-    description:
-      "Understand the impact of effective communication in our lives.",
-    header: <Skeleton />,
-  },
-];
-
-export default function StakeDeployTrack() {
+export default function HowItWorks() {
   return (
-    <section
-      id="how-it-works"
-      className="relative mx-auto px-4 pb-12 pt-16 min-h-screen"
-    >
-      <h2 className="text-center text-3xl md:text-5xl font-bold mb-16 leading-tight bg-gradient-to-r from-zinc-100 to-gray-400 bg-clip-text text-transparent">
-        Stake, Build, Deploy & Track
-      </h2>
-      <div>
-        <BentoGrid className="max-w-5xl mx-auto">
-          {items.map((item, i) => (
-            <BentoGridItem
-              key={i}
-              title={item.title}
-              description={item.description}
-              header={item.header}
-              className={i === 3 || i === 6 ? "md:col-span-2" : ""}
-            />
-          ))}
-        </BentoGrid>
+    <section className="w-full py-12 md:py-24 lg:py-32 bg-green-950 bg-opacity-20">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h2 className="text-center text-2xl sm:text-3xl md:text-5xl font-bold mb-8 leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
+              How It Works
+            </h2>
+            <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed">
+              Support clean energy expansion in emerging markets—drive
+              development, reduce CO2, and earn sustainable returns.
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3 mt-12 px-4 md:px-0">
+          <div className="w-full bg-zinc-900 rounded-3xl p-8 shadow-lg">
+            <div className="mb-6">
+              <IconDatabaseDollar className="w-16 h-16 md:w-24 md:h-24 -rotate-45 text-blue-500" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+              Investors
+            </h2>
+            <p className="text-gray-400 text-base">
+              Invest in vetted clean energy projects across emerging markets.
+              Your capital helps fund solar companies that bring stable,
+              affordable electricity to communities while generating measurable
+              environmental and social impact.
+            </p>
+          </div>
+
+          <div className="w-full bg-zinc-900 rounded-3xl p-8 shadow-lg">
+            <div className="mb-6">
+              <SunIcon className="w-16 h-16 md:w-24 md:h-24 -rotate-45 text-yellow-500" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+              For Solar Companies
+            </h2>
+            <p className="text-gray-400 text-base">
+              Access the capital needed to scale clean energy solutions. Whether
+              serving households, schools, hospitals, or businesses, your
+              company can expand its reach and accelerate the transition to
+              sustainable power.
+            </p>
+          </div>
+
+          <div className="w-full  bg-zinc-900 rounded-3xl p-8 shadow-lg">
+            <div className="mb-6">
+              <IconCpu className="w-16 h-16 md:w-24 md:h-24  text-green-500" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
+              Powered by EdmondX
+            </h2>
+            <p className="text-gray-400 text-base">
+              EdmondX enables real-time energy data tracking and on-chain carbon
+              credit issuance. By integrating your renewable infrastructure with
+              EdmondX, you ensure full transparency and unlock new revenue
+              streams through carbon credit trading
+            </p>
+          </div>
+        </div>
+
+        <p className="text-center mt-8 mx-auto max-w-[700px] text-gray-300 text-lg md:text-xl/relaxed  lg:text-2xl/relaxed">
+          Join the movement.
+        </p>
+
+        <div className="flex justify-center mt-8 ">
+          <Link href="https://forms.gle/weTesyUcPou2Snug9" target="blank">
+        <Button  className="mt-4 bg-oga-green text-white text-base md:text-lg px-8 py-3 h-12 rounded-full font-medium hover:bg-oga-yellow-dark hover:text-gray-900 transition-colors">
+          Build with us <ArrowRight size={20} className="ml-4 w-5 h-5" />
+        </Button>
+      </Link>
+        </div>
       </div>
     </section>
   );
