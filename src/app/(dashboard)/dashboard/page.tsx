@@ -21,46 +21,6 @@ import GradientSection from "@/components/ui/gradient-section";
 import Link from "next/link";
 import { IconSolarPanel } from "@tabler/icons-react";
 
-const mockData = {
-  base: {
-    credits: 1250,
-    value: 125000,
-    projects: 3,
-    change: 12.5,
-    distributions: [
-      {
-        id: 1,
-        project: "Amazon Rainforest Conservation",
-        amount: 25000,
-        status: "Pending",
-        timestamp: "2024-02-21T10:00:00",
-      },
-      {
-        id: 2,
-        project: "Indonesian Mangrove Restoration",
-        amount: 15000,
-        status: "Completed",
-        timestamp: "2024-02-20T15:30:00",
-      },
-    ],
-  },
-  solana: {
-    credits: 3400,
-    value: 340000,
-    projects: 5,
-    change: -2.3,
-    distributions: [
-      {
-        id: 3,
-        project: "African Wildlife Conservation",
-        amount: 45000,
-        status: "Completed",
-        timestamp: "2024-02-19T09:15:00",
-      },
-    ],
-  },
-};
-
 const projects = [
   {
     id: 1,
