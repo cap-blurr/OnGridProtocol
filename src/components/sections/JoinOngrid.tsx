@@ -1,10 +1,9 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  IconBrandCodesandbox,
-  IconDatabaseDollar,
-  IconSpeakerphone,
+  IconCpu,
+  IconDatabaseDollar
 } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -15,10 +14,10 @@ export default function JoinOngrid() {
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <h2 className="text-center text-2xl sm:text-3xl md:text-5xl font-bold mb-8 leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
-              ONLY One Earth Invest to keep it GREEN
+              How It Works
             </h2>
-            <p className="mx-auto max-w-[700px] text-gray-300 text-lg md:text-xl/relaxed  lg:text-2xl/relaxed">
-              Join OnGrid: Powering Clean Energy Together
+            <p className="text-center mt-8 mx-auto max-w-[700px] text-gray-300 text-lg md:text-xl/relaxed  lg:text-2xl/relaxed">
+              Invest in clean energy. Make an impact.
             </p>
           </div>
         </div>
@@ -31,37 +30,47 @@ export default function JoinOngrid() {
               Investors
             </h2>
             <p className="text-gray-400 text-base">
-              Support the transition to renewables, earning potential returns
-              and aiding carbon reduction.
+              Invest in vetted clean energy projects across emerging markets.
+              Your capital helps fund solar companies that bring stable,
+              affordable electricity to communities while generating measurable
+              environmental and social impact.
             </p>
           </div>
 
           <div className="w-full bg-zinc-900 rounded-3xl p-8 shadow-lg">
             <div className="mb-6">
-              <IconBrandCodesandbox className="w-16 h-16 md:w-24 md:h-24 -rotate-45 text-yellow-500" />
+              <SunIcon className="w-16 h-16 md:w-24 md:h-24 -rotate-45 text-yellow-500" />
             </div>
             <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
-              Developers
+              For Solar Companies
             </h2>
             <p className="text-gray-400 text-base">
-              Integrate AI, DePin devices, and decentralized green financing
-              within your applications on OnGrid.
+              Access the capital needed to scale clean energy solutions. Whether
+              serving households, schools, hospitals, or businesses, your
+              company can expand its reach and accelerate the transition to
+              sustainable power.
             </p>
           </div>
 
           <div className="w-full  bg-zinc-900 rounded-3xl p-8 shadow-lg">
             <div className="mb-6">
-              <IconSpeakerphone className="w-16 h-16 md:w-24 md:h-24 -rotate-45 text-green-500" />
+              <IconCpu className="w-16 h-16 md:w-24 md:h-24  text-green-500" />
             </div>
             <h2 className="text-xl md:text-2xl font-bold text-white mb-4">
-              Advocates
+              Powered by EdmondX
             </h2>
             <p className="text-gray-400 text-base">
-              Promote clean energy initiatives, engage in environmental
-              advocacy, and inspire community action.
+              EdmondX enables real-time energy data tracking and on-chain carbon
+              credit issuance. By integrating your renewable infrastructure with
+              EdmondX, you ensure full transparency and unlock new revenue
+              streams through carbon credit trading
             </p>
           </div>
         </div>
+
+        <p className="text-center mt-8 mx-auto max-w-[700px] text-gray-300 text-lg md:text-xl/relaxed  lg:text-2xl/relaxed">
+          Join the movement.
+        </p>
 
         <div className="flex justify-center mt-8 ">
           <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">

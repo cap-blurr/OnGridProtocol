@@ -25,8 +25,8 @@ export function MobileNav({ isHome }: NavBarProps) {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <MenuIcon
-          className="text-6xl block  cursor-pointer text-white"
-          size={32}
+          className="text-6xl block ml-2  cursor-pointer text-white"
+          size={24}
         />
       </SheetTrigger>
       <SheetContent className="bg-zinc-900 text-white border-0">
@@ -35,7 +35,7 @@ export function MobileNav({ isHome }: NavBarProps) {
         </SheetHeader>
 
         <div className="flex flex-col gap-10 mt-12">
-          {isHome === true ? (
+          {isHome ? (
             <>
               <ScrollLink
                 to={"about"}

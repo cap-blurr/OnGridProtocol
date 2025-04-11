@@ -7,10 +7,11 @@ import Footer from "./layout/Footer";
 import Hero from "./sections/Hero";
 import { gradients } from "@/styles/gradients";
 import { AboutSection } from "./sections/AboutUs";
-import CoreFeatures from "./sections/CoreFeatures";
-import ModularArchitecture from "./sections/ModularArchitecture";
-import JoinOngrid from "./sections/JoinOngrid";
 import { ScrollAnimate } from "./ui/scroll-animation";
+import HowItWorks from "./sections/HowItWorks";
+import CTA from "./sections/CTA";
+import WhyOngrid from "./sections/WhyOngrid";
+import ModularArchitecture from "./sections/ModularArchitecture";
 
 export default function LandingPage() {
   const controls = useAnimation();
@@ -36,15 +37,19 @@ export default function LandingPage() {
         </ScrollAnimate>
 
         <ScrollAnimate id="how-it-works" delay={0.5}>
+          <HowItWorks />
+        </ScrollAnimate>
+
+        <ScrollAnimate id="" delay={0.5}>
           <ModularArchitecture />
         </ScrollAnimate>
 
         <ScrollAnimate delay={0.5}>
-          <CoreFeatures />
+          <WhyOngrid />
         </ScrollAnimate>
 
         <ScrollAnimate delay={0.5}>
-          <JoinOngrid />
+          <CTA />
         </ScrollAnimate>
       </main>
       <Footer />

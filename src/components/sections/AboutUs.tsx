@@ -1,28 +1,29 @@
-import { Users, Brain, Shield, Leaf } from "lucide-react";
+import { Leaf, Coins, Zap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import GradientSection from "../ui/gradient-section";
+import { IconMoneybag } from "@tabler/icons-react";
 
 export function AboutSection() {
   const advantages = [
     {
-      icon: Users,
-      title: "Decentralized Ownership",
+      icon: IconMoneybag,
+      title: "Invest in Clean Energy",
       description:
-        "Community stakes in renewable assets, enabling widespread participation in green energy initiatives.",
+        "We bridge the financing gap by matching private investors with solar companies that need capital to scale.",
     },
     {
-      icon: Brain,
-      title: "AI-Assisted Green Systems",
+      icon: Zap,
+      title: "Track Energy Data",
       description:
-        "Real-time insights optimize clean energy deployment through advanced artificial intelligence.",
+        "Our technology ensures real-time monitoring of energy production and consumption, enhancing transparency and efficiency.",
     },
     {
-      icon: Shield,
-      title: "Secure, Scalable Transactions",
+      icon: Coins,
+      title: "Earn & Trade Carbon Credits",
       description:
-        "Ethereum Layer 2 ensures speed and affordability for all network operations.",
+        "By verifying and issuing carbon credits on-chain, we create a seamless way for companies and investors to benefit from their environmental impact.",
     },
   ];
 
@@ -65,8 +66,6 @@ export function AboutSection() {
   return (
     <GradientSection>
       <section className=" relative flex flex-row items-center justify-center">
-        {/* <div className="glowing-ellipse h-[100px] w-[100px]"></div> */}
-        {/* <div className="glowing-ellipse h-[100px] w-[100px] top-[25%] ml-0 mr-0 left-0 right-0"></div> */}
         <section className="py-12 md:py-24 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
@@ -80,14 +79,18 @@ export function AboutSection() {
                     </span>
                   </div>
                   <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-100 to-gray-400 bg-clip-text text-transparent">
-                    Bridging Real-World Renewable Energy with On-Chain Finance
+                    Powering the Future of Clean Energy
                   </h2>
                   <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed">
-                    OnGrid Protocol (OGP) bridges real-world renewable energy
-                    projects with on-chain finance. By leveraging DePin devices
-                    for carbon credit mining, AI-driven insights, and scalable
-                    Layer 2 infrastructure, we aim to create a sustainable,
-                    carbon-neutral future.
+                    Ongrid Protocol is transforming how clean energy is
+                    financed, tracked, and scaled in emerging markets. By
+                    leveraging blockchain technology, we connect investors with
+                    solar companies, ensuring capital flows seamlessly to
+                    projects that bring affordable and sustainable energy to
+                    underserved regions. Our mission is to accelerate the
+                    transition to clean energy while providing transparent,
+                    data-driven solutions for carbon credit issuance and
+                    trading.
                   </p>
                 </div>
               </div>

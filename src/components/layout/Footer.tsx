@@ -5,7 +5,7 @@ import { IconBrandTelegram, IconBrandX } from "@tabler/icons-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full py-12 sm:py-20 bg-zinc-900">
+    <footer className="w-full py-12 sm:py-20 bg-[#0f0f0f]">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex lg:flex-row pb-12 gap-7 lg:gap-0 ">
           <Link href="/" className="text-4xl font-bold text-white">

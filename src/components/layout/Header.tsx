@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
 import { MobileNav } from "./MobileNav";
+import ConnectButton from "./ConnectButton";
 
 interface NavBarProps {
   isHome?: boolean;
 }
 
-export default function Header({ isHome =false }: NavBarProps) {
+export default function Header({ isHome = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,10 @@ export default function Header({ isHome =false }: NavBarProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const isActive = (path: string) => {
+    return pathname === path ? "text-oga-yellow-dark" : "text-white";
+  };
 
   return (
     <header
@@ -34,9 +40,9 @@ export default function Header({ isHome =false }: NavBarProps) {
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
         <Link href="/" className="text-4xl font-bold text-white">
-          <Image src={logo} alt="Ongrid-logo" className="w-32 lg:w-40" />
+          <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
-        <div className="hidden md:flex space-x-12 text-white md:text-lg">
+        <div className="hidden md:flex space-x-12 md:text-lg">
           {isHome ? (
             <>
               <ScrollLink
@@ -44,7 +50,7 @@ export default function Header({ isHome =false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/#about")}`}
               >
                 About
               </ScrollLink>
@@ -53,51 +59,57 @@ export default function Header({ isHome =false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/#how-it-works")}`}
               >
                 How It Works
               </ScrollLink>
+              <Link
+                href="/projects"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/projects")}`}
+              >
+                Projects
+              </Link>
+              <Link
+                href="/impact"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/impact")}`}
+              >
+                Impact
+              </Link>
             </>
           ) : (
             <>
               <Link
                 href="/?#about"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className={`hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark ${isActive("/")}`}
               >
                 About
               </Link>
-        
               <Link
                 href="/?#how-it-works"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className={`hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark ${isActive("/")}`}
               >
                 How It Works
               </Link>
+              <Link
+                href="/projects"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/projects")}`}
+              >
+                Projects
+              </Link>
+              <Link
+                href="/impact"
+                className={`cursor-pointer hover:text-oga-yellow-dark ${isActive("/impact")}`}
+              >
+                Impact
+              </Link>
             </>
           )}
-
-          <Link
-            href="/projects"
-            className="cursor-pointer hover:text-oga-yellow-dark"
-          >
-            Projects
-          </Link>
-
-          <Link
-            href="/impact"
-            className="cursor-pointer hover:text-oga-yellow-dark"
-          >
-            Impact
-          </Link>
         </div>
-        <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
-          <Button className="hidden md:inline-flex bg-oga-green p-4  border border-oga-green-dark  text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900  lg:text-lg lg:px-6 lg:py-3">
-            Build with us
-          </Button>
-        </Link>
-
-        <div className="block md:hidden">
-          <MobileNav isHome={isHome} />
+        <div className="flex items-center">
+          <ConnectButton />
+          <div className="block md:hidden">
+            <MobileNav isHome={isHome} />
+          </div>
         </div>
       </nav>
     </header>
