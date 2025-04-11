@@ -62,8 +62,6 @@ export default function InvestmentPoolDetail() {
   const params = useParams();
   const investmentId = params?.investmentId as string;
   
-  // This would typically come from an API call using the investmentId
-  // For now, we'll use default values based on a pool type
   const [poolData, setPoolData] = useState<InvestmentPoolDetailProps>({
     name: "Medium-Risk Pool",
     type: "medium",
@@ -77,24 +75,14 @@ export default function InvestmentPoolDetail() {
     lockupPeriod: 90,
   });
   
-  const [activeTab, setActiveTab] = useState("overview");
   const progress = Math.round((poolData.raised / poolData.target) * 100);
 
-  // In a real app, you would fetch the actual pool data based on investmentId
   useEffect(() => {
-    // Simulating different pool types based on URL parameter for demo purposes
     if (investmentId.includes("low")) {
       setPoolData(prev => ({ ...prev, type: "low", name: "Low-Risk Pool", apr: 5.5 }));
     } else if (investmentId.includes("high")) {
       setPoolData(prev => ({ ...prev, type: "high", name: "High-Risk Pool", apr: 18.5 }));
     }
-    // In a real application, you would fetch from an API:
-    // async function fetchPoolData() {
-    //   const response = await fetch(`/api/pools/${investmentId}`);
-    //   const data = await response.json();
-    //   setPoolData(data);
-    // }
-    // fetchPoolData();
   }, [investmentId]);
 
   const getPoolDetails = (type: string) => {
@@ -256,7 +244,7 @@ export default function InvestmentPoolDetail() {
             },
           ],
         };
-      default: // medium
+      default:
         return {
           tags: ["Balanced", "Growth", "Diversified"],
           description:
@@ -966,7 +954,7 @@ export default function InvestmentPoolDetail() {
                             ))}
                           </div>
                           <p className="mb-4 text-sm sm:text-base italic text-zinc-200">
-                            "{testimonial.quote}"
+                            &quot;{testimonial.quote}&quot;
                           </p>
                           <div className="flex items-center gap-3">
                             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-zinc-700">

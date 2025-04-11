@@ -1,6 +1,6 @@
 "use client"
 
-import { Globe, ExternalLink, Award, CheckCircle, Users, Clock } from "lucide-react"
+import { Globe, ExternalLink, CheckCircle, Users, Clock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 

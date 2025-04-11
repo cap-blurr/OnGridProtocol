@@ -8,7 +8,6 @@ import Hero from "./sections/Hero";
 import { gradients } from "@/styles/gradients";
 import { AboutSection } from "./sections/AboutUs";
 import { ScrollAnimate } from "./ui/scroll-animation";
-import StakeDeployTrack from "./sections/HowItWorks";
 import HowItWorks from "./sections/HowItWorks";
 import CTA from "./sections/CTA";
 import WhyOngrid from "./sections/WhyOngrid";

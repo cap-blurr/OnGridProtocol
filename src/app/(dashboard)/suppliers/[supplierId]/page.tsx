@@ -59,8 +59,7 @@ export default function SupplierProfile() {
         {/* Company Header */}
         <div className="relative -mt-16 mb-8 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="relative h-20 w-20 overflow-hidden rounded-xl border-4 border-zinc-900 bg-zinc-800 sm:h-24 sm:w-24">
-            </div>
+            <div className="relative h-20 w-20 overflow-hidden rounded-xl border-4 border-zinc-900 bg-zinc-800 sm:h-24 sm:w-24"></div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold sm:text-3xl text-white">
@@ -373,7 +372,7 @@ export default function SupplierProfile() {
                             ))}
                           </div>
                           <p className="mb-4 text-sm sm:text-base italic text-zinc-200">
-                            "{testimonial.quote}"
+                            &quot;{testimonial.quote}&quot;
                           </p>
                           <div className="flex items-center gap-3">
                             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-zinc-700">
@@ -462,7 +461,6 @@ export default function SupplierProfile() {
                     </div>
                   </div>
                 </div>
-
               </CardContent>
             </Card>
 

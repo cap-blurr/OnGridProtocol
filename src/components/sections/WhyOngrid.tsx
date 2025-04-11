@@ -1,11 +1,11 @@
 "use client";
 
-import { Leaf, Coins } from "lucide-react";
+import { Leaf } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import GradientSection from "../ui/gradient-section";
-import { IconChartPie2Filled, IconGraph, IconStackForward } from "@tabler/icons-react";
+import { IconChartPie2Filled, IconStackForward } from "@tabler/icons-react";
 
 export default function WhyOngrid() {
   const advantages = [

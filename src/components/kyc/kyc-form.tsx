@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label"
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-// import { format } from "date-fns"
 import {
   Check,
   ChevronRight,
@@ -57,7 +56,7 @@ export default function KycForm() {
     },
   })
 
-  const onSubmit = async (data:any) => {
+  const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000))

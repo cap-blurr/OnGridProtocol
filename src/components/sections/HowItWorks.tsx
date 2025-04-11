@@ -2,10 +2,8 @@ import { ArrowRight, SunIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  IconBrandCodesandbox,
   IconCpu,
   IconDatabaseDollar,
-  IconSpeakerphone,
 } from "@tabler/icons-react";
 import Link from "next/link";
 

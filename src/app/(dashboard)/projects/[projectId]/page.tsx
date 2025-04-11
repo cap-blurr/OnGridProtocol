@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Globe,
@@ -12,7 +11,6 @@ import {
 import GradientSection from "@/components/ui/gradient-section";
 import Image from "next/image";
 import ProjectFinancing from "@/components/project/project-dashboard/project-financing";
-import DeviceOverview from "@/components/project/project-dashboard/device-overview";
 
 const project = {
   id: 1,

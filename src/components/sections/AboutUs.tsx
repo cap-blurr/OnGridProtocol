@@ -1,4 +1,4 @@
-import { Brain, Leaf, Coins, Zap } from "lucide-react";
+import { Leaf, Coins, Zap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -66,8 +66,6 @@ export function AboutSection() {
   return (
     <GradientSection>
       <section className=" relative flex flex-row items-center justify-center">
-        {/* <div className="glowing-ellipse h-[100px] w-[100px]"></div> */}
-        {/* <div className="glowing-ellipse h-[100px] w-[100px] top-[25%] ml-0 mr-0 left-0 right-0"></div> */}
         <section className="py-12 md:py-24 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import InvestmentPoolCard from "@/components/dashboard/investment-pool/investment-pool-card";
 
@@ -17,8 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GradientSection from "@/components/ui/gradient-section";
 
 export default function InvestmentPoolsGrid() {
-  const [filter, setFilter] = useState("all");
-
   return (
     <GradientSection>
       <div className=" text-white">

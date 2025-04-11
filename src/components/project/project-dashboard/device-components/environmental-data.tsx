@@ -7,12 +7,10 @@ import { DeviceData } from "@/types/device";
 
 interface EnvironmentalDataProps {
     data: DeviceData;
-    fullView?: boolean;
   }
 
 export function EnvironmentalData({
-    data,
-    fullView = true,
+    data
   }: EnvironmentalDataProps) {
 
   const avgTemp = (data.temperature.sensor1 + data.temperature.sensor2) / 2
