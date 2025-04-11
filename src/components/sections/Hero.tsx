@@ -43,17 +43,15 @@ export default function Hero() {
                   <span className="text-oga-green-light">OnGrid</span>
                 </h1>
                 <p className="mt-6 text-lg text-white/80 sm:text-xl">
-                  Empowering the green energy market through a secure, scalable
-                  Layer 2 network for trustless transactions and AI-assisted
-                  eco-solutions.
+                  Unlock capital for clean Energy projects,Onchain!
                 </p>
                 <Link href="https://forms.gle/weTesyUcPou2Snug9" target="blank">
-                <Button
-                  className="mt-8 bg-oga-green px-8 py-3 h-12 border border-oga-green-dark  text-white ext-base md:text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
-                  size="lg"
-                >
-                  Get Access <ArrowRight size={20} className="ml-2"  />
-                </Button>
+                  <Button
+                    className="mt-8 bg-oga-green px-8 py-3 h-12 border border-oga-green-dark  text-white ext-base md:text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900"
+                    size="lg"
+                  >
+                    Get Access <ArrowRight size={20} className="ml-2" />
+                  </Button>
                 </Link>
               </motion.div>
             </div>

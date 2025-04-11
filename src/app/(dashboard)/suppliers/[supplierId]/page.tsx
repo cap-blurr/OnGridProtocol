@@ -2,7 +2,6 @@
 
 import {
   Globe,
-  Clock,
   ArrowLeft,
   Star,
   Calendar,
@@ -29,14 +28,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SupplierProfile() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Header */}
       <div className="relative h-48 w-full sm:h-56 md:h-64 lg:h-80">
         <Image
           src="https://images.unsplash.com/photo-1592263904934-b00851dc93eb?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8c29sYXIlMjBpbnN0YWxsYXRpb258ZW58MHx8MHx8fDA%3D"
@@ -63,12 +60,6 @@ export default function SupplierProfile() {
         <div className="relative -mt-16 mb-8 flex flex-col items-start gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-4">
             <div className="relative h-20 w-20 overflow-hidden rounded-xl border-4 border-zinc-900 bg-zinc-800 sm:h-24 sm:w-24">
-              {/* <Image
-                src="/placeholder.svg?height=96&width=96"
-                alt="SolarTech Solutions logo"
-                fill
-                className="object-cover"
-              /> */}
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">

@@ -12,6 +12,7 @@ import StakeDeployTrack from "./sections/HowItWorks";
 import HowItWorks from "./sections/HowItWorks";
 import CTA from "./sections/CTA";
 import WhyOngrid from "./sections/WhyOngrid";
+import ModularArchitecture from "./sections/ModularArchitecture";
 
 export default function LandingPage() {
   const controls = useAnimation();
@@ -38,6 +39,10 @@ export default function LandingPage() {
 
         <ScrollAnimate id="how-it-works" delay={0.5}>
           <HowItWorks />
+        </ScrollAnimate>
+
+        <ScrollAnimate id="" delay={0.5}>
+          <ModularArchitecture />
         </ScrollAnimate>
 
         <ScrollAnimate delay={0.5}>

@@ -21,7 +21,6 @@ export default function Projects() {
             </div>
             <ProjectGrid />
           </div>
-          {/* </div> */}
         </main>
       </GradientSection>
     </>

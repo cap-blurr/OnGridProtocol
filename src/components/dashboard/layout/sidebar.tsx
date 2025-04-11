@@ -75,7 +75,6 @@ export default function Sidebar() {
         >
           <SidebarIcon className="w-6 h-6 text-white" />
         </button>
-        {/* <Logo classname="w-[45px] p-1 m-2" image="/fibo-logo.png" href="/" /> */}
       </div>
       <nav
         className={`

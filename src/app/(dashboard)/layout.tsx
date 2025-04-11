@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "../globals.css";
-import { ToastProvider } from "@/providers/toast-provider";
 import Providers from "@/providers/privy-provider";
 import Sidebar from "@/components/dashboard/layout/sidebar";
 import Link from "next/link";
@@ -76,7 +74,6 @@ export default function RootLayout({
               </main>
             </div>
           </div>
-          {/* <ToastProvider /> */}
         </Providers>
       </body>
     </html>

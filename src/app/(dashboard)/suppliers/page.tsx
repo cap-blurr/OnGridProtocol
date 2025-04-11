@@ -32,18 +32,6 @@ export default function SupplierGrid() {
               </p>
             </div>
 
-            {/* <div className="flex flex-col gap-2 mb-12">
-              <h2 className="text-center text-3xl font-bold leading-tight">
-                Carbon Credit Projects
-              </h2>
-              <p className="mx-auto max-w-[800px] mt-4 text-center md:text-base">
-                Explore and support high-impact carbon credit projects across
-                multiple blockchain networks. Contribute to global
-                sustainability efforts while benefiting from eco-friendly
-                investments.
-              </p>
-            </div> */}
-
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
