@@ -16,9 +16,7 @@ const DeviceOverview = () => {
 
   const REFRESH_INTERVAL = 5 * 60 * 1000;
 
-  useEffect(() => {
-    // Fetch data every 5 minutes
-    const fetchData = async () => {
+  useEffect(() => {    const fetchData = async () => {
       const currentTime = Date.now();
       if (deviceData && currentTime - lastFetchTime < REFRESH_INTERVAL) {
         return;
@@ -45,10 +43,10 @@ const DeviceOverview = () => {
 
     const intervalId = setInterval(fetchData, REFRESH_INTERVAL);
 
-    // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [ deviceData, lastFetchTime, REFRESH_INTERVAL ]);
 
+    //dummy data, should be replaced with the actual data
   const carbonOffset = (Number(deviceData?.power.power_produced) * 0.7).toFixed(
     2
   );
