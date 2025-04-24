@@ -1,95 +1,177 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
+import { ArrowRight } from "lucide-react";
 import { IconBrandTelegram, IconBrandX } from "@tabler/icons-react";
 
 export default function Footer() {
-  return (
-    <footer className="w-full py-12 sm:py-20 bg-[#0f0f0f]">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex lg:flex-row pb-12 gap-7 lg:gap-0 ">
-          <Link href="/" className="text-4xl font-bold text-white">
-            <Image src={logo} alt="Ongrid-logo" className="w-36 lg:w-52" />
-          </Link>
-        </div>
-        <div className="flex justify-between flex-col py-4 min-[500px]:py-14 gap-8 min-[500px]:gap-16 lg:gap-0 md:flex-row">
-          <div className="flex items-start flex-row gap-8 sm:gap-12 xl:gap-24">
-            <div className="block">
-              <h4 className="text-gray-200 mb-8 text-lg">Quick Links</h4>
-              <ul className="grid text-gray-400 gap-4 min-[500px]:gap-6 min-[500px]:text-left">
-                <li>
-                  <Link href="https://ongrid-protocol.gitbook.io/ongrid-protocol" target="blank" className="hover:text-white transition-colors">
-                    Docs
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy-policy" className="hover:text-white transition-colors">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms-of-service" className="hover:text-white transition-colors">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank" className="hover:text-white transition-colors">
-                    Partnership Requests
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="block my-8 lg:max-w-md">
-            <h3 className=" font-semibold text-xl md:text-2xl text-gray-300 leading-9 mb-4 text-center md:text-left">
-              Sign-Up to Our Newsletter
-            </h3>
-            <p className="text-gray-400 mb-8 text-center md:text-left">
-              Stay updated on Ongrid Protocol latest updates.
-            </p>
+  const footerRef = useRef(null);
+  const isInView = useInView(footerRef, { once: true, amount: 0.2 });
 
-            <div className="space-y-2">
-              <div className="relative max-w-lg mx-auto w-full">
-                <input
-                  className="flex h-12 w-full md:w-96 rounded-full border border-input px-3 py-2 text-sm shadow-sm shadow-black/5 transition-shadow placeholder:text-muted-foreground/70 focus-visible:outline-none"
-                  placeholder="Enter your email"
-                  type="email"
-                />
-                <button
-                  className="absolute inset-y-0 end-0 flex h-10 mt-1 mr-1 w-28 text-white bg-oga-green items-center justify-center rounded-full border border-transparent"
-                  aria-label="Subscribe"
-                >
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="py-9 border-t border-gray-700">
-          <div className="flex items-center justify-center flex-col gap-8 lg:gap-0 lg:flex-row lg:justify-between">
-            <span className="text-sm text-gray-500 ">
-              ©2025 Ongrid Protocol All Rights Reserved.
-            </span>
-            <div className="flex gap-4 text-white max-w-[200px]">
+  return (
+    <footer 
+      ref={footerRef}
+      className="relative py-16 md:py-24 bg-black border-t border-zinc-800/30 overflow-hidden"
+    >
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
+      }} />
+      
+      {/* Decorative elements */}
+      <div className="absolute bottom-0 -left-24 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+          {/* Logo and brand */}
+          <motion.div 
+            className="md:col-span-5"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/" className="inline-block mb-6">
+              <Image src={logo} alt="Ongrid-logo" className="w-32 md:w-40" />
+            </Link>
+            <p className="text-zinc-400 mb-6 max-w-md">
+              Powering the green energy market through a secure, scalable
+              Layer 2 network for trustless transactions and AI-assisted
+              eco-solutions.
+            </p>
+            <div className="flex space-x-4">
               <Link
                 href="https://t.me/ongridprotocol"
-                target="blank"
-                className="hover:text-white transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 hover:bg-emerald-900/30 transition-colors duration-200"
               >
-                <IconBrandTelegram className="h-6 w-6" />
+                <IconBrandTelegram className="h-5 w-5 text-white" />
                 <span className="sr-only">Telegram</span>
               </Link>
               <Link
                 href="https://x.com/OngridProtocol"
-                target="blank"
-                className="hover:text-white transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 hover:bg-emerald-900/30 transition-colors duration-200"
               >
-                <IconBrandX className="h-6 w-6" />
+                <IconBrandX className="h-5 w-5 text-white" />
                 <span className="sr-only">Twitter</span>
               </Link>
             </div>
-          </div>
+          </motion.div>
+          
+          {/* Quick Links */}
+          <motion.div 
+            className="md:col-span-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <h4 className="text-white font-medium mb-6 text-lg">Quick Links</h4>
+            <ul className="space-y-4">
+              <li>
+                <Link 
+                  href="https://ongrid-protocol.gitbook.io/ongrid-protocol" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 hover:text-emerald-400 transition-colors duration-200"
+                >
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/privacy-policy" 
+                  className="text-zinc-400 hover:text-emerald-400 transition-colors duration-200"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/terms-of-service" 
+                  className="text-zinc-400 hover:text-emerald-400 transition-colors duration-200"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="https://forms.gle/moCpCKMtVwCpVa92A" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-400 hover:text-emerald-400 transition-colors duration-200"
+                >
+                  Partnership Requests
+                </Link>
+              </li>
+            </ul>
+          </motion.div>
+          
+          {/* Newsletter */}
+          <motion.div 
+            className="md:col-span-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h4 className="text-white font-medium mb-6 text-lg">Join Our Newsletter</h4>
+            <p className="text-zinc-400 mb-6">
+              Stay updated on Ongrid Protocol's latest news and developments.
+            </p>
+            <div className="relative mb-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 focus:border-emerald-700 focus:ring-0 focus:outline-none py-3 px-4 text-white rounded-md transition-colors duration-200"
+              />
+              <button className="absolute right-2 top-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white p-1.5 rounded-md transition-all duration-200">
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-zinc-500 text-sm">
+              We respect your privacy. No spam, ever.
+            </p>
+          </motion.div>
         </div>
+        
+        {/* Bottom Section */}
+        <motion.div 
+          className="pt-8 border-t border-zinc-800/30"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-zinc-500 text-sm mb-4 md:mb-0">
+              © {new Date().getFullYear()} Ongrid Protocol. All rights reserved.
+            </p>
+            <div className="flex space-x-6">
+              <Link 
+                href="/privacy-policy" 
+                className="text-zinc-500 hover:text-emerald-400 text-sm transition-colors duration-200"
+              >
+                Privacy
+              </Link>
+              <Link 
+                href="/terms-of-service" 
+                className="text-zinc-500 hover:text-emerald-400 text-sm transition-colors duration-200"
+              >
+                Terms
+              </Link>
+              <Link 
+                href="mailto:info@ongridprotocol.com" 
+                className="text-zinc-500 hover:text-emerald-400 text-sm transition-colors duration-200"
+              >
+                Contact
+              </Link>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </footer>
   );

@@ -7,6 +7,7 @@ import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
 import { MobileNav } from "./MobileNav";
 import ConnectButton from "./ConnectButton";
+import ContextProvider from "@/context";
 
 interface NavBarProps {
   isHome?: boolean;
@@ -63,12 +64,7 @@ export default function Header({ isHome = false }: NavBarProps) {
               >
                 Projects
               </Link>
-              <Link
-                href="/impact"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Impact
-              </Link>
+             
             </>
           ) : (
             <>
@@ -90,20 +86,16 @@ export default function Header({ isHome = false }: NavBarProps) {
               >
                 Projects
               </Link>
-              <Link
-                href="/impact"
-                className="cursor-pointer hover:text-oga-yellow-dark"
-              >
-                Impact
-              </Link>
             </>
           )}
         </div>
       <div className="flex items-center">
       <ConnectButton />
+      <ContextProvider cookies={null}>
         <div className="block md:hidden">
           <MobileNav isHome={isHome}/>
         </div>
+      </ContextProvider>
       </div>
         
       </nav>

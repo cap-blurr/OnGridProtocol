@@ -8,7 +8,7 @@ import {
   useAppKit,
 } from "@reown/appkit/react";
 
-import { ArrowRight, ChevronDown, Sidebar, Wallet } from "lucide-react";
+import { ArrowRight, ChevronDown, Sidebar, Wallet, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,91 +27,73 @@ export function Profile() {
     open();
   };
 
+  // Format address for display
+  const displayAddress = address 
+    ? `${String(address).substring(0, 6)}...${String(address).substring(String(address).length - 4)}`
+    : '';
+
   return (
-    <div className="font-mono">
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
-            className="flex items-center justify-between w-full px-4 py-3 bg-zinc-900 rounded-lg border-none hover:bg-zinc-950"
+            variant="outline"
+            className="flex items-center space-x-2 bg-zinc-900/80 border border-zinc-800 hover:bg-zinc-800 hover:border-emerald-700/50 rounded-md px-3 py-2 transition-all duration-200"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M12.0002 14.5C6.99016 14.5 2.91016 17.86 2.91016 22C2.91016 22.28 3.13016 22.5 3.41016 22.5H20.5902C20.8702 22.5 21.0902 22.28 21.0902 22C21.0902 17.86 17.0102 14.5 12.0002 14.5Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-              <span className="text-oga-green-light font-bold">
-                {String(address).substring(0, 8)}...
-                {String(address).substring(
-                  String(address).length - 9,
-                  String(address).length - 1
-                )}
-              </span>
+            <div className="w-6 h-6 rounded-full bg-emerald-900/30 flex items-center justify-center">
+              <User className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <ChevronDown className="w-5 h-5 text-oga-green-light" />
+            <span className="text-zinc-200 font-medium text-sm hidden sm:inline">
+              {displayAddress}
+            </span>
+            <ChevronDown className="w-4 h-4 text-zinc-400" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          align="center"
-          className="w-[280px] p-0 bg-zinc-950 border border-oga-green-dark rounded-xl font-mono"
+          align="end"
+          className="w-[280px] p-0 bg-zinc-900 border border-zinc-800 rounded-md shadow-xl"
         >
-          <div className="flex flex-col items-center py-6 px-4 ">
+          <div className="flex flex-col items-center py-6 px-4 border-b border-zinc-800">
             {walletInfo?.icon ? (
               <Image
                 src={walletInfo.icon}
                 alt="Wallet Logo"
                 width={48}
                 height={48}
-                className="mb-4"
+                className="mb-3"
               />
             ) : (
-              ""
+              <div className="w-12 h-12 rounded-full bg-emerald-900/30 flex items-center justify-center mb-3">
+                <User className="w-6 h-6 text-emerald-400" />
+              </div>
             )}
-            {/* <p className="text-black font-bold mb-2">0xDdb3...453C</p> */}
-            <span className="text-oga-green-light text-sm md:text-base font-bold mb-2">
-              {String(address).substring(0, 8)}...
-              {String(address).substring(
-                String(address).length - 9,
-                String(address).length - 1
-              )}
+            <span className="text-zinc-200 font-medium mb-1">
+              {displayAddress}
             </span>
+            <span className="text-emerald-500 text-xs">Connected</span>
           </div>
 
           <div className="py-2">
-            <div
-              className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
+            <button
+              className="flex w-full justify-between items-center px-4 py-3 text-zinc-200 hover:bg-zinc-800 hover:text-emerald-400 transition-colors duration-200"
               onClick={handleWalletActions}
             >
               <span className="flex items-center gap-2">
-                <Wallet className="w-5 h-5" />
-                Wallet
+                <Wallet className="w-4 h-4" />
+                Wallet Settings
               </span>
-              <ArrowRight className="w-5 h-5" />
-            </div>
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
             <Link
               href="/dashboard"
-              className="flex justify-between items-center px-6 py-3 text-white hover:text-oga-yellow font-bold cursor-pointer"
+              className="flex w-full justify-between items-center px-4 py-3 text-zinc-200 hover:bg-zinc-800 hover:text-emerald-400 transition-colors duration-200"
             >
               <span className="flex items-center gap-2">
-                <Sidebar className="w-5 h-5" />
+                <Sidebar className="w-4 h-4" />
                 Dashboard
               </span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             </Link>
 
             <KYCModal />

@@ -1,10 +1,18 @@
 "use client";
 
 import { ProjectCard } from "./project-card";
-import { Search } from "lucide-react";
+import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger 
+} from "../ui/tooltip";
+import { cn } from "@/lib/utils";
 
 // Sample project data with enhanced details
 const projects = [
@@ -93,18 +101,19 @@ const projects = [
 ];
 
 const categories = [
-  "All",
-  "Green",
-  "Renewable",
-  "Sustainable",
-  "Infrastructure",
-  "Cross-chain",
-  "Web3",
+  { id: "All", icon: "🌍", description: "All available projects" },
+  { id: "Green", icon: "🌱", description: "Environmentally friendly initiatives" },
+  { id: "Renewable", icon: "♻️", description: "Renewable energy projects" },
+  { id: "Sustainable", icon: "🌿", description: "Long-term sustainable solutions" },
+  { id: "Infrastructure", icon: "🏗️", description: "Green infrastructure development" },
+  { id: "Cross-chain", icon: "⛓️", description: "Projects spanning multiple blockchains" },
+  { id: "Web3", icon: "🌐", description: "Web3 sustainability innovation" },
 ];
 
 export function ProjectGrid() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch =
@@ -115,77 +124,119 @@ export function ProjectGrid() {
   });
 
   return (
-    <>
-      <div className="sticky top-0 z-10 bg-transparent backdrop-blur py-4 border-b border-b-zinc-800 mb-8">
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="w-full md:w-8/12 mx-auto relative rounded-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <div className="space-y-12">
+      <div className="bg-gradient-to-r from-zinc-950/70 via-zinc-900/70 to-zinc-950/70 backdrop-blur-md rounded-2xl p-6 border border-zinc-800/50 shadow-xl">
+        <div className="flex flex-col md:flex-row gap-6 mb-8">
+          <div className="w-full md:w-8/12 relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <Input
-              placeholder="Search projects..."
-              className="pl-9 rounded-full dark"
+              placeholder="Search for carbon credit projects..."
+              className="pl-10 h-12 rounded-xl bg-zinc-900/60 border-zinc-800 focus:border-oga-green/50 focus:ring-1 focus:ring-oga-green/30 transition-all shadow-inner"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            {/* <Select value={selectedChain} onValueChange={setSelectedChain}>
-              <SelectTrigger className="w-[140px] border-oga-green rounded-full">
-                <SelectValue placeholder="Chain" />
-              </SelectTrigger>
-              <SelectContent>
-                {chains.map((chain) => (
-                  <SelectItem key={chain} value={chain}>
-                    {chain}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-[140px] border-oga-green rounded-full">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statuses.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-          </div>
+          <Button 
+            variant="outline" 
+            className="md:w-auto h-12 flex items-center gap-2 rounded-xl bg-zinc-900/60 text-zinc-300 border-zinc-800 hover:bg-oga-green/10 hover:text-white hover:border-oga-green/50 transition-all shadow-sm"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span>Advanced Filters</span>
+          </Button>
         </div>
 
-        <Tabs
-          defaultValue="All"
-          className="w-full dark"
-          value={selectedCategory}
-          onValueChange={setSelectedCategory}
-        >
-          <TabsList className="bg-transparent flex mx-auto overflow-scroll">
-            {categories.map((category) => (
-              <TabsTrigger
-                key={category}
-                value={category}
-                className="flex-1 rounded-full md:flex-none data-[state=active]:bg-oga-green"
-              >
-                {category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <div className="mb-6">
+          <h3 className="text-sm font-medium text-zinc-400 mb-3">Categories</h3>
+          <div className="overflow-x-auto pb-2 hide-scrollbar">
+            <div className="flex gap-3">
+              {categories.map((category) => (
+                <TooltipProvider key={category.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={cn(
+                          "flex items-center gap-2 min-w-28 px-4 py-3 rounded-xl transition-all",
+                          selectedCategory === category.id
+                            ? "bg-gradient-to-r from-[#28a745] to-[#2E7D32] text-white shadow-md shadow-green-900/20"
+                            : "bg-zinc-900/60 text-zinc-400 hover:bg-zinc-800/80 hover:text-zinc-300 border border-zinc-800 hover:border-oga-green/30"
+                        )}
+                      >
+                        <span className="text-lg">{category.icon}</span>
+                        <span className="font-medium">{category.id}</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-zinc-900 border-zinc-800">
+                      <p>{category.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-zinc-900/40 rounded-xl border border-zinc-800/50 mb-4">
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">Status</label>
+              <div className="flex gap-2">
+                <Badge className="bg-oga-green cursor-pointer">Live</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">Upcoming</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">Completed</Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">Network</label>
+              <div className="flex gap-2">
+                <Badge className="bg-zinc-700 cursor-pointer">Base</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">Solana</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">All</Badge>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-zinc-400">Sort By</label>
+              <div className="flex gap-2">
+                <Badge className="bg-zinc-700 cursor-pointer">Newest</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">Progress</Badge>
+                <Badge className="bg-zinc-700 cursor-pointer">Target</Badge>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className={"mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}>
+      <div className="mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
         {filteredProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
 
       {filteredProjects.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No projects found matching your criteria.</p>
+        <div className="text-center py-16 bg-zinc-900/40 rounded-xl border border-zinc-800/50">
+          <div className="mx-auto w-16 h-16 rounded-full bg-zinc-800/60 flex items-center justify-center mb-4">
+            <Search className="h-6 w-6 text-zinc-500" />
           </div>
-        )}
-    </>
+          <h3 className="text-xl font-medium text-zinc-300 mb-2">No projects found</h3>
+          <p className="text-zinc-500 max-w-md mx-auto">
+            We couldn't find any projects matching your search criteria. Try adjusting your filters or check back later.
+          </p>
+        </div>
+      )}
+
+      <div className="my-20 text-center space-y-6 bg-gradient-to-r from-zinc-900/60 via-zinc-800/40 to-zinc-900/60 backdrop-blur-sm rounded-2xl p-10 border border-zinc-800/50">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-oga-green/20 to-oga-green/30 flex items-center justify-center mx-auto mb-2">
+          <span className="text-2xl">🌱</span>
+        </div>
+        <h3 className="text-2xl font-semibold text-zinc-200">Looking for more carbon credit projects?</h3>
+        <p className="text-zinc-400 max-w-xl mx-auto">
+          New projects are added regularly. Check back often or join our waitlist to be notified when new opportunities become available.
+        </p>
+        <Button className="mt-4 px-6 py-6 rounded-xl bg-gradient-to-r from-oga-green to-emerald-600 text-white hover:from-emerald-600 hover:to-oga-green border-0 shadow-md shadow-green-900/20">
+          Join Our Waitlist
+        </Button>
+      </div>
+    </div>
   );
 }
