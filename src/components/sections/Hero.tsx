@@ -159,7 +159,7 @@ export default function Hero() {
                 </div>
                 <div className="absolute top-8 right-8 text-xs font-mono text-emerald-400 bg-black/50 px-2 py-1 flex items-center">
                   <span className="inline-block w-2 h-2 bg-emerald-500 mr-2"></span>
-                  CARBON OFFSET: 145.3 KG
+                  CARBON OFFSET: 135.3 KG
                 </div>
               </div>
             </motion.div>
