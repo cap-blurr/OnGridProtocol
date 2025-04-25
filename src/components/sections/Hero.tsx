@@ -46,7 +46,7 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative z-10 container mx-auto px-6 lg:px-8 pt-20 md:pt-32">
+      <div className="relative z-10 container mx-auto px-6 lg:px-8 pt-28 md:pt-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 relative">
             {/* Thin accent line */}
