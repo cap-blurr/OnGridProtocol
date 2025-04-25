@@ -38,7 +38,7 @@ export default function Footer() {
               <Image src={logo} alt="Ongrid-logo" className="w-32 md:w-40" />
             </Link>
             <p className="text-zinc-400 mb-6 max-w-md">
-            Empowering clean energy in emerging market through blockchain-driven financing, transparent carbon credit solutions, and sustainable impact. 
+            Empowering clean energy in emerging markets through blockchain-driven financing, transparent carbon credit solutions, and sustainable impact. 
             Join us in accelerating the global energy transition.
             </p>
             <div className="flex space-x-4">
