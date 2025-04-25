@@ -27,15 +27,7 @@ export default function CoreFeatures() {
       label: "CONNECT",
       stats: ["5,000+ TPS", "<$0.01 transaction fee", "99.97% uptime"]
     },
-    {
-      id: "tokenization",
-      title: "Tokenization of Renewable Assets",
-      description: "Convert solar, wind, and other clean energy projects into asset-backed tokens, making them accessible and tradable.",
-      icon: Coins,
-      color: "amber",
-      label: "TOKENIZE",
-      stats: ["Fractional ownership", "24/7 liquidity", "Verifiable provenance"]
-    },
+  
     {
       id: "depin",
       title: "DePin Devices & Carbon Credit Mining",
@@ -45,24 +37,6 @@ export default function CoreFeatures() {
       label: "DEPLOY",
       stats: ["15K+ tons CO₂ offset", "750+ IoT devices", "Real-time verification"]
     },
-    {
-      id: "ai",
-      title: "AI-Driven Eco Solutions",
-      description: "Leverage AI to analyze market data, forecast energy demands, and streamline green transitions in real-time.",
-      icon: BrainCircuit,
-      color: "rose",
-      label: "ANALYZE",
-      stats: ["97% prediction accuracy", "30+ data sources", "Continuous learning"]
-    },
-    {
-      id: "dao",
-      title: "DAO-Driven Governance",
-      description: "Community-led decisions on funding and resource allocation, promoting transparent management of green projects.",
-      icon: Users, 
-      color: "teal",
-      label: "GOVERN",
-      stats: ["2,500+ members", "12 regional hubs", "100% transparency"]
-    }
   ];
 
   // Color mapping
