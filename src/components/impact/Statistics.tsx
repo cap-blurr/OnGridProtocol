@@ -8,7 +8,7 @@ const Statistics = () => {
         <CardHeader>
           <CardTitle className="text-3xl lg:text-4xl md:text-5xl font-bold">
             {" "}
-            7,300
+            7,400
           </CardTitle>
         </CardHeader>
         <CardContent>
