@@ -21,11 +21,16 @@ interface NavBarProps {
 export function MobileNav({ isHome }: NavBarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Function to close the sheet after a link is clicked
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <MenuIcon
-          className="text-6xl block ml-2  cursor-pointer text-white"
+          className="text-6xl block ml-2 cursor-pointer text-white"
           size={24}
         />
       </SheetTrigger>
@@ -38,20 +43,22 @@ export function MobileNav({ isHome }: NavBarProps) {
           {isHome ? (
             <>
               <ScrollLink
-                to={"about"}
+                to="about"
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="text-lg cursor-pointer hover:text-emerald-400 transition-colors"
+                onClick={handleLinkClick}
               >
                 About
               </ScrollLink>
               <ScrollLink
-                to={"how-it-works"}
+                to="how-it-works"
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="text-lg cursor-pointer hover:text-emerald-400 transition-colors"
+                onClick={handleLinkClick}
               >
                 How It Works
               </ScrollLink>
@@ -60,14 +67,15 @@ export function MobileNav({ isHome }: NavBarProps) {
             <>
               <Link
                 href="/?#about"
-                className="font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className="text-lg cursor-pointer hover:text-emerald-400 transition-colors"
+                onClick={handleLinkClick}
               >
                 About
               </Link>
-
               <Link
                 href="/?#how-it-works"
-                className="font-medium cursor-pointer hover:text-oga-yellow-dark"
+                className="text-lg cursor-pointer hover:text-emerald-400 transition-colors"
+                onClick={handleLinkClick}
               >
                 How It Works
               </Link>
@@ -75,38 +83,39 @@ export function MobileNav({ isHome }: NavBarProps) {
           )}
           <Link
             href="/projects"
-            className="text-lg cursor-pointer hover:text-oga-yellow-dark"
+            className="text-lg cursor-pointer hover:text-emerald-400 transition-colors"
+            onClick={handleLinkClick}
           >
             Projects
           </Link>
 
           <Link
-            href="/impact"
-            className="text-lg cursor-pointer hover:text-oga-yellow-dark"
+            href="https://forms.gle/moCpCKMtVwCpVa92A"
+            target="_blank"
+            rel="noopener noreferrer" 
+            onClick={handleLinkClick}
           >
-            Impact
-          </Link>
-
-          <Link href="https://forms.gle/moCpCKMtVwCpVa92A" target="blank">
-            <Button className=" bg-oga-green p-4  border border-oga-green-dark  text-white text-lg rounded-full hover:bg-oga-yellow-dark hover:text-gray-900  md:text-lg md:px-6 md:py-3">
-              Build with us <ArrowRight className="ml-4" />
+            <Button className="bg-emerald-700 border border-emerald-600 text-white text-lg rounded-md hover:bg-emerald-600 transition-colors duration-200 w-full flex items-center justify-center">
+              Build with us <ArrowRight className="ml-2" size={18} />
             </Button>
           </Link>
         </div>
 
-        <div className=" flex gap-6 text-white mt-12">
+        <div className="flex gap-6 text-white mt-12">
           <Link
             href="https://t.me/ongridprotocol"
-            target="blank"
-            className="hover:text-white transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
           >
             <IconBrandTelegram className="h-6 w-6" />
-            <span className="sr-only">Discord</span>
+            <span className="sr-only">Telegram</span>
           </Link>
           <Link
             href="https://x.com/OngridProtocol"
-            target="blank"
-            className="hover:text-white transition-colors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
           >
             <IconBrandX className="h-6 w-6" />
             <span className="sr-only">Twitter</span>
