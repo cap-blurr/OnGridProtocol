@@ -9,6 +9,7 @@ import { cookieToInitialState } from 'wagmi';
 import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
+import { AppWithWalletModal } from "@/components/wallet/AppWithWalletModal";
 
 // Load B612 font family
 const b612 = localFont({
@@ -64,8 +65,10 @@ export default async function RootLayout({
         className={`${b612.variable} font-b612 bg-neutral-950 antialiased`}
       >
         <Providers initialState={initialState}>
-          {children}
-          <ToastProvider />
+          <AppWithWalletModal>
+            {children}
+            <ToastProvider />
+          </AppWithWalletModal>
         </Providers>
       </body>
     </html>
