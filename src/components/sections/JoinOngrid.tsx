@@ -4,38 +4,11 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Code, Megaphone } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function JoinOngrid() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
-
-
-
-  // Color mapping for consistent styling
-  const colorMap = {
-    emerald: {
-      bgLight: "bg-emerald-900/10",
-      bgSolid: "bg-emerald-600",
-      border: "border-emerald-700/40",
-      text: "text-emerald-500",
-      gradient: "from-emerald-600 to-emerald-400",
-    },
-    blue: {
-      bgLight: "bg-blue-900/10",
-      bgSolid: "bg-blue-600",
-      border: "border-blue-700/40",
-      text: "text-blue-500",
-      gradient: "from-blue-600 to-blue-400",
-    },
-    amber: {
-      bgLight: "bg-amber-900/10",
-      bgSolid: "bg-amber-600",
-      border: "border-amber-700/40",
-      text: "text-amber-500",
-      gradient: "from-amber-600 to-amber-400",
-    },
-  };
 
   return (
     <section 

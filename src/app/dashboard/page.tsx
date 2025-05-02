@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,6 +31,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateProjectModal } from "@/components/project/create-project";
 import GradientSection from "@/components/ui/gradient-section";
 import Link from "next/link";
+import { useUserType } from "@/providers/userType";
+import { useAccount } from "wagmi";
+import LoadingScreen from "@/components/ui/loading-screen";
+import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
+import { useRouter } from "next/navigation";
 
 const mockData = {
   base: {
@@ -115,6 +120,38 @@ const projects = [
 ];
 
 export default function DashboardPage() {
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const { isConnected } = useAccount();
+  const { userType, isLoading } = useUserType();
+  const router = useRouter();
+
+  // Add auth redirection - only normal users can access this page
+  useEffect(() => {
+    // First wait for auth state to be loaded
+    if (isLoading) return;
+    
+    // Redirect unauthenticated users to home
+    if (!isConnected) {
+      router.push('/');
+      return;
+    }
+    
+    // Redirect users with no type selection to home
+    // They'll be shown the account type modal
+    if (isConnected && !userType) {
+      return;
+    }
+    
+    // Redirect developers to developer dashboard
+    if (userType === 'developer') {
+      router.push('/developer-dashboard');
+      return;
+    }
+    
+    // User is authenticated and a normal user, allow access
+    setIsLoadingAuth(false);
+  }, [isConnected, userType, isLoading, router]);
+
   const [isDistributing, setIsDistributing] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
 
@@ -133,6 +170,10 @@ export default function DashboardPage() {
   //filter projects by chain
   const data = mockData["base" as keyof typeof mockData];
 
+  if (isLoadingAuth) {
+    return <LoadingScreen />;
+  }
+
   return (
     <GradientSection>
       <div className="min-h-screen pt-32 dark">
@@ -148,9 +189,10 @@ export default function DashboardPage() {
                   Monitor your carbon credits and returns across chains
                 </p>
               </div>
-             <div className="mt-4">
-             <CreateProjectModal />
-             </div>
+              <div className="mt-4 flex items-center gap-3">
+                <SwitchAccountButton />
+                <CreateProjectModal />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

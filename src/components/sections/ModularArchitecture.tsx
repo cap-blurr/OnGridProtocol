@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight, Users, Building, Leaf, Activity, LightbulbIcon } from "lucide-react";
+import { ArrowRight, Users, Building, Activity, LightbulbIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function ModularArchitecture() {

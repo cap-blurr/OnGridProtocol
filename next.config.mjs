@@ -1,50 +1,14 @@
-// @ts-check
-
-/**
- * @type {import('next').NextConfig}
- */
+// @ts-nocheck
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["pbs.twimg.com", "images.unsplash.com"],
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-    ],
+    domains: ['images.unsplash.com', 'onchainkit.coinbase.com'],
   },
-  webpack: (config, { isServer }) => {
-    config.externals = [...(config.externals || []), 'pino-pretty', 'lokijs', 'encoding'];
-    
-    // WASM Support
-    config.experiments = {
-      ...config.experiments,
-      asyncWebAssembly: true,
-    };
-    
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
     return config;
   },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    // Temporary, to be removed during production
-    ignoreDuringBuilds: true,
-  },
-  swcMinify: true,
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
-  experimental: {
-    optimizeCss: true,
-    serverComponentsExternalPackages: ['pino-pretty', 'lokijs', 'encoding'],
-  },
-  // Handle trailing slashes consistently
-  trailingSlash: false,
-  // Improve performance
-  poweredByHeader: false,
 };
 
-export default nextConfig;
+export default nextConfig; 

@@ -10,6 +10,7 @@ import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { AppWithWalletModal } from "@/components/wallet/AppWithWalletModal";
+import { State as WagmiState } from 'wagmi';
 
 // Load B612 font family
 const b612 = localFont({
@@ -56,8 +57,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = cookies();
-  const cookieString = (await cookieStore).getAll().map((cookie: { name: any; value: any; }) => `${cookie.name}=${cookie.value}`).join('; ');
-  const initialState = cookieToInitialState(getConfig(), cookieString);
+  const cookieString = (await cookieStore).getAll().map((cookie: { name: string; value: string; }) => `${cookie.name}=${cookie.value}`).join('; ');
+  const initialState = cookieToInitialState(getConfig(), cookieString) as WagmiState;
   
   return (
     <html lang="en">

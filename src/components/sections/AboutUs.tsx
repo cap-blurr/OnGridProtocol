@@ -1,14 +1,11 @@
 'use client';
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BarChart3, Clock, Coins, Github, Globe, Rocket, Target, Twitter, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { IconBrandDiscord } from "@tabler/icons-react";
 
 // Define particle type
 interface Particle {
@@ -23,67 +20,11 @@ interface Particle {
   delay: number;
 }
 
-// Featured project data
-const featuredProject = {
-  id: 1,
-  name: "Green DeFi",
-  description: "Revolutionary sustainable DeFi protocol with advanced yield farming mechanisms and eco-friendly blockchain solutions",
-  image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=1000&auto=format&fit=crop",
-  status: "Live",
-  participants: 1234,
-  timeLeft: "2 days",
-  raised: 850000,
-  target: 1000000,
-  progress: 85,
-  tokenPrice: 0.85,
-  totalSupply: "100,000,000",
-  minAllocation: 50,
-  maxAllocation: 5000,
-  access: "Public",
-  chain: "Base",
-  socials: {
-    website: "https://example.com",
-    twitter: "https://twitter.com",
-    github: "https://github.com",
-    discord: "https://discord.com",
-  },
-  tags: ["Sustainable", "Cross-chain", "Green"],
-};
-
 export function AboutSection() {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   
-  // Client-side only state for random elements with proper typing
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [isClient, setIsClient] = useState(false);
-  
-  // Move random calculations to useEffect to ensure client-side only execution
-  useEffect(() => {
-    // Only generate particles if section is in view to save resources
-    if (!isInView) return;
-    
-    setIsClient(true);
-    
-    // Generate consistent particles only on client-side
-    const newParticles: Particle[] = Array(8).fill(0).map(() => ({
-      width: Math.random() * 6 + 2,
-      height: Math.random() * 6 + 2,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      color: Math.random() > 0.6 
-        ? 'rgba(52, 211, 153, 0.5)' 
-        : Math.random() > 0.5 
-          ? 'rgba(96, 165, 250, 0.5)' 
-          : 'rgba(139, 92, 246, 0.5)',
-      yMove: Math.random() * 30 - 15,
-      xMove: Math.random() * 30 - 15,
-      duration: Math.random() * 5 + 5,
-      delay: Math.random() * 5
-    }));
-    
-    setParticles(newParticles);
-  }, [isInView]);
+  // Client-side only state for random elements is managed elsewhere
 
   // Only render full content when in view to improve performance
   return (
@@ -222,41 +163,4 @@ export function AboutSection() {
       </div>
     </section>
   );
-}
-
-// Simplified CountUpValue component
-function CountUpValue({ value, suffix = '' }: { value: number, suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const counterRef = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(counterRef, { once: true });
-  
-  useEffect(() => {
-    if (!isInView) return;
-    
-    let startTimestamp: number;
-    const duration = 1500; // ms
-    
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      const easedProgress = easeOutQuad(progress);
-      
-      setDisplayValue(Math.floor(easedProgress * value));
-      
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      }
-    };
-    
-    window.requestAnimationFrame(step);
-  }, [isInView, value]);
-  
-  return (
-    <span ref={counterRef}>{displayValue.toLocaleString()}{suffix}</span>
-  );
-}
-
-// Simple easing function
-function easeOutQuad(x: number): number {
-  return 1 - (1 - x) * (1 - x);
 }

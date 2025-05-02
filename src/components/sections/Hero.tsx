@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 export default function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -136,7 +137,7 @@ export default function Hero() {
                       className="absolute inset-0 border border-emerald-800/60 rounded-full"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <img src="/landing/turbine-green.png" alt="Turbine" className="w-16 h-16 object-contain" />
+                      <Image src="/landing/turbine-green.png" alt="Turbine" width={50} height={50} className="w-16 h-16 object-contain" />
                     </div>
                   </div>
                 </div>

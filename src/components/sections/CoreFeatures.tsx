@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Leaf, BarChart2, Users, Zap, BrainCircuit, Coins } from "lucide-react";
+import { Leaf, BarChart2, Zap } from "lucide-react";
 
 export default function CoreFeatures() {
   const sectionRef = useRef(null);

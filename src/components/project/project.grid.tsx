@@ -1,7 +1,7 @@
 "use client";
 
 import { ProjectCard } from "./project-card";
-import { Filter, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
@@ -219,8 +219,8 @@ export function ProjectGrid() {
             <Search className="h-6 w-6 text-zinc-500" />
           </div>
           <h3 className="text-xl font-medium text-zinc-300 mb-2">No projects found</h3>
-          <p className="text-zinc-500 max-w-md mx-auto">
-            We couldn't find any projects matching your search criteria. Try adjusting your filters or check back later.
+          <p className="text-zinc-400 max-w-md mx-auto">
+            We couldn&apos;t find any projects matching your search criteria. Try adjusting your filters or check back later.
           </p>
         </div>
       )}

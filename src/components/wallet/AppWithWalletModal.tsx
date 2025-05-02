@@ -15,6 +15,7 @@ import {
   Identity,
 } from '@coinbase/onchainkit/identity';
 import { color } from '@coinbase/onchainkit/theme';
+import AccountTypeModal from './AccountTypeModal';
 
 interface AppWithWalletModalProps {
   children: ReactNode;
@@ -41,6 +42,7 @@ export function AppWithWalletModal({ children }: AppWithWalletModalProps) {
           </WalletDropdown>
         </Wallet>
       </div>
+      <AccountTypeModal />
     </>
   );
 } 

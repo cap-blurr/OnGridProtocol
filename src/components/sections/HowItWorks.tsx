@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Lock, BarChart3, Users, ZapIcon, BrainCircuit } from "lucide-react";
+import Image from "next/image";
 
 export default function HowItWorks() {
   const sectionRef = useRef(null);
@@ -140,10 +141,12 @@ export default function HowItWorks() {
                 <div className="relative h-full w-full overflow-hidden">
                   <div className="absolute inset-0 border border-zinc-800/60">
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                    <img 
+                    <Image 
                       src={step.bgImage} 
                       alt={step.title}
                       className="w-full h-full object-cover"
+                      width={500}
+                      height={300}
                       onError={(e) => {
                         e.currentTarget.src = step.defaultImage;
                       }}

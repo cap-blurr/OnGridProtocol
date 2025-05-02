@@ -39,7 +39,7 @@ export default function Footer() {
             </Link>
             <p className="text-zinc-400 mb-6 max-w-md">
             Empowering clean energy in emerging markets through blockchain-driven financing, transparent carbon credit solutions, and sustainable impact. 
-            Join us in accelerating the global energy transition.
+            Join us in accelerating the global energy transition.
             </p>
             <div className="flex space-x-4">
               <Link
@@ -120,7 +120,7 @@ export default function Footer() {
           >
             <h4 className="text-white font-medium mb-6 text-lg">Join Our Newsletter</h4>
             <p className="text-zinc-400 mb-6">
-              Stay updated on Ongrid Protocol's latest news and developments.
+              Stay updated on Ongrid Protocol&apos;s latest news and developments.
             </p>
             <div className="relative mb-4">
               <input
