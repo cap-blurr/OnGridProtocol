@@ -7,7 +7,7 @@ import { UserIcon, Code, ArrowRightLeft } from 'lucide-react';
 
 export default function SwitchAccountButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userType, switchUserType } = useUserType();
+  const { userType } = useUserType();
   const router = useRouter();
 
   // Don't render if no user type is selected
@@ -53,3 +53,7 @@ export default function SwitchAccountButton() {
     </button>
   );
 } 
+
+function switchUserType() {
+  throw new Error('Function not implemented.');
+}

@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,182 +9,252 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import toast from "react-hot-toast";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { AlertCircle, Check, CreditCard, DollarSign, InfoIcon, Leaf, Wallet } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface InvestmentModalProps {
-  project: {
-    id: string;
-    title: string;
-    chain: "solana" | "base";
-    availableAmount: number;
-    returns: number;
-  };
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  projectData?: any;
+  poolData?: any;
+  type: "project" | "pool";
 }
 
-type Step = "amount" | "review" | "processing" | "complete";
-
 export function InvestmentModal({
-  project,
-  isOpen,
-  onClose,
+  open,
+  onOpenChange,
+  projectData,
+  poolData,
+  type,
 }: InvestmentModalProps) {
-  const [step, setStep] = useState<Step>("amount");
-  const [amount, setAmount] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const data = type === "project" ? projectData : poolData;
+  const [amount, setAmount] = useState<number>(data?.minInvestment || 1000);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [paymentMethod, setPaymentMethod] = useState<string>("wallet");
 
-  const estimatedGas =
-    project.chain === "solana" ? "0.000005 SOL" : "0.0003 ETH";
-  const estimatedReturns = Number.parseFloat(amount) * (project.returns / 100);
-
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    setStep("processing");
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setStep("complete");
-      toast.success(
-        `You have successfully invested ${amount} in ${project.title}`
-      );
-    } catch (error) {
-        console.log(error);
-        
-      toast.error(
-        `There was an error processing your investment. Please try again.`
-      );
-      setStep("amount");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleInvest = async () => {
+    setLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess(true);
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setSuccess(false);
+        onOpenChange(false);
+      }, 3000);
+    }, 2000);
   };
 
-  const handleClose = () => {
-    setStep("amount");
-    setAmount("");
-    onClose();
+  const minInvestment = data?.minInvestment || 1000;
+  const maxInvestment = type === "project" ? data?.remaining || 100000 : 500000;
+  const apr = data?.apr || data?.roi || 12.5;
+  
+  // Calculate returns
+  const annualReturn = (amount * apr) / 100;
+  const monthlyReturn = annualReturn / 12;
+
+  // Reset state when modal closes
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setAmount(data?.minInvestment || 1000);
+      setLoading(false);
+      setSuccess(false);
+    }
+    onOpenChange(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] text-white dark bg-[#0f0f0f]">
-        <DialogHeader className="text-white">
-          <DialogTitle className="">Invest in {project.title}</DialogTitle>
-          <DialogDescription className="">
-            {step === "amount" && "Enter the amount you want to invest"}
-            {step === "review" && "Review your investment details"}
-            {step === "processing" && "Processing your investment"}
-            {step === "complete" && "Investment Complete!"}
-          </DialogDescription>
-        </DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="dark sm:max-w-md md:max-w-xl w-[95%] sm:w-auto text-zinc-100 shadow-2xl shadow-black/40 bg-gradient-to-b from-black to-zinc-900/95 border border-emerald-900/30">
+        {!success ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white text-center">
+                Invest in {data?.name}
+              </DialogTitle>
+              <DialogDescription className="text-zinc-400 text-center pt-2">
+                {type === "project" 
+                  ? "Support this renewable energy project and earn returns from energy generation" 
+                  : "Invest in a diversified pool of renewable energy projects"}
+              </DialogDescription>
+            </DialogHeader>
 
-        {step === "amount" && (
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="amount">Investment Amount ($)</Label>
-              <Input
-                id="amount"
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                min={0}
-                max={project.availableAmount}
-                className="border-green-600/20 focus-visible:ring-green-500"
-              />
-              <p className="text-sm text-muted-foreground">
-                Available: ${project.availableAmount.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {step === "review" && (
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <div className="flex justify-between text-sm">
-                <span>Investment Amount</span>
-                <span className="font-medium">
-                  ${Number.parseFloat(amount).toLocaleString()}
-                </span>
+            <div className="space-y-6 my-2">
+              <div className="flex flex-col md:flex-row justify-between gap-6 p-4 bg-zinc-900/50 rounded-lg">
+                <div className="space-y-1">
+                  <span className="text-zinc-400 text-sm">Expected APR</span>
+                  <div className="font-medium text-emerald-500 text-xl">{apr}%</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-zinc-400 text-sm">Min Investment</span>
+                  <div className="font-medium text-white text-xl">${minInvestment.toLocaleString()}</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-zinc-400 text-sm">Type</span>
+                  <div className="font-medium text-white text-xl">
+                    {type === "project" ? (
+                      <Badge variant="outline" className="bg-blue-900/20 border-blue-700 text-blue-500">
+                        Direct Project
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-emerald-900/20 border-emerald-700 text-emerald-500">
+                        Investment Pool
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Estimated Gas Fee</span>
-                <span className="font-medium">{estimatedGas}</span>
+
+              <div className="space-y-3">
+                <Label htmlFor="amount">Investment Amount (USD)</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400" size={16} />
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    min={minInvestment}
+                    max={maxInvestment}
+                    step={100}
+                    className="pl-10 bg-zinc-900 border-zinc-700 focus:border-emerald-600"
+                  />
+                </div>
+                <Slider
+                  value={[amount]}
+                  min={minInvestment}
+                  max={maxInvestment}
+                  step={100}
+                  onValueChange={(value) => setAmount(value[0])}
+                  className="my-4"
+                />
+                <div className="flex justify-between text-xs text-zinc-400">
+                  <span>${minInvestment.toLocaleString()}</span>
+                  <span>${maxInvestment.toLocaleString()}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Expected Annual Returns</span>
-                <span className="font-medium">
-                  ${estimatedReturns.toLocaleString()}
-                </span>
+
+              <div className="p-4 rounded-lg bg-zinc-900/50 space-y-3">
+                <h3 className="font-medium text-white">Estimated Returns</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-zinc-400 text-sm">Annual Return</span>
+                    <div className="font-medium text-emerald-500">${annualReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-zinc-400 text-sm">Monthly Return</span>
+                    <div className="font-medium text-emerald-500">${monthlyReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                  </div>
+                </div>
+                
+                <Alert className="bg-yellow-900/20 border border-yellow-900/50 text-yellow-500 flex items-start p-3">
+                  <InfoIcon className="h-4 w-4 mr-2 mt-0.5" />
+                  <AlertDescription className="text-xs">
+                    Returns are estimates based on projected performance and may vary depending on actual generation results.
+                  </AlertDescription>
+                </Alert>
               </div>
+
+              <div className="space-y-3">
+                <Label>Payment Method</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={`justify-start gap-3 py-6 ${
+                      paymentMethod === "wallet"
+                        ? "border-emerald-600 bg-emerald-900/20"
+                        : "border-zinc-700 hover:border-emerald-700/50 hover:bg-emerald-900/10"
+                    }`}
+                    onClick={() => setPaymentMethod("wallet")}
+                  >
+                    <Wallet className="h-5 w-5" />
+                    <div className="text-left">
+                      <div className="font-medium">Crypto Wallet</div>
+                      <div className="text-xs text-zinc-400">Pay with your connected wallet</div>
+                    </div>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={`justify-start gap-3 py-6 ${
+                      paymentMethod === "card"
+                        ? "border-emerald-600 bg-emerald-900/20"
+                        : "border-zinc-700 hover:border-emerald-700/50 hover:bg-emerald-900/10"
+                    }`}
+                    onClick={() => setPaymentMethod("card")}
+                  >
+                    <CreditCard className="h-5 w-5" />
+                    <div className="text-left">
+                      <div className="font-medium">Credit Card</div>
+                      <div className="text-xs text-zinc-400">Pay with credit or debit card</div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+              
+              {amount < minInvestment && (
+                <Alert className="bg-red-900/20 border border-red-900/50 text-red-500 flex items-start p-3">
+                  <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
+                  <AlertDescription className="text-xs">
+                    The minimum investment amount is ${minInvestment.toLocaleString()}.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
-          </div>
-        )}
 
-        {step === "processing" && (
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col items-center gap-4 py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="text-sm text-muted-foreground">
-                Processing your investment...
-              </p>
-              <Progress value={66} className="w-full" />
-            </div>
-          </div>
-        )}
-
-        {step === "complete" && (
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col items-center gap-4 py-8">
-              <CheckCircle className="h-8 w-8 text-green-500" />
-              <p className="text-center text-sm text-muted-foreground">
-                Your investment of ${Number.parseFloat(amount).toLocaleString()}{" "}
-                has been processed successfully.
-              </p>
-            </div>
-          </div>
-        )}
-
-        <DialogFooter>
-          {step === "amount" && (
-            <Button
-              onClick={() => setStep("review")}
-              disabled={
-                !amount ||
-                Number.parseFloat(amount) <= 0 ||
-                Number.parseFloat(amount) > project.availableAmount
-              }
-              className="bg-oga-green p-4 border border-oga-green-dark rounded-xl text-white hover:bg-oga-yellow-dark hover:text-gray-900"
-            >
-              Review Investment
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          )}
-
-          {step === "review" && (
-            <div className="flex w-full gap-2">
-              <Button variant="outline" onClick={() => setStep("amount")}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+            <DialogFooter className="flex-col sm:flex-row gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+                className="border border-zinc-800 hover:bg-zinc-800/50 hover:border-zinc-700"
+              >
+                Cancel
               </Button>
               <Button
-                className="flex-1 bg-oga-green p-4 border border-oga-green-dark rounded-xl text-white hover:bg-oga-yellow-dark hover:text-gray-900"
-                onClick={handleSubmit}
-                disabled={isLoading}
+                onClick={handleInvest}
+                disabled={loading || amount < minInvestment}
+                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 flex-1 sm:flex-none"
               >
-                Confirm Investment
-                {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  <>Confirm Investment</>
+                )}
               </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <div className="py-8 flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-900/30 flex items-center justify-center mb-2">
+              <Check className="w-8 h-8 text-emerald-500" />
             </div>
-          )}
-
-          {step === "complete" && <Button onClick={handleClose}>Close</Button>}
-        </DialogFooter>
+            <h2 className="text-2xl font-bold text-white">Investment Successful!</h2>
+            <p className="text-zinc-400 max-w-md">
+              Your investment of ${amount.toLocaleString()} in {data?.name} has been processed successfully.
+            </p>
+            <div className="flex items-center pt-4 gap-2">
+              <Leaf className="text-emerald-500 h-5 w-5" />
+              <span className="text-emerald-400 text-sm">
+                You're helping build a sustainable future
+              </span>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,11 +25,13 @@ import {
   BarChart3,
   History,
   Network,
+  Wallet,
+  CreditCard,
+  LineChart,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateProjectModal } from "@/components/project/create-project";
-import GradientSection from "@/components/ui/gradient-section";
 import Link from "next/link";
 import { useUserType } from "@/providers/userType";
 import { useAccount } from "wagmi";
@@ -38,92 +40,89 @@ import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
 import { useRouter } from "next/navigation";
 
 const mockData = {
-  base: {
-    credits: 1250,
-    value: 125000,
-    projects: 3,
-    change: 12.5,
-    distributions: [
+  investments: {
+    totalValue: 385000,
+    totalProjects: 5,
+    change: 8.5,
+    roi: 12.7,
+    activePoolInvestments: 3,
+    projectsDistribution: [
+      { name: "Solar Farms", percentage: 40 },
+      { name: "Wind Energy", percentage: 30 },
+      { name: "Hydroelectric", percentage: 20 },
+      { name: "Biomass", percentage: 10 },
+    ],
+    recentTransactions: [
       {
         id: 1,
-        project: "Amazon Rainforest Conservation",
-        amount: 25000,
-        status: "Pending",
-        timestamp: "2024-02-21T10:00:00",
+        project: "California Solar Farm",
+        amount: 50000,
+        type: "Direct Investment",
+        timestamp: "2024-05-15T10:00:00",
       },
       {
         id: 2,
-        project: "Indonesian Mangrove Restoration",
-        amount: 15000,
-        status: "Completed",
-        timestamp: "2024-02-20T15:30:00",
+        project: "Green Energy Pool A",
+        amount: 25000,
+        type: "Pool Investment",
+        timestamp: "2024-05-10T15:30:00",
       },
-    ],
-  },
-  solana: {
-    credits: 3400,
-    value: 340000,
-    projects: 5,
-    change: -2.3,
-    distributions: [
       {
         id: 3,
-        project: "African Wildlife Conservation",
-        amount: 45000,
-        status: "Completed",
-        timestamp: "2024-02-19T09:15:00",
+        project: "Texas Wind Farm",
+        amount: 35000,
+        type: "Direct Investment",
+        timestamp: "2024-05-05T09:15:00",
       },
     ],
   },
-  // avalanche: {
-  //   credits: 890,
-  //   value: 89000,
-  //   projects: 2,
-  //   change: 5.7,
-  //   distributions: [
-  //     {
-  //       id: 4,
-  //       project: "Brazilian Forest Protection",
-  //       amount: 30000,
-  //       status: "Pending",
-  //       timestamp: "2024-02-21T11:45:00",
-  //     },
-  //   ],
-  // },
+  carbonCredits: {
+    totalCredits: 1250,
+    creditValue: 125000,
+    co2Reduced: 1250, // in tonnes
+    energyProduced: 2800, // in kWh
+    deviceEfficiency: 92, // percentage
+    dailyEnergyOutput: [
+      { day: "Mon", output: 420 },
+      { day: "Tue", output: 380 },
+      { day: "Wed", output: 450 },
+      { day: "Thu", output: 470 },
+      { day: "Fri", output: 400 },
+      { day: "Sat", output: 350 },
+      { day: "Sun", output: 330 },
+    ],
+    devices: [
+      {
+        id: 1,
+        name: "Solar Panel Array A",
+        status: "Active",
+        output: 850,
+        efficiency: 94,
+      },
+      {
+        id: 2,
+        name: "Wind Turbine Cluster B",
+        status: "Active",
+        output: 1200,
+        efficiency: 89,
+      },
+      {
+        id: 3,
+        name: "Hydroelectric Unit C",
+        status: "Maintenance",
+        output: 750,
+        efficiency: 0,
+      },
+    ],
+  },
 };
-
-const projects = [
-  {
-    id: 1,
-    name: "Amazon Rainforest Conservation",
-    chain: "base",
-    credits: 500,
-    claimed: 375,
-    total: 1000,
-  },
-  {
-    id: 2,
-    name: "Indonesian Mangrove Restoration",
-    chain: "solana",
-    credits: 300,
-    claimed: 150,
-    total: 500,
-  },
-  {
-    id: 3,
-    name: "African Wildlife Conservation",
-    chain: "solana",
-    credits: 800,
-    claimed: 600,
-    total: 1000,
-  },
-];
 
 export default function DashboardPage() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const { isConnected } = useAccount();
   const { userType, isLoading } = useUserType();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("investments");
 
   // Add auth redirection - only normal users can access this page
   useEffect(() => {
@@ -152,426 +151,397 @@ export default function DashboardPage() {
     setIsLoadingAuth(false);
   }, [isConnected, userType, isLoading, router]);
 
-  const [isDistributing, setIsDistributing] = useState(false);
-  const [isClaiming, setIsClaiming] = useState(false);
-
-  const handleDistribute = async () => {
-    setIsDistributing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsDistributing(false);
-  };
-
-  const handleClaim = async () => {
-    setIsClaiming(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsClaiming(false);
-  };
-  
-  //filter projects by chain
-  const data = mockData["base" as keyof typeof mockData];
-
   if (isLoadingAuth) {
     return <LoadingScreen />;
   }
 
   return (
-    <GradientSection>
-      <div className="min-h-screen pt-32 dark">
-        <div className="container mx-auto px-4 py-8">
-          {/* Chain Selector and Stats */}
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-              <div>
-                <h1 className="text-4xl font-bold text-gray-200 mb-4">
-                   My Dashboard
-                </h1>
-                <p className="text-zinc-400">
-                  Monitor your carbon credits and returns across chains
-                </p>
-              </div>
-              <div className="mt-4 flex items-center gap-3">
-                <SwitchAccountButton />
-                <CreateProjectModal />
-              </div>
-            </div>
-
+    <div className="relative">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
+      }} />
+      
+      {/* Background accents */}
+      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+      
+      <div className="relative">
+        <div className="mb-8 relative pl-6">
+          {/* Thin accent line */}
+          <div className="absolute -left-4 top-0 h-full w-px bg-emerald-700/30" />
+          
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-emerald-500 mb-2 relative">
+            Investor Dashboard
+            <div className="absolute -left-6 top-1/2 w-3 h-px bg-emerald-500" />
+          </span>
+          
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Dashboard
+          </h1>
+          <p className="text-zinc-400">
+            Monitor your investments and carbon credits
+          </p>
+        </div>
+        
+        <Tabs defaultValue="investments" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-black/50 border border-zinc-800 p-1 w-full flex">
+            <TabsTrigger 
+              value="investments" 
+              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
+            >
+              Investments
+            </TabsTrigger>
+            <TabsTrigger 
+              value="carbonCredits" 
+              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
+            >
+              Carbon Credits
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Investments Tab */}
+          <TabsContent value="investments" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Credits
+              {/* Investment Overview Card */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Total Investments
                   </CardTitle>
-                  <Leaf className="h-4 w-4 text-[#FFDC00]" />
+                  <Wallet className="h-4 w-4 text-emerald-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {data.credits.toLocaleString()}
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    ${mockData.investments.totalValue.toLocaleString()}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`text-sm ${
-                        data.change >= 0 ? "text-[#FFDC00]" : "text-destructive"
-                      }`}
-                    >
-                      {data.change >= 0 ? (
-                        <ArrowUpRight className="inline h-4 w-4" />
-                      ) : (
-                        <ArrowDownRight className="inline h-4 w-4" />
-                      )}
-                      {Math.abs(data.change)}%
-                    </span>
-                    <span className="text-zinc-500 text-sm">vs last month</span>
+                  <div className="flex items-center">
+                    <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
+                    <span className="text-xs text-emerald-400">{mockData.investments.change}% monthly growth</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Value (USD)
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Average ROI
                   </CardTitle>
-                  <BarChart3 className="h-4 w-4 text-green-500" />
+                  <LineChart className="h-4 w-4 text-emerald-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    ${data.value.toLocaleString()}
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.investments.roi}%
                   </div>
-                  <p className="text-xs text-zinc-500">
-                    Based on current market rates
+                  <p className="text-xs text-zinc-400">
+                    Annual percentage return
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Active Projects
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Active Pools
+                  </CardTitle>
+                  <Network className="h-4 w-4 text-emerald-500" />
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.investments.activePoolInvestments}
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    With varied APY rates
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Total Projects
                   </CardTitle>
                   <Trees className="h-4 w-4 text-green-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{data.projects}</div>
-                  <p className="text-xs text-zinc-500">Across {2} chains</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-card/50 backdrop-blur-sm border-white/20">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Network Status
-                  </CardTitle>
-                  <Network className="h-4 w-4 text-green-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">Active</div>
-                  <p className="text-xs text-zinc-500">
-                    All systems operational
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.investments.totalProjects}
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    Direct and pooled investments
                   </p>
                 </CardContent>
               </Card>
             </div>
-          </div>
 
-          {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Tabs defaultValue="projects" className="space-y-4">
-                <TabsList className="bg-transparent h-10 rounded-full">
-                  <TabsTrigger
-                    value="projects"
-                    className="flex-1 rounded-full h-full data-[state=active]:bg-oga-green"
-                  >
-                    Projects
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="distributions"
-                    className="flex-1 rounded-full h-full data-[state=active]:bg-oga-green"
-                  >
-                    Distributions
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="history"
-                    className="flex-1 rounded-full h-full data-[state=active]:bg-oga-green"
-                  >
-                    History
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="projects">
-                  <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                    <CardHeader>
-                      <CardTitle>Active Projects</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {projects
-                          // .filter((project) => project.chain === selectedChain)
-                          .map((project) => (
-                            <div
-                              key={project.id}
-                              className="p-4 rounded-lg bg-zinc-900 border border-zinc-700"
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <div>
-                                  <h3 className="font-semibold">
-                                    {project.name}
-                                  </h3>
-                                  <div className="flex items-center gap-2 text-sm text-zinc-400">
-                                    <Globe2 className="h-4 w-4" />
-                                    <span>{project.chain}</span>
-                                  </div>
-                                </div>
-                                <div className="flex gap-3 items-center">
-                                  <Link href="/projects/1" className="text-white text-xs cursor-pointer hover:underline hover:text-oga-yellow-light">View Details </Link>
-                                  <Button
-                                    className="rounded-full bg-gradient-to-r from-[#28a745] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#28a745] text-white"
-                                    onClick={handleDistribute}
-                                    disabled={isDistributing}
-                                  >
-                                    {isDistributing && (
-                                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                                    )}
-                                    Distribute Returns
-                                  </Button>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-zinc-400">
-                                    Progress
-                                  </span>
-                                  <span className="text-green-500">
-                                    {(
-                                      (project.claimed / project.total) *
-                                      100
-                                    ).toFixed(1)}
-                                    %
-                                  </span>
-                                </div>
-                                <Progress
-                                  value={
-                                    (project.claimed / project.total) * 100
-                                  }
-                                  className="h-2 bg-background"
-                                />
-                                <div className="flex justify-between text-sm text-zinc-400">
-                                  <span>
-                                    {project.claimed.toLocaleString()} claimed
-                                  </span>
-                                  <span>
-                                    {project.total.toLocaleString()} total
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Transactions */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative">
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <History className="h-5 w-5 text-emerald-500" />
+                    Recent Transactions
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Your latest investment activities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="space-y-4">
+                    {mockData.investments.recentTransactions.map((tx) => (
+                      <div key={tx.id} className="flex items-center justify-between border-b border-zinc-800/50 pb-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-white">{tx.project}</span>
+                          <span className="text-sm text-zinc-400">{new Date(tx.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="font-medium text-emerald-500">${tx.amount.toLocaleString()}</span>
+                          <Badge variant="outline" className="text-xs border-emerald-800 bg-emerald-900/20 text-emerald-300">{tx.type}</Badge>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                    ))}
+                  </div>
+                  <Button variant="ghost" className="w-auto mx-auto mt-4 px-4 text-zinc-400 hover:text-emerald-400 hover:bg-emerald-900/20 group" asChild>
+                    <Link href="/dashboard/investments/current">
+                      View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
 
-                <TabsContent value="distributions">
-                  <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                    <CardHeader>
-                      <CardTitle>Recent Distributions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-zinc-700">
-                            <TableHead>Project</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Time</TableHead>
-                            <TableHead></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {data.distributions.map((dist) => (
-                            <TableRow key={dist.id} className="border-zinc-700">
-                              <TableCell>{dist.project}</TableCell>
-                              <TableCell>
-                                ${dist.amount.toLocaleString()}
-                              </TableCell>
-                              <TableCell>
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    dist.status === "Completed"
-                                      ? "border-[#FFDC00] text-[#FFDC00]"
-                                      : "border-[#28a745] text-[#28a745]"
-                                  }
-                                >
-                                  {dist.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-zinc-400">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  {new Date(dist.timestamp).toLocaleString()}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {dist.status === "Pending" && (
-                                  <Button
-                                    variant="outline"
-                                    className="border-border/5 hover:bg-accent"
-                                    onClick={handleClaim}
-                                    disabled={isClaiming}
-                                  >
-                                    {isClaiming && (
-                                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                                    )}
-                                    Claim
-                                  </Button>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="history">
-                  <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                    <CardHeader>
-                      <CardTitle>Transaction History</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {data.distributions.map((dist) => (
-                          <div
-                            key={dist.id}
-                            className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-zinc-700"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="p-2 rounded-full bg-zinc-800">
-                                <History className="h-4 w-4 text-green-500" />
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{dist.project}</h4>
-                                <p className="text-sm text-zinc-400">
-                                  {new Date(dist.timestamp).toLocaleString()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-medium">
-                                ${dist.amount.toLocaleString()}
-                              </div>
-                              <Badge
-                                variant="outline"
-                                className={
-                                  dist.status === "Completed"
-                                    ? "border-[#FFDC00] text-[#FFDC00]"
-                                    : "border-[#28a745] text-[#28a745]"
-                                }
-                              >
-                                {dist.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
+              {/* Investment Distribution */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative">
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <CreditCard className="h-5 w-5 text-emerald-500" />
+                    Investment Distribution
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Allocation of your investments across projects
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="space-y-4">
+                    {mockData.investments.projectsDistribution.map((project, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-zinc-300">{project.name}</span>
+                          <span className="text-zinc-300">{project.percentage}%</span>
+                        </div>
+                        <Progress value={project.percentage} className="h-1.5 bg-zinc-800/70" indicatorClassName="bg-emerald-500" />
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="mt-8 space-y-4">
+              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Button variant="outline" className="border-emerald-800 hover:bg-emerald-900/20 hover:text-emerald-300" asChild>
+                  <Link href="/dashboard/investments/opportunities">
+                    Browse Investment Opportunities
+                  </Link>
+                </Button>
+                <Button variant="outline" className="border-emerald-800 hover:bg-emerald-900/20 hover:text-emerald-300" asChild>
+                  <Link href="/dashboard/investments/pools">
+                    Explore Investment Pools
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+          
+          {/* Carbon Credits Tab */}
+          <TabsContent value="carbonCredits" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Carbon Credits
+                  </CardTitle>
+                  <Leaf className="h-4 w-4 text-[#FFDC00]" />
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.carbonCredits.totalCredits.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    Equivalent to ${mockData.carbonCredits.creditValue.toLocaleString()}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    CO₂ Reduced
+                  </CardTitle>
+                  <Trees className="h-4 w-4 text-green-500" />
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.carbonCredits.co2Reduced.toLocaleString()} <span className="text-base ml-1">tonnes</span>
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    From {mockData.investments.totalProjects} projects
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Energy Produced
+                  </CardTitle>
+                  <BarChart3 className="h-4 w-4 text-emerald-500" />
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.carbonCredits.energyProduced.toLocaleString()} <span className="text-base ml-1">kWh</span>
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    Total from all devices
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-white">
+                    Device Efficiency
+                  </CardTitle>
+                  <RefreshCw className="h-4 w-4 text-emerald-500" />
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="text-2xl font-bold text-white">
+                    {mockData.carbonCredits.deviceEfficiency}%
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    Average across all devices
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="space-y-6">
-              {/* Quick Actions */}
-              <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative">
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <BarChart3 className="h-5 w-5 text-emerald-500" />
+                    Daily Energy Output
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Energy production over the last week
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button
-                    className="rounded-full bg-gradient-to-r from-[#28a745] to-[#2E7D32] hover:from-[#2E7D32] hover:to-[#28a745] text-white"
-                    onClick={handleDistribute}
-                    disabled={isDistributing}
-                  >
-                    {isDistributing && (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Distribute All Returns
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-border/5 hover:bg-accent"
-                    onClick={handleClaim}
-                    disabled={isClaiming}
-                  >
-                    {isClaiming && (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Claim All Available
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Network Stats */}
-              <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                <CardHeader>
-                  <CardTitle>Network Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Gas Price</span>
-                    <span className="font-medium">32 Gwei</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Block Height</span>
-                    <span className="font-medium">18,245,123</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Network Load</span>
-                    <span className="font-medium text-[#FFDC00]">Low</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="bg-card/50 backdrop-blur-sm border-border/5">
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {data.distributions.slice(0, 3).map((dist, i) => (
-                      <div key={i} className="flex items-center gap-4">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            dist.status === "Completed"
-                              ? "bg-[#FFDC00]"
-                              : "bg-[#28a745]"
-                          }`}
-                        />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{dist.project}</p>
-                          <p className="text-xs text-zinc-400">
-                            {new Date(dist.timestamp).toLocaleString()}
-                          </p>
+                <CardContent className="relative">
+                  <div className="h-80 flex items-end justify-between gap-2">
+                    {mockData.carbonCredits.dailyEnergyOutput.map((day, index) => (
+                      <div key={index} className="flex flex-col items-center gap-2">
+                        <div 
+                          className="w-12 bg-emerald-500/40 hover:bg-emerald-500/60 transition-colors rounded-t-md border border-emerald-600/50" 
+                          style={{ height: `${(day.output / 500) * 100}%` }}
+                        >
+                          <div className="h-full relative group">
+                            <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black border border-emerald-600/50 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity z-10">
+                              {day.output} kWh
+                            </div>
+                          </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-zinc-500" />
+                        <span className="text-xs text-zinc-300 font-medium">{day.day}</span>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Network Alert */}
-              <Alert className="bg-[#28a745]/20 border border-[#28a745]/50">
-                <AlertDescription className="text-[#28a745]">
-                  All network operations are running smoothly
-                </AlertDescription>
-              </Alert>
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative">
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Leaf className="h-5 w-5 text-[#FFDC00]" />
+                    Device Status
+                  </CardTitle>
+                  <CardDescription className="text-zinc-400">
+                    Current performance of your energy devices
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative">
+                  <div className="space-y-6">
+                    {mockData.carbonCredits.devices.map((device) => (
+                      <div key={device.id} className="border border-zinc-800 rounded-lg p-4">
+                        <div className="flex justify-between items-center mb-4">
+                          <div>
+                            <h3 className="font-medium text-white">{device.name}</h3>
+                            <Badge variant={device.status === "Active" ? "success" : "destructive"} className="mt-1">
+                              {device.status}
+                            </Badge>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-semibold text-emerald-500">{device.output.toLocaleString()} <span className="text-xs text-zinc-400">kWh</span></p>
+                            <p className="text-xs text-zinc-400">Current output</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-zinc-400">Efficiency</span>
+                            <span className="text-zinc-300">{device.efficiency}%</span>
+                          </div>
+                          <Progress value={device.efficiency} className="h-2 bg-zinc-800" indicatorClassName="bg-emerald-500" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Button variant="outline" className="w-full mt-6 border-emerald-800 hover:bg-emerald-900/30 group" asChild>
+                    <Link href="/dashboard/carbon-credits/device-stats">
+                      View Detailed Device Stats <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </GradientSection>
+    </div>
   );
 }

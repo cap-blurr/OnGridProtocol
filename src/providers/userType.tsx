@@ -1,77 +1,69 @@
 'use client';
 
-import React from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type UserType = 'normal' | 'developer' | null;
 
-// Create a simpler context
-const UserTypeContext = React.createContext<{
+interface UserTypeContextProps {
   userType: UserType;
   setUserType: (type: UserType) => void;
-  switchUserType: () => void;
   isLoading: boolean;
-}>({
-  userType: null,
-  setUserType: () => {},
-  switchUserType: () => {},
-  isLoading: true,
-});
+}
 
-// Export the hook
-export const useUserType = () => React.useContext(UserTypeContext);
+const UserTypeContext = createContext<UserTypeContextProps | undefined>(undefined);
 
-// Simple Provider component
-export function UserTypeProvider(props: { children: React.ReactNode }) {
-  const [userType, setUserTypeState] = React.useState<UserType>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+export function UserTypeProvider({ children }: { children: ReactNode }) {
+  const [userType, setUserType] = useState<UserType>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
+  useEffect(() => {
+    // Load user type from localStorage if available
+    const loadUserType = () => {
       try {
-        const storedType = localStorage.getItem('userType');
-        if (storedType === 'normal' || storedType === 'developer') {
-          setUserTypeState(storedType as UserType);
+        const savedType = localStorage.getItem('userType') as UserType;
+        if (savedType) {
+          setUserType(savedType);
         }
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error accessing localStorage:', error);
-      } finally {
+        console.error("Error loading user type:", error);
         setIsLoading(false);
       }
-    }
+    };
+
+    loadUserType();
   }, []);
 
-  function setUserType(type: UserType) {
-    setUserTypeState(type);
-    if (type) {
-      try {
+  const handleSetUserType = (type: UserType) => {
+    setUserType(type);
+    try {
+      if (type) {
         localStorage.setItem('userType', type);
-      } catch (error) {
-        console.error('Error writing to localStorage:', error);
-      }
-    } else {
-      try {
+      } else {
         localStorage.removeItem('userType');
-      } catch (error) {
-        console.error('Error removing from localStorage:', error);
       }
+    } catch (error) {
+      console.error("Error saving user type:", error);
     }
-  }
+  };
 
-  function switchUserType() {
-    const newType = userType === 'normal' ? 'developer' : 'normal';
-    setUserType(newType);
-  }
-
-  return React.createElement(
-    UserTypeContext.Provider,
-    { 
-      value: {
+  return (
+    <UserTypeContext.Provider
+      value={{
         userType,
-        setUserType,
-        switchUserType,
-        isLoading
-      }
-    },
-    props.children
+        setUserType: handleSetUserType,
+        isLoading,
+      }}
+    >
+      {children}
+    </UserTypeContext.Provider>
   );
+}
+
+export function useUserType() {
+  const context = useContext(UserTypeContext);
+  if (context === undefined) {
+    throw new Error("useUserType must be used within a UserTypeProvider");
+  }
+  return context;
 }

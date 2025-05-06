@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useUserType } from "@/providers/userType";
 import { useAccount } from "wagmi";
-import { Loader2, User, Code, CheckCircle2, ArrowRight } from "lucide-react";
+import { Loader2, User, Code, CheckCircle2, ArrowRight, UserCheck } from "lucide-react";
 
 export default function AccountTypeModal() {
   const [open, setOpen] = useState(false);
@@ -29,38 +29,24 @@ export default function AccountTypeModal() {
     setIsMounted(true);
   }, []);
 
-  // Show modal when wallet is connected and user type is not selected
+  // Show modal when wallet is connected
   useEffect(() => {
-    if (isMounted && isConnected && !userType) {
+    if (isMounted && isConnected) {
       setOpen(true);
     } else {
       setOpen(false);
     }
-  }, [isConnected, userType, isMounted]);
+  }, [isConnected, isMounted]);
 
-  const handleContinue = async () => {
-    if (!selectedType) return;
+  const handleTypeSelection = (type: 'normal' | 'developer') => {
+    setUserType(type);
+    setOpen(false);
     
-    setIsLoading(true);
-    
-    // Simulate loading
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    try {
-      // Set user type in context
-      setUserType(selectedType);
-      
-      // Redirect based on user type
-      if (selectedType === 'developer') {
-        router.push('/developer-dashboard');
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (error) {
-      console.error("Error during account selection:", error);
-    } finally {
-      setIsLoading(false);
-      setOpen(false);
+    // Redirect to the appropriate dashboard
+    if (type === 'developer') {
+      router.push('/developer-dashboard');
+    } else {
+      router.push('/dashboard');
     }
   };
 
@@ -87,7 +73,7 @@ export default function AccountTypeModal() {
                 ? 'border-2 border-emerald-500' 
                 : 'border border-zinc-800 hover:border-emerald-800'
             }`}
-            onClick={() => setSelectedType('normal')}
+            onClick={() => handleTypeSelection('normal')}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
@@ -103,7 +89,7 @@ export default function AccountTypeModal() {
               )}
               
               <div className="w-16 h-16 rounded-full bg-emerald-900/30 flex items-center justify-center mb-2 relative">
-                <User className="w-8 h-8 text-emerald-500" />
+                <UserCheck className="w-8 h-8 text-emerald-500" />
               </div>
               
               <h3 className="font-bold text-xl text-center">Standard User</h3>
@@ -136,7 +122,7 @@ export default function AccountTypeModal() {
                 ? 'border-2 border-emerald-500' 
                 : 'border border-zinc-800 hover:border-emerald-800'
             }`}
-            onClick={() => setSelectedType('developer')}
+            onClick={() => handleTypeSelection('developer')}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
@@ -182,7 +168,7 @@ export default function AccountTypeModal() {
         <DialogFooter>
           <Button
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 transition-colors flex items-center justify-center gap-2"
-            onClick={handleContinue}
+            onClick={() => handleTypeSelection(selectedType || 'normal')}
             disabled={!selectedType || isLoading}
           >
             {isLoading ? (

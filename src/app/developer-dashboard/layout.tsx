@@ -2,11 +2,11 @@
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import Sidebar from "@/components/layout/Sidebar";
+import DeveloperSidebar from "@/components/layout/DeveloperSidebar";
 import SidebarToggle from "@/components/layout/SidebarToggle";
 import { useEffect, useState } from "react";
 
-export default function DashboardLayout({
+export default function DeveloperDashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -23,13 +23,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-black overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-black">
       <Header />
-      <div className="flex flex-1 w-full overflow-hidden">
+      <div className="flex flex-1">
         <div className="hidden md:block">
-          <Sidebar />
+          <DeveloperSidebar />
         </div>
-        <div className="flex-1 md:ml-64 pb-8 w-full overflow-x-hidden">
+        <div className="flex-1 md:ml-64 pb-8">
           <div className="p-4 md:p-6">
             <div className="md:hidden mb-4">
               <SidebarToggle />
@@ -41,4 +41,4 @@ export default function DashboardLayout({
       <Footer />
     </div>
   );
-}
+} 
