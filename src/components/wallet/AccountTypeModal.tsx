@@ -126,9 +126,9 @@ export default function AccountTypeModal() {
               </div>
               
               <div>
-                <h3 className="font-bold text-white">Developer</h3>
+                <h3 className="font-bold text-white">Solar Developer</h3>
                 <p className="text-xs text-zinc-400">
-                  Access APIs and developer tools
+                  Access APIs for solar projects
                 </p>
               </div>
             </div>

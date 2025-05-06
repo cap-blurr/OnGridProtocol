@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  BarChart3, 
+  BarChart3,
   Settings, 
   FilePlus,
   ClipboardCheck,
@@ -13,7 +13,8 @@ import {
   FileText,
   Monitor,
   DollarSign,
-  BarChart4
+  BarChart4,
+  Sun
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ export default function DeveloperSidebar() {
   return (
     <div className="w-64 h-screen fixed left-0 top-0 pt-24 pb-6 px-3 border-r border-emerald-900/20 bg-black/60 backdrop-blur-md flex flex-col">
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 pr-2">
-        <SidebarSection title="Projects">
+        <SidebarSection title="Solar Projects">
           <SidebarNavItem
             href="/developer-dashboard"
             label="Dashboard"
@@ -79,40 +80,40 @@ export default function DeveloperSidebar() {
           />
           <SidebarNavItem
             href="/developer-dashboard/projects/create-low"
-            label="Create Low Investment"
+            label="Create Residential"
             icon={<FilePlus size={18} />}
             isActive={pathname === "/developer-dashboard/projects/create-low"}
           />
           <SidebarNavItem
             href="/developer-dashboard/projects/create-high"
-            label="Create High Investment"
-            icon={<FileText size={18} />}
+            label="Create Commercial"
+            icon={<Sun size={18} />}
             isActive={pathname === "/developer-dashboard/projects/create-high"}
           />
         </SidebarSection>
 
-        <SidebarSection title="Monitoring">
+        <SidebarSection title="DePIN Monitoring">
           <SidebarNavItem
             href="/developer-dashboard/repayment"
-            label="Repayment Monitoring"
+            label="Repayment Tracking"
             icon={<DollarSign size={18} />}
             isActive={pathname === "/developer-dashboard/repayment"}
           />
           <SidebarNavItem
             href="/developer-dashboard/funding"
-            label="Funding Levels"
+            label="Solar Funding Levels"
             icon={<BarChart3 size={18} />}
             isActive={pathname === "/developer-dashboard/funding"}
           />
           <SidebarNavItem
             href="/developer-dashboard/analytics"
-            label="Project Analytics"
+            label="Energy Production"
             icon={<LineChart size={18} />}
             isActive={pathname === "/developer-dashboard/analytics"}
           />
           <SidebarNavItem
             href="/developer-dashboard/status"
-            label="Project Status"
+            label="Installation Status"
             icon={<Monitor size={18} />}
             isActive={pathname === "/developer-dashboard/status"}
           />
