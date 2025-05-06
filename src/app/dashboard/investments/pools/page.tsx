@@ -20,6 +20,7 @@ import {
   ArrowUpRight,
   Info
 } from "lucide-react";
+import { DashboardTabs } from "@/components/ui/custom-tabs";
 
 // Mock data for investment pools
 const mockPools = {
@@ -275,23 +276,14 @@ export default function InvestmentPoolsPage() {
         </div>
         
         {/* Pool Tabs */}
-        <Tabs defaultValue="your-pools" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-black/50 border border-zinc-800 p-1 w-full flex">
-            <TabsTrigger 
-              value="your-pools" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
-            >
-              Your Pool Investments
-            </TabsTrigger>
-            <TabsTrigger 
-              value="available-pools" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
-            >
-              Available Pools
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Your Pool Investments Tab */}
+        <DashboardTabs
+          tabs={[
+            { value: "your-pools", label: "Your Pool Investments" },
+            { value: "available-pools", label: "Available Pools" }
+          ]}
+          activeTab={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsContent value="your-pools">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mockPools.yourInvestments.map(pool => (
@@ -385,7 +377,6 @@ export default function InvestmentPoolsPage() {
             </Card>
           </TabsContent>
           
-          {/* Available Pools Tab */}
           <TabsContent value="available-pools">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mockPools.availablePools.map(pool => (
@@ -450,7 +441,7 @@ export default function InvestmentPoolsPage() {
               ))}
             </div>
           </TabsContent>
-        </Tabs>
+        </DashboardTabs>
         
         {/* Information Card */}
         <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mt-8">

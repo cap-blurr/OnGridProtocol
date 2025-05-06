@@ -38,6 +38,7 @@ import { useAccount } from "wagmi";
 import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
 import { useRouter } from "next/navigation";
+import { DashboardTabs } from "@/components/ui/custom-tabs";
 
 const mockData = {
   investments: {
@@ -184,24 +185,15 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        <Tabs defaultValue="investments" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-black/50 border border-zinc-800 p-1 w-full flex">
-            <TabsTrigger 
-              value="investments" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
-            >
-              Investments
-            </TabsTrigger>
-            <TabsTrigger 
-              value="carbonCredits" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5 hover:text-emerald-300 transition-colors"
-            >
-              Carbon Credits
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Investments Tab */}
-          <TabsContent value="investments" className="space-y-6">
+        <DashboardTabs
+          tabs={[
+            { value: "investments", label: "Investments" },
+            { value: "carbonCredits", label: "Carbon Credits" }
+          ]}
+          activeTab={activeTab}
+          onValueChange={setActiveTab}
+        >
+          <TabsContent value="investments">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Investment Overview Card */}
               <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
@@ -371,8 +363,7 @@ export default function DashboardPage() {
             </div>
           </TabsContent>
           
-          {/* Carbon Credits Tab */}
-          <TabsContent value="carbonCredits" className="space-y-6">
+          <TabsContent value="carbonCredits">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
                 {/* Subtle gradient overlay */}
@@ -540,7 +531,7 @@ export default function DashboardPage() {
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
+        </DashboardTabs>
       </div>
     </div>
   );

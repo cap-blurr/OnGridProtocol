@@ -30,7 +30,7 @@ export default function DashboardLayout({
           <Sidebar />
         </div>
         <div className="flex-1 md:ml-64 pb-8 w-full overflow-x-hidden">
-          <div className="p-4 md:p-6">
+          <div className="p-3 md:p-6">
             <div className="md:hidden mb-4">
               <SidebarToggle />
             </div>
