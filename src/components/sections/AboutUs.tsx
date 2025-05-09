@@ -296,14 +296,14 @@ export function AboutSection() {
               </div>
               
               <div className="flex justify-center mt-10">
-                <Button 
-                  onClick={handleExploreProjects}
-                  className="group bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                <Link
+                  href="#projects"
+                  className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md transition-colors"
                 >
-                  <Wallet size={16} className="mr-1" />
-                  Explore Our Solar Projects
+                  <Sun size={16} className="mr-1" />
+                  View Available Projects
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Button>
+                </Link>
               </div>
             </motion.div>
           </>
