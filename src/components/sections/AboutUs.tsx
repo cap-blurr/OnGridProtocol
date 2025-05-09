@@ -297,7 +297,7 @@ export function AboutSection() {
               
               <div className="flex justify-center mt-10">
                 <Link
-                  href="#projects"
+                  href="/projects"
                   className="group inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md transition-colors"
                 >
                   <Sun size={16} className="mr-1" />
