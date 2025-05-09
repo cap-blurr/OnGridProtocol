@@ -7,6 +7,7 @@ import Image from "next/image";
 import logo from "../../../public/ongrid-logo.png";
 import { MobileNav } from "./MobileNav";
 import ConnectButton from "./ConnectButton";
+import { usePathname } from "next/navigation";
 
 interface NavBarProps {
   isHome?: boolean;
@@ -14,6 +15,7 @@ interface NavBarProps {
 
 export default function Header({ isHome = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,16 +26,19 @@ export default function Header({ isHome = false }: NavBarProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Check if we're on a dashboard page
+  const isDashboard = pathname.includes('/dashboard') || pathname.includes('/developer-dashboard');
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+        isScrolled || isDashboard
           ? "bg-gray-950 bg-opacity-30 backdrop-blur-lg backdrop-filter"
           : "bg-transparent backdrop-blur-lg backdrop-filter pt-5"
       }`}
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
-        <Link href="/" className="text-4xl font-bold text-white">
+        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
           <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">

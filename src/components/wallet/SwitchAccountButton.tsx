@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserType } from '@/providers/userType';
-import { UserIcon, Code, ArrowRightLeft } from 'lucide-react';
+import { UserIcon, Sun, ArrowRightLeft } from 'lucide-react';
 
 export default function SwitchAccountButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { userType } = useUserType();
+  const { userType, setUserType } = useUserType();
   const router = useRouter();
 
   // Don't render if no user type is selected
@@ -17,7 +17,8 @@ export default function SwitchAccountButton() {
     setIsLoading(true);
     try {
       // Switch user type
-      switchUserType();
+      const newType = userType === 'normal' ? 'developer' : 'normal';
+      setUserType(newType);
       
       // Redirect to appropriate dashboard
       const destination = userType === 'normal' ? '/developer-dashboard' : '/dashboard';
@@ -33,27 +34,23 @@ export default function SwitchAccountButton() {
     <button
       onClick={handleSwitchAccount}
       disabled={isLoading}
-      className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-medium text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex items-center gap-2 rounded-lg bg-black/40 border border-emerald-800/30 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-900/20 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
     >
       {isLoading ? (
         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
       ) : (
         <>
           {userType === 'normal' ? (
-            <Code className="h-4 w-4" />
+            <Sun className="h-4 w-4 text-emerald-400" />
           ) : (
-            <UserIcon className="h-4 w-4" />
+            <UserIcon className="h-4 w-4 text-emerald-400" />
           )}
           <span className="mr-1">
-            Switch to {userType === 'normal' ? 'Developer' : 'Normal'} Account
+            Switch to {userType === 'normal' ? 'Solar Developer' : 'Investor'} View
           </span>
-          <ArrowRightLeft className="h-3.5 w-3.5" />
+          <ArrowRightLeft className="h-3.5 w-3.5 text-emerald-400" />
         </>
       )}
     </button>
   );
-} 
-
-function switchUserType() {
-  throw new Error('Function not implemented.');
 }

@@ -16,8 +16,10 @@ import {
 const WalletComponentExample = () => (
   <Wallet>
     <ConnectWallet>
-      <Avatar className="h-6 w-6" />
-      <Name />
+      <div id="connect-wallet-btn" className="flex items-center gap-2">
+        <Avatar className="h-6 w-6" />
+        <Name />
+      </div>
     </ConnectWallet>
     <WalletDropdown>
       <Identity
