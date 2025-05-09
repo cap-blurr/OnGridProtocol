@@ -80,7 +80,7 @@ const mockData = {
   carbonCredits: {
     totalCredits: 1250,
     creditValue: 125000,
-    co2Reduced: 1250, // in tonnes
+    tco2eReduced: 1250, // in tonnes
     energyProduced: 2800, // in kWh
     deviceEfficiency: 92, // percentage
     dailyEnergyOutput: [
@@ -397,7 +397,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="relative">
                   <div className="text-2xl font-bold text-white">
-                    {mockData.carbonCredits.co2Reduced.toLocaleString()} <span className="text-base ml-1">tonnes</span>
+                    {mockData.carbonCredits.tco2eReduced.toLocaleString()} <span className="text-base ml-1">tonnes</span>
                   </div>
                   <p className="text-xs text-zinc-400">
                     From {mockData.investments.totalProjects} projects

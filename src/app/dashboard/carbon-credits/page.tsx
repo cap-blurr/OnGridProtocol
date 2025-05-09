@@ -25,7 +25,7 @@ import {
 const mockCarbonData = {
   overview: {
     totalCredits: 285,
-    totalCo2Reduced: 285000,
+    totaltco2eReduced: 285000,
     activeProjects: 8,
     avgPricePerCredit: 47.25,
     totalCreditValue: 13466.25
@@ -51,7 +51,7 @@ const mockCarbonData = {
       type: "Solar",
       location: "California, USA",
       creditsGenerated: 95,
-      co2Reduced: 95000,
+      tco2eReduced: 95000,
       verificationStatus: "Verified",
       image: "/images/solar-project.jpg"
     },
@@ -61,7 +61,7 @@ const mockCarbonData = {
       type: "Wind",
       location: "Texas, USA",
       creditsGenerated: 78,
-      co2Reduced: 78000,
+      tco2eReduced: 78000,
       verificationStatus: "Verified",
       image: "/images/wind-project.jpg"
     },
@@ -71,7 +71,7 @@ const mockCarbonData = {
       type: "Hydro",
       location: "Oregon, USA",
       creditsGenerated: 65,
-      co2Reduced: 65000,
+      tco2eReduced: 65000,
       verificationStatus: "Verified",
       image: "/images/hydro-project.jpg"
     },
@@ -81,7 +81,7 @@ const mockCarbonData = {
       type: "Solar",
       location: "Arizona, USA",
       creditsGenerated: 47,
-      co2Reduced: 47000,
+      tco2eReduced: 47000,
       verificationStatus: "Pending",
       image: "/images/solar-desert.jpg"
     },
@@ -193,7 +193,7 @@ export default function CarbonDashboardPage() {
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-white">
-                {mockCarbonData.overview.totalCo2Reduced.toLocaleString()} <span className="text-base ml-1">kg</span>
+                {mockCarbonData.overview.totaltco2eReduced.toLocaleString()} <span className="text-base ml-1">kg</span>
               </div>
               <div className="flex items-center">
                 <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
@@ -331,7 +331,7 @@ export default function CarbonDashboardPage() {
                         </div>
                         <div>
                           <p className="text-xs text-zinc-400">CO₂ Reduced</p>
-                          <p className="text-base font-medium text-emerald-400">{project.co2Reduced.toLocaleString()} kg</p>
+                          <p className="text-base font-medium text-emerald-400">{project.tco2eReduced.toLocaleString()} kg</p>
                         </div>
                       </div>
                       

@@ -20,10 +20,10 @@ import {
   Share2
 } from "lucide-react";
 
-// Mock data for CO2 emissions reduced
+// Mock data for tco2e emissions reduced
 const mockEmissionsData = {
   overview: {
-    totalCO2Reduced: 450000,
+    totaltco2eReduced: 450000,
     equivalentCars: 97,
     equivalentFlights: 225,
     creditValueUSD: 21150,
@@ -106,7 +106,7 @@ const mockEmissionsData = {
   ]
 };
 
-export default function CO2EmissionsReducedPage() {
+export default function tco2eEmissionsReducedPage() {
   return (
     <div className="relative">
       {/* Subtle grid background */}
@@ -150,7 +150,7 @@ export default function CO2EmissionsReducedPage() {
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-white">
-                {mockEmissionsData.overview.totalCO2Reduced.toLocaleString()} <span className="text-base ml-1">kg</span>
+                {mockEmissionsData.overview.totaltco2eReduced.toLocaleString()} <span className="text-base ml-1">kg</span>
               </div>
               <p className="text-xs text-emerald-400">
                 {mockEmissionsData.overview.carbonFootprintReduction}% of your carbon footprint
@@ -219,7 +219,7 @@ export default function CO2EmissionsReducedPage() {
           </Card>
         </div>
 
-        {/* CO2 Reduction Chart */}
+        {/* tco2e Reduction Chart */}
         <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mb-8">
           {/* Subtle gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
@@ -284,7 +284,7 @@ export default function CO2EmissionsReducedPage() {
                 <div className="relative w-64 h-64">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{mockEmissionsData.overview.totalCO2Reduced.toLocaleString()}</div>
+                      <div className="text-2xl font-bold text-white">{mockEmissionsData.overview.totaltco2eReduced.toLocaleString()}</div>
                       <div className="text-xs text-zinc-400">kg CO₂ reduced</div>
                     </div>
                   </div>

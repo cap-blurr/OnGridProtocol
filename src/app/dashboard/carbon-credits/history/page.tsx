@@ -39,7 +39,7 @@ const mockCreditHistory = [
     value: 34000,
     devices: 4,
     energyProduced: 3200,
-    co2Reduced: 280,
+    tco2eReduced: 280,
     transactions: [
       { date: "2024-05-25", type: "Generation", device: "Solar Panel Array A", amount: 120, status: "Verified" },
       { date: "2024-05-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 135, status: "Verified" },
@@ -52,7 +52,7 @@ const mockCreditHistory = [
     value: 25000,
     devices: 4,
     energyProduced: 2800,
-    co2Reduced: 220,
+    tco2eReduced: 220,
     transactions: [
       { date: "2024-04-25", type: "Generation", device: "Solar Panel Array A", amount: 100, status: "Verified" },
       { date: "2024-04-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 100, status: "Verified" },
@@ -65,7 +65,7 @@ const mockCreditHistory = [
     value: 21000,
     devices: 3,
     energyProduced: 2300,
-    co2Reduced: 190,
+    tco2eReduced: 190,
     transactions: [
       { date: "2024-03-25", type: "Generation", device: "Solar Panel Array A", amount: 90, status: "Verified" },
       { date: "2024-03-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 80, status: "Verified" },
@@ -78,7 +78,7 @@ const mockCreditHistory = [
     value: 18000,
     devices: 3,
     energyProduced: 2100,
-    co2Reduced: 160,
+    tco2eReduced: 160,
     transactions: [
       { date: "2024-02-25", type: "Generation", device: "Solar Panel Array A", amount: 70, status: "Verified" },
       { date: "2024-02-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 75, status: "Verified" },
@@ -91,7 +91,7 @@ const mockCreditHistory = [
     value: 15000,
     devices: 3,
     energyProduced: 1800,
-    co2Reduced: 130,
+    tco2eReduced: 130,
     transactions: [
       { date: "2024-01-25", type: "Generation", device: "Solar Panel Array A", amount: 60, status: "Verified" },
       { date: "2024-01-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 60, status: "Verified" },
@@ -104,7 +104,7 @@ const mockCreditHistory = [
     value: 12000,
     devices: 2,
     energyProduced: 1500,
-    co2Reduced: 100,
+    tco2eReduced: 100,
     transactions: [
       { date: "2023-12-25", type: "Generation", device: "Solar Panel Array A", amount: 50, status: "Verified" },
       { date: "2023-12-20", type: "Generation", device: "Wind Turbine Cluster B", amount: 70, status: "Verified" },
@@ -121,7 +121,7 @@ export default function CarbonCreditsHistoryPage() {
   const totalCredits = mockCreditHistory.reduce((total, month) => total + month.credits, 0);
   const totalValue = mockCreditHistory.reduce((total, month) => total + month.value, 0);
   const totalEnergy = mockCreditHistory.reduce((total, month) => total + month.energyProduced, 0);
-  const totalCO2 = mockCreditHistory.reduce((total, month) => total + month.co2Reduced, 0);
+  const totaltco2e = mockCreditHistory.reduce((total, month) => total + month.tco2eReduced, 0);
 
   // Filter the data based on selected filters
   let filteredHistory = [...mockCreditHistory];
@@ -201,7 +201,7 @@ export default function CarbonCreditsHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalCO2.toLocaleString()} <span className="text-base ml-1">tonnes</span>
+              {totaltco2e.toLocaleString()} <span className="text-base ml-1">tonnes</span>
             </div>
             <p className="text-xs text-zinc-500">
               Total environmental impact
@@ -310,7 +310,7 @@ export default function CarbonCreditsHistoryPage() {
                         {month.energyProduced.toLocaleString()} <span className="text-xs text-zinc-400">kWh</span>
                       </TableCell>
                       <TableCell>
-                        {month.co2Reduced.toLocaleString()} <span className="text-xs text-zinc-400">tonnes</span>
+                        {month.tco2eReduced.toLocaleString()} <span className="text-xs text-zinc-400">tonnes</span>
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

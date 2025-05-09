@@ -25,18 +25,18 @@ import Link from "next/link";
 // Mock data for environmental impact
 const mockImpactData = {
   carbonCredits: 1250,
-  co2Reduced: 1250, // in tonnes
+  tco2eReduced: 1250, // in tonnes
   energyProduced: 58700, // in kWh
   impactMetrics: {
-    treesPlanted: 62500, // 50 trees per tonne of CO2
-    carEquivalent: 538, // Average car produces 4.6 tonnes CO2 per year
+    treesPlanted: 62500, // 50 trees per tonne of tco2e
+    carEquivalent: 538, // Average car produces 4.6 tonnes tco2e per year
     homesPowered: 195, // Average home uses ~300kWh per month
     waterSaved: 2875000, // Liters of water saved (coal power plants use water for cooling)
   },
   historicalImpact: [
-    { year: 2022, co2Reduced: 320, credits: 320 },
-    { year: 2023, co2Reduced: 480, credits: 480 },
-    { year: 2024, co2Reduced: 450, credits: 450 }, // YTD
+    { year: 2022, tco2eReduced: 320, credits: 320 },
+    { year: 2023, tco2eReduced: 480, credits: 480 },
+    { year: 2024, tco2eReduced: 450, credits: 450 }, // YTD
   ],
   sdgContributions: [
     { goal: "SDG 7", name: "Affordable and Clean Energy", contribution: 75 },
@@ -50,28 +50,28 @@ const mockImpactData = {
       name: "Green Carbon Certificate", 
       date: "May 15, 2024",
       credits: 340,
-      co2: 340,
+      tco2e: 340,
     },
     { 
       id: "GCC-2024-04-001", 
       name: "Green Carbon Certificate", 
       date: "April 12, 2024",
       credits: 250,
-      co2: 250,
+      tco2e: 250,
     },
     { 
       id: "GCC-2024-03-001", 
       name: "Green Carbon Certificate", 
       date: "March 18, 2024",
       credits: 210,
-      co2: 210,
+      tco2e: 210,
     },
   ]
 };
 
 export default function EnvironmentalImpactPage() {
   // Calculate the total of historical impact
-  const totalHistoricalCO2 = mockImpactData.historicalImpact.reduce((sum, year) => sum + year.co2Reduced, 0);
+  const totalHistoricaltco2e = mockImpactData.historicalImpact.reduce((sum, year) => sum + year.tco2eReduced, 0);
   
   return (
     <>
@@ -197,10 +197,10 @@ export default function EnvironmentalImpactPage() {
                 <div key={year.year} className="flex-1 flex flex-col items-center">
                   <div 
                     className="w-full max-w-20 bg-emerald-500/40 hover:bg-emerald-500/60 transition-colors rounded-t-md relative group border border-emerald-600/50"
-                    style={{ height: `${(year.co2Reduced / totalHistoricalCO2) * 200}px` }}
+                    style={{ height: `${(year.tco2eReduced / totalHistoricaltco2e) * 200}px` }}
                   >
                     <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black border border-emerald-600/50 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity z-10">
-                      {year.co2Reduced} tonnes CO₂
+                      {year.tco2eReduced} tonnes CO₂
                     </div>
                   </div>
                   <div className="mt-4 text-center">
@@ -217,7 +217,7 @@ export default function EnvironmentalImpactPage() {
                 <div>
                   <h3 className="text-white font-medium mb-1">Growing Impact</h3>
                   <p className="text-zinc-400 text-sm">
-                    Your environmental impact has been steadily growing year over year. Since 2022, you've reduced {totalHistoricalCO2} tonnes of CO₂ emissions through your clean energy investments.
+                    Your environmental impact has been steadily growing year over year. Since 2022, you've reduced {totalHistoricaltco2e} tonnes of CO₂ emissions through your clean energy investments.
                   </p>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function EnvironmentalImpactPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-zinc-400">CO₂ Reduced:</span>
-                    <span className="text-zinc-300">{cert.co2} tonnes</span>
+                    <span className="text-zinc-300">{cert.tco2e} tonnes</span>
                   </div>
                 </div>
                 
