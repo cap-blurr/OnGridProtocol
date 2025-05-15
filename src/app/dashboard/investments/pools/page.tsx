@@ -1,477 +1,468 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAccount } from "wagmi";
+import { usePoolCount, usePoolInfo, useUserShares } from "@/hooks/contracts/useLiquidityPoolManager";
+import { formatUnits } from "ethers";
 import {
-  LineChart,
-  ArrowRight,
-  ShieldCheck,
-  ShieldAlert,
-  Users,
-  ChevronUp,
+  AlertCircle, 
+  BarChart, 
+  Shield, 
+  TrendingUp,
+  Wallet,
   Percent,
-  CreditCard,
-  DollarSign,
-  BarChart,
-  ArrowUpRight,
-  Info
+  Info,
+  ArrowRightLeft,
+  RefreshCw,
+  Loader2,
+  Search,
+  Wind,
+  Leaf
 } from "lucide-react";
-import { DashboardTabs } from "@/components/ui/custom-tabs";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
+import PoolInvestmentForm from "@/components/project/PoolInvestmentForm";
+import { useRouter } from "next/navigation";
 
-// Mock data for investment pools
-const mockPools = {
-  yourInvestments: [
-    {
-      id: "pool-1",
-      name: "Green Energy Growth Fund",
-      risk: "Low",
-      investmentAmount: 75000,
-      dateInvested: "2024-04-01",
-      roi: 8.5,
-      status: "Active",
-      nextPayment: "2024-07-01",
-      projectCount: 12,
-      description: "Low-risk pool of premium developer projects with established track records",
-    },
-    {
-      id: "pool-2",
-      name: "Renewable Innovation Fund",
-      risk: "Medium",
-      investmentAmount: 65000,
-      dateInvested: "2024-01-20",
-      roi: 12.7,
-      status: "Active",
-      nextPayment: "2024-06-20",
-      projectCount: 8,
-      description: "Medium-risk pool with growing developers showing promising growth potential",
-    },
-    {
-      id: "pool-3",
-      name: "Emerging Tech Fund",
-      risk: "High",
-      investmentAmount: 42000,
-      dateInvested: "2024-05-05",
-      roi: 18.5,
-      status: "Active",
-      nextPayment: "2024-08-05",
-      projectCount: 6,
-      description: "High-risk pool with emerging developers pioneering new technologies",
-    },
-  ],
-  availablePools: [
-    {
-      id: "pool-4",
-      name: "Solar Collective Fund",
-      risk: "Low",
-      target: 2000000,
-      raised: 1450000,
-      roi: { min: 6.5, max: 8.2 },
-      duration: "5 years",
-      description: "Diversified portfolio of established solar energy projects with stable returns.",
-      projectCount: 15,
-      minInvestment: 10000,
-      focusArea: "Solar",
-    },
-    {
-      id: "pool-5",
-      name: "Wind Energy Accelerator",
-      risk: "Medium",
-      target: 1500000,
-      raised: 980000,
-      roi: { min: 9.5, max: 14.8 },
-      duration: "7 years",
-      description: "Investment in wind farm projects across multiple geographies for balanced exposure.",
-      projectCount: 9,
-      minInvestment: 15000,
-      focusArea: "Wind",
-    },
-    {
-      id: "pool-6",
-      name: "Next-Gen Storage Solutions",
-      risk: "High",
-      target: 1000000,
-      raised: 420000,
-      roi: { min: 12.5, max: 22.0 },
-      duration: "10 years",
-      description: "High risk, high reward investments in breakthrough energy storage technologies.",
-      projectCount: 6,
-      minInvestment: 25000,
-      focusArea: "Energy Storage",
-    },
-    {
-      id: "pool-7",
-      name: "Mixed Renewables Fund",
-      risk: "Medium",
-      target: 3000000,
-      raised: 1250000,
-      roi: { min: 8.5, max: 13.5 },
-      duration: "8 years",
-      description: "Balanced portfolio across various renewable energy sources for stability and growth.",
-      projectCount: 18,
-      minInvestment: 10000,
-      focusArea: "Mixed",
+// Risk level mapping
+const RISK_LEVELS = {
+  1: "Low",
+  2: "Medium-Low",
+  3: "Medium",
+  4: "High"
+};
+
+export default function LiquidityPoolsPage() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedPool, setSelectedPool] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState("pools");
+  const { address } = useAccount();
+  const router = useRouter();
+  
+  // Get pool count
+  const { poolCount } = usePoolCount();
+  
+  // Track loaded pools
+  const [availablePools, setAvailablePools] = useState<{
+    id: number;
+    name: string;
+    totalAssets: string;
+    totalShares: string;
+    riskLevel: string;
+    aprPercentage: number;
+  }[]>([]);
+  
+  // Load pool information when pool count changes
+  useEffect(() => {
+    if (poolCount) {
+      setIsLoading(true);
+      const loadPoolInfo = async () => {
+        try {
+          const pools = [];
+          
+          // Pool IDs start at 1
+          for (let i = 1; i <= Number(poolCount); i++) {
+            pools.push(i);
+          }
+          
+          setIsLoading(false);
+        } catch (error) {
+          console.error("Error loading pool information:", error);
+          setIsLoading(false);
+        }
+      };
+      
+      loadPoolInfo();
     }
-  ],
-  poolPerformance: {
-    totalInvested: 182000,
-    totalPools: 3,
-    averageRoi: 13.2,
-    riskDistribution: {
-      low: 41.2,
-      medium: 35.7,
-      high: 23.1
-    },
-    yearlyReturns: [
-      { year: '2020', return: 10.2 },
-      { year: '2021', return: 12.5 },
-      { year: '2022', return: 11.8 },
-      { year: '2023', return: 13.6 },
-      { year: '2024', return: 13.2 },
-    ]
-  }
-};
-
-// Get risk badge color
-const getRiskColor = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return "bg-green-500/20 text-green-500 border-green-700";
-    case "Medium":
-      return "bg-yellow-500/20 text-yellow-500 border-yellow-700";
-    case "High":
-      return "bg-red-500/20 text-red-500 border-red-700";
-    default:
-      return "bg-zinc-500/20 text-zinc-400 border-zinc-600";
-  }
-};
-
-// Get risk icon
-const getRiskIcon = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return <ShieldCheck className="h-5 w-5 text-green-500" />;
-    case "Medium":
-      return <ShieldAlert className="h-5 w-5 text-yellow-500" />;
-    case "High":
-      return <ShieldAlert className="h-5 w-5 text-red-500" />;
-    default:
-      return <Info className="h-5 w-5 text-zinc-400" />;
-  }
-};
-
-export default function InvestmentPoolsPage() {
-  const [activeTab, setActiveTab] = useState("your-pools");
+  }, [poolCount]);
+  
+  // Load mock pools while we wait for real data
+  useEffect(() => {
+    const loadMockPools = async () => {
+      // In a real app, you would dynamically load pool data from blockchain
+      // Here we'll simulate it with static data
+      const mockPools = [
+        {
+          id: 1,
+          name: "Green Energy Pool",
+          totalAssets: "250000",
+          totalShares: "245000",
+          riskLevel: "Low",
+          aprPercentage: 8.5
+        },
+        {
+          id: 2,
+          name: "Solar Innovation Pool",
+          totalAssets: "750000",
+          totalShares: "730000",
+          riskLevel: "Medium-Low",
+          aprPercentage: 11.2
+        },
+        {
+          id: 3,
+          name: "Wind Energy Pool",
+          totalAssets: "500000",
+          totalShares: "485000",
+          riskLevel: "Medium",
+          aprPercentage: 14.7
+        }
+      ];
+      
+      setAvailablePools(mockPools);
+      setIsLoading(false);
+    };
+    
+    loadMockPools();
+  }, []);
+  
+  // Handle pool selection for investment
+  const handlePoolSelect = (poolId: number) => {
+    setSelectedPool(poolId);
+    setActiveTab("invest");
+  };
+  
+  // Handle investment completion
+  const handleInvestmentComplete = () => {
+    // Refresh the pools data
+    router.refresh();
+    
+    // Reset selected pool and go back to pools view
+    setSelectedPool(null);
+    setActiveTab("pools");
+  };
+  
+  // Get pool information for the selected pool
+  const selectedPoolInfo = availablePools.find(pool => pool.id === selectedPool);
 
   return (
-    <div className="relative">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
-      }} />
-      
-      {/* Background accents */}
-      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      
-      <div className="relative">
-        <div className="mb-8 relative pl-6">
-          {/* Thin accent line */}
-          <div className="absolute -left-4 top-0 h-full w-px bg-emerald-700/30" />
-          
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-emerald-500 mb-2 relative">
-            Investments
-            <div className="absolute -left-6 top-1/2 w-3 h-px bg-emerald-500" />
-          </span>
-          
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Investment Pools
-          </h1>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Liquidity Pools</h1>
           <p className="text-zinc-400">
-            Managed investment pools that diversify your clean energy portfolio
+          Invest in diversified pools to support multiple renewable energy projects
           </p>
         </div>
         
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                Total Pool Investments
-              </CardTitle>
-              <CreditCard className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="text-2xl font-bold text-white">
-                ${mockPools.poolPerformance.totalInvested.toLocaleString()}
-              </div>
-              <p className="text-xs text-emerald-400">
-                Across {mockPools.poolPerformance.totalPools} pools
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                Average Pool ROI
-              </CardTitle>
-              <LineChart className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="text-2xl font-bold text-white">
-                {mockPools.poolPerformance.averageRoi}%
-              </div>
-              <div className="flex items-center">
-                <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
-                <span className="text-xs text-emerald-400">Performing above market average</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                Risk Distribution
-              </CardTitle>
-              <BarChart className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="flex space-x-1 h-6 mb-2">
-                <div 
-                  className="bg-green-500/50 rounded-l-sm" 
-                  style={{ width: `${mockPools.poolPerformance.riskDistribution.low}%` }}
-                  title="Low Risk"
-                ></div>
-                <div 
-                  className="bg-yellow-500/50" 
-                  style={{ width: `${mockPools.poolPerformance.riskDistribution.medium}%` }}
-                  title="Medium Risk"
-                ></div>
-                <div 
-                  className="bg-red-500/50 rounded-r-sm" 
-                  style={{ width: `${mockPools.poolPerformance.riskDistribution.high}%` }}
-                  title="High Risk"
-                ></div>
-              </div>
-              <div className="flex text-xs justify-between">
-                <span className="text-green-400">{mockPools.poolPerformance.riskDistribution.low}% Low</span>
-                <span className="text-yellow-400">{mockPools.poolPerformance.riskDistribution.medium}% Med</span>
-                <span className="text-red-400">{mockPools.poolPerformance.riskDistribution.high}% High</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="bg-zinc-900/50 border border-zinc-800">
+          <TabsTrigger value="pools" className="data-[state=active]:bg-emerald-900/50 data-[state=active]:text-emerald-400">
+            Available Pools
+          </TabsTrigger>
+          {selectedPool && (
+            <TabsTrigger value="invest" className="data-[state=active]:bg-emerald-900/50 data-[state=active]:text-emerald-400">
+              Invest
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="my-investments" className="data-[state=active]:bg-emerald-900/50 data-[state=active]:text-emerald-400">
+            My Pool Investments
+          </TabsTrigger>
+        </TabsList>
         
-        {/* Pool Tabs */}
-        <DashboardTabs
-          tabs={[
-            { value: "your-pools", label: "Your Pool Investments" },
-            { value: "available-pools", label: "Available Pools" }
-          ]}
-          activeTab={activeTab}
-          onValueChange={setActiveTab}
-        >
-          <TabsContent value="your-pools">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockPools.yourInvestments.map(pool => (
-                <Card key={pool.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+        <TabsContent value="pools">
+          {/* Search and filter */}
+          <div className="mb-6 flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <Input 
+                placeholder="Search pools by name" 
+                className="pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600"
+              />
+              </div>
+              </div>
+          
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+              <span className="ml-3 text-zinc-400">Loading available pools...</span>
+              </div>
+          ) : availablePools.length === 0 ? (
+            <Card className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/30 overflow-hidden">
+              <CardContent className="py-10">
+                <div className="text-center">
+                  <AlertCircle className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-medium text-white mb-1">No pools found</h3>
+                  <p className="text-zinc-400">There are currently no active liquidity pools available.</p>
+              </div>
+            </CardContent>
+          </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {availablePools.map((pool) => (
+                <Card 
+                  key={pool.id} 
+                  className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-600/50 transition-all cursor-pointer overflow-hidden"
+                  onClick={() => handlePoolSelect(pool.id)}
+                >
                   {/* Subtle gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
                   
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
-                      <Badge variant="outline" className={getRiskColor(pool.risk)}>
-                        {pool.risk} Risk
+                  <CardHeader className="relative">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge 
+                        variant="outline" 
+                        className="bg-emerald-900/30 text-emerald-300 border-emerald-800"
+                      >
+                        <Leaf className="h-3 w-3 mr-1 text-emerald-300" />
+                        Pool {pool.id}
                       </Badge>
-                      <Badge variant="outline" className="bg-emerald-900/30 text-emerald-300 border-emerald-700">
-                        {pool.status}
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          pool.riskLevel === "Low" ? "bg-green-900/30 text-green-300 border-green-800" :
+                          pool.riskLevel === "Medium-Low" ? "bg-emerald-900/30 text-emerald-300 border-emerald-800" :
+                          pool.riskLevel === "Medium" ? "bg-yellow-900/30 text-yellow-300 border-yellow-800" :
+                          "bg-red-900/30 text-red-300 border-red-800"
+                        }
+                      >
+                        <Shield className="h-3 w-3 mr-1" />
+                        {pool.riskLevel} Risk
                       </Badge>
                     </div>
-                    <CardTitle className="text-white text-lg mt-2">{pool.name}</CardTitle>
+                    <CardTitle className="text-white">{pool.name}</CardTitle>
                     <CardDescription className="text-zinc-400">
-                      {pool.projectCount} Projects
+                      Diversified investment pool for renewable energy projects
                     </CardDescription>
                   </CardHeader>
                   
-                  <CardContent className="relative p-4 pt-0">
-                    <p className="text-zinc-300 text-sm mb-4">{pool.description}</p>
-                    
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div>
-                        <p className="text-xs text-zinc-400">Investment Amount</p>
-                        <p className="text-base font-medium text-white">${pool.investmentAmount.toLocaleString()}</p>
+                  <CardContent className="relative space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Total Assets</span>
+                        <span className="text-white">{formatUnits(pool.totalAssets, USDC_DECIMALS)} USDC</span>
                       </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI/APR</p>
-                        <p className="text-base font-medium text-emerald-400">{pool.roi}%</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Total Shares</span>
+                        <span className="text-white">{formatUnits(pool.totalShares, USDC_DECIMALS)}</span>
                       </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Date Invested</p>
-                        <p className="text-sm text-white">{pool.dateInvested}</p>
+                      
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-zinc-400">Expected APR</span>
+                        <div className="flex items-center gap-1">
+                          <Percent className="h-3 w-3 text-emerald-500" />
+                          <span className="text-emerald-400 font-medium">{pool.aprPercentage.toFixed(1)}%</span>
                       </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Next Payment</p>
-                        <p className="text-sm text-white">{pool.nextPayment}</p>
                       </div>
                     </div>
+                    
+                    <Alert className="bg-blue-900/30 border-blue-800 py-2">
+                      <Info className="h-4 w-4 text-blue-300" />
+                      <AlertDescription className="text-blue-300 text-xs">
+                        This pool funds low-value projects that match its risk profile.
+                      </AlertDescription>
+                    </Alert>
                   </CardContent>
                   
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3 flex justify-between">
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 hover:text-emerald-300 hover:border-emerald-500 transition-colors">
-                      Pool Details
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 hover:text-emerald-300 hover:border-emerald-500 transition-colors">
-                      Add Investment
+                  <CardFooter className="relative border-t border-zinc-800/50 pt-4">
+                    <Button 
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white flex gap-2 items-center"
+                    >
+                      <ArrowRightLeft className="h-4 w-4" />
+                      Invest in Pool
                     </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
-              
-            <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mt-8">
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-              
-              <CardHeader className="relative">
-                <CardTitle className="flex items-center gap-2 text-white">
-                  <Percent className="h-5 w-5 text-emerald-500" />
-                  Pool Performance History
-                </CardTitle>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="invest">
+          {selectedPoolInfo && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
+                  <CardHeader>
+                    <div className="flex justify-between">
+                      <div>
+                        <CardTitle className="text-white">{selectedPoolInfo.name}</CardTitle>
                 <CardDescription className="text-zinc-400">
-                  Year-over-year returns on your pool investments
+                          Pool #{selectedPoolInfo.id} - {selectedPoolInfo.riskLevel} Risk
                 </CardDescription>
-              </CardHeader>
-              <CardContent className="relative">
-                <div className="h-60 flex items-end justify-between gap-2">
-                  {mockPools.poolPerformance.yearlyReturns.map((data, index) => (
-                    <div key={index} className="flex flex-col items-center gap-2">
-                      <div 
-                        className="w-16 bg-emerald-500/40 hover:bg-emerald-500/60 transition-colors rounded-t-md border border-emerald-600/50 relative group" 
-                        style={{ height: `${(data.return / 20) * 100}%` }}
+                      </div>
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          selectedPoolInfo.riskLevel === "Low" ? "bg-green-900/30 text-green-300 border-green-800" :
+                          selectedPoolInfo.riskLevel === "Medium-Low" ? "bg-emerald-900/30 text-emerald-300 border-emerald-800" :
+                          selectedPoolInfo.riskLevel === "Medium" ? "bg-yellow-900/30 text-yellow-300 border-yellow-800" :
+                          "bg-red-900/30 text-red-300 border-red-800"
+                        }
                       >
-                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/80 border border-emerald-600/50 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity z-10">
-                          {data.return}% ROI
-                        </div>
-                        <div className="absolute inset-0 flex items-center justify-center text-white font-medium">
-                          {data.return}%
+                        <Shield className="h-3 w-3 mr-1" />
+                        {selectedPoolInfo.riskLevel} Risk
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-black/40 rounded-lg p-4 border border-emerald-900/10">
+                        <div className="text-sm text-zinc-500 mb-1">Total Assets</div>
+                        <div className="text-xl font-bold text-white">
+                          {formatUnits(selectedPoolInfo.totalAssets, USDC_DECIMALS)} USDC
                         </div>
                       </div>
-                      <span className="text-xs text-zinc-300 font-medium">{data.year}</span>
+                      <div className="bg-black/40 rounded-lg p-4 border border-emerald-900/10">
+                        <div className="text-sm text-zinc-500 mb-1">Expected APR</div>
+                        <div className="text-xl font-bold text-emerald-400">
+                          {selectedPoolInfo.aprPercentage.toFixed(1)}%
+                        </div>
+                      </div>
+                      <div className="bg-black/40 rounded-lg p-4 border border-emerald-900/10">
+                        <div className="text-sm text-zinc-500 mb-1">Risk Level</div>
+                        <div className="text-xl font-bold text-white">
+                          {selectedPoolInfo.riskLevel}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                    
+                    <Alert className="bg-blue-900/20 border-blue-800">
+                      <Info className="h-4 w-4 text-blue-400" />
+                      <AlertDescription className="text-blue-400">
+                        <span className="font-medium">How Pool Investments Work:</span> Your funds will be automatically allocated to low-value renewable energy projects that match this pool's risk profile. You'll earn returns as those projects make repayments.
+                      </AlertDescription>
+                    </Alert>
+                    
+                    <div className="space-y-4 pt-4">
+                      <h3 className="text-lg font-medium text-white">Pool Details</h3>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Pool Type</span>
+                          <span className="text-white">Renewable Energy</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Project Focus</span>
+                          <span className="text-white">Low-Value Projects</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Minimum Investment</span>
+                          <span className="text-white">100 USDC</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Exit Fee</span>
+                          <span className="text-white">0%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-zinc-400">Lockup Period</span>
+                          <span className="text-white">None</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-4">
+                      <Button 
+                        variant="outline"
+                        className="border-zinc-700 text-zinc-400"
+                        onClick={() => {
+                          setSelectedPool(null);
+                          setActiveTab("pools");
+                        }}
+                      >
+                        Back to Pools
+                      </Button>
                 </div>
               </CardContent>
             </Card>
+              </div>
+              
+              <div className="lg:col-span-1">
+                <PoolInvestmentForm
+                  poolId={selectedPoolInfo.id}
+                  poolName={selectedPoolInfo.name}
+                  riskLevel={selectedPoolInfo.riskLevel}
+                  aprPercentage={selectedPoolInfo.aprPercentage}
+                  totalAssets={formatUnits(selectedPoolInfo.totalAssets, USDC_DECIMALS)}
+                  onInvestmentComplete={handleInvestmentComplete}
+                />
+              </div>
+            </div>
+          )}
           </TabsContent>
           
-          <TabsContent value="available-pools">
+        <TabsContent value="my-investments">
+          {!address ? (
+            <Alert className="bg-yellow-900/30 border-yellow-800">
+              <AlertCircle className="h-4 w-4 text-yellow-400" />
+              <AlertTitle className="text-yellow-400">Wallet not connected</AlertTitle>
+              <AlertDescription className="text-yellow-400">
+                Please connect your wallet to view your pool investments.
+              </AlertDescription>
+            </Alert>
+          ) : isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+              <span className="ml-3 text-zinc-400">Loading your investments...</span>
+            </div>
+          ) : (
+            // Placeholder for user investments - would be populated with blockchain data
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockPools.availablePools.map(pool => (
-                <Card key={pool.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                  
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
-                      {getRiskIcon(pool.risk)}
-                      <Badge variant="outline" className={getRiskColor(pool.risk)}>
-                        {pool.risk} Risk
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-white text-lg mt-2">{pool.name}</CardTitle>
+              {availablePools.map((pool) => (
+                <Card 
+                  key={pool.id}
+                  className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-white">{pool.name}</CardTitle>
                     <CardDescription className="text-zinc-400">
-                      {pool.focusArea} • {pool.projectCount} Projects • {pool.duration}
+                      Pool Investment
                     </CardDescription>
                   </CardHeader>
-                  
-                  <CardContent className="relative space-y-3 p-4 pt-0">
-                    <p className="text-zinc-300 text-sm line-clamp-2">{pool.description}</p>
-                    
-                    <div className="space-y-1">
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-zinc-400">Progress</span>
-                        <span className="text-emerald-400">{Math.round((pool.raised / pool.target) * 100)}%</span>
+                        <span className="text-zinc-400">Your Shares</span>
+                        <span className="text-white">1,250</span>
                       </div>
-                      <Progress 
-                        value={(pool.raised / pool.target) * 100} 
-                        className="h-1.5 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Share Value</span>
+                        <span className="text-white">1.02 USDC</span>
+                    </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Investment Value</span>
+                        <span className="text-white">1,275 USDC</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Profit</span>
+                        <span className="text-emerald-400">+25 USDC</span>
+                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI Range</p>
-                        <p className="text-sm font-medium text-emerald-400">{pool.roi.min}% - {pool.roi.max}%</p>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center">
+                        <TrendingUp className="h-4 w-4 text-emerald-500 mr-2" />
+                        <span className="text-emerald-500 font-medium">+2.5% Growth</span>
                       </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Target</p>
-                        <p className="text-sm font-medium text-white">${pool.target.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Minimum</p>
-                        <p className="text-sm font-medium text-white">${pool.minInvestment.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Raised</p>
-                        <p className="text-sm font-medium text-emerald-400">${pool.raised.toLocaleString()}</p>
+                      <div className="flex items-center">
+                        <BarChart className="h-4 w-4 text-emerald-500 mr-2" />
+                        <span className="text-white">{pool.aprPercentage.toFixed(1)}% APR</span>
                       </div>
                     </div>
                   </CardContent>
-                  
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3">
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white hover:text-white w-full group transition-colors">
-                      Invest Now <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <CardFooter className="border-t border-zinc-800/50 pt-4 grid grid-cols-2 gap-2">
+                    <Button 
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      Deposit More
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="border-emerald-700 hover:bg-emerald-900/20 text-emerald-400"
+                    >
+                      Withdraw
                     </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
+          )}
           </TabsContent>
-        </DashboardTabs>
-        
-        {/* Information Card */}
-        <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mt-8">
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-          
-          <CardHeader className="relative">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Info className="h-5 w-5 text-emerald-500" />
-              About Investment Pools
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h3 className="text-emerald-400 font-medium">Diversification</h3>
-                <p className="text-zinc-300 text-sm">Investment pools distribute your investment across multiple projects, reducing risk while maintaining competitive returns.</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-emerald-400 font-medium">Risk Management</h3>
-                <p className="text-zinc-300 text-sm">Choose from low, medium, or high-risk pools based on your investment strategy and risk tolerance.</p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-emerald-400 font-medium">Professional Management</h3>
-                <p className="text-zinc-300 text-sm">Each pool is managed by investment professionals who select projects based on rigorous criteria.</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </Tabs>
     </div>
   );
 } 

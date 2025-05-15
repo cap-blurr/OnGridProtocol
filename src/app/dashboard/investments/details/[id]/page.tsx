@@ -30,7 +30,10 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useVaultDetails, useInvestorShares, useClaimableAmounts } from "@/hooks/contracts/useDirectProjectVault";
+import { useAccount } from "wagmi";
+import InvestmentForm from "@/components/project/InvestmentForm";
 
 // Mock investment data - in a real app would fetch based on ID
 const mockInvestmentsData = {
@@ -203,14 +206,82 @@ const mockInvestmentsData = {
 export default function InvestmentDetailsPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const { address: investorAddress } = useAccount();
+  const [projectMetadata, setProjectMetadata] = useState<any>(null);
   
-  // Get the investment data based on ID
-  const investmentId = parseInt(params.id as string);
-  const investment = mockInvestmentsData[investmentId as keyof typeof mockInvestmentsData];
+  // Get project ID and vault address from URL
+  const projectId = params.id as string;
+  const vaultAddress = searchParams.get('vault') as `0x${string}` || undefined;
   
-  // If investment not found, show a message and return button
-  if (!investment) {
+  // Fetch on-chain vault details
+  const {
+    loanAmount,
+    totalAssetsInvested,
+    isFundingClosed,
+    currentAprBps,
+    developer,
+    loanTenor,
+    loanStartTime,
+    fundingPercentage,
+    formattedLoanAmount,
+    formattedTotalAssetsInvested,
+    aprPercentage,
+    tenorDays
+  } = useVaultDetails(vaultAddress);
+  
+  // Fetch investor's shares
+  const { shares } = useInvestorShares(vaultAddress, investorAddress);
+  
+  // Fetch claimable amounts
+  const {
+    claimablePrincipal,
+    claimableYield,
+    formattedClaimablePrincipal,
+    formattedClaimableYield,
+    isLoading: isLoadingClaimable
+  } = useClaimableAmounts(vaultAddress, investorAddress);
+  
+  // Function to refresh data after successful investment
+  const handleInvestmentComplete = () => {
+    // This would trigger a refetch of vault details
+    router.refresh();
+  };
+
+  // Determine if mock data should be used (this would be removed in a production app)
+  const useMockData = !vaultAddress || !loanAmount;
+  
+  // Fallback to mock data if vault data is not available
+  const mockInvestmentId = parseInt(projectId);
+  const mockInvestment = mockInvestmentsData[mockInvestmentId as keyof typeof mockInvestmentsData];
+  
+  // Fetch project metadata from IPFS (simulated)
+  useEffect(() => {
+    // In a real implementation, you would fetch metadata from IPFS or your API
+    // using the projectId or a metadataCID
+    const fetchMetadata = async () => {
+      // Simulate API call 
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Generate mock metadata
+      setProjectMetadata({
+        name: useMockData ? mockInvestment?.name : `Renewable Energy Project #${projectId}`,
+        description: useMockData ? mockInvestment?.description : "A renewable energy project aiming to reduce carbon emissions and provide clean energy to the local community.",
+        location: useMockData ? mockInvestment?.location : "Global",
+        developer: useMockData ? mockInvestment?.developer : developer?.slice(0, 6) + '...' + developer?.slice(-4),
+        developmentStage: useMockData ? mockInvestment?.developmentStage : "Construction",
+        riskLevel: useMockData ? mockInvestment?.riskLevel : "Medium",
+        carbonCredits: useMockData ? mockInvestment?.carbonCredits : Math.floor(Math.random() * 1000),
+        energyOutput: useMockData ? mockInvestment?.energyOutput : `${Math.floor(Math.random() * 100000)} kWh`,
+      });
+    };
+    
+    fetchMetadata();
+  }, [projectId, useMockData, mockInvestment, developer]);
+  
+  // If neither mock data nor contract data is available, show not found
+  if (useMockData && !mockInvestment) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <h1 className="text-2xl font-bold text-white mb-4">Investment not found</h1>
@@ -223,41 +294,59 @@ export default function InvestmentDetailsPage() {
     );
   }
 
-  // Calculate performance metrics
-  const totalReturns = investment.transactions
-    .filter(tx => tx.type === "Return" && tx.status === "Completed")
-    .reduce((sum, tx) => sum + tx.amount, 0);
+  // Determine investment metrics using either on-chain data or mock data
+  const investmentAmount = useMockData ? mockInvestment.amount : Number(formattedLoanAmount);
+  const roi = useMockData ? mockInvestment.roi : aprPercentage;
+  const totalReturns = useMockData 
+    ? mockInvestment.transactions.filter(tx => tx.type === "Return" && tx.status === "Completed").reduce((sum, tx) => sum + tx.amount, 0)
+    : Number(formattedClaimableYield);
   
-  const averageMonthlyReturn = totalReturns / investment.transactions.filter(tx => tx.type === "Return" && tx.status === "Completed").length;
-  
-  const completionPercentage = Math.round(
-    (new Date().getTime() - new Date(investment.investmentDate).getTime()) / 
-    (new Date(investment.maturityDate).getTime() - new Date(investment.investmentDate).getTime()) * 100
-  );
+  // Calculate completions/progress
+  let completionPercentage = 0;
+  if (useMockData) {
+    completionPercentage = Math.round(
+      (new Date().getTime() - new Date(mockInvestment.investmentDate).getTime()) / 
+      (new Date(mockInvestment.maturityDate).getTime() - new Date(mockInvestment.investmentDate).getTime()) * 100
+    );
+  } else {
+    // If funding is not closed yet, show funding percentage
+    // If funding is closed, show loan repayment progress
+    completionPercentage = isFundingClosed
+      ? Math.min(100, Math.round(Number(claimablePrincipal) * 100 / Number(loanAmount)))
+      : Math.min(100, fundingPercentage);
+  }
 
   return (
     <>
       <div className="flex justify-between items-center mb-8">
         <div>
           <Link 
-            href="/dashboard/investments/current" 
+            href="/dashboard/investments/opportunities" 
             className="text-zinc-400 hover:text-white flex items-center mb-2"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Investments
+            Back to Investment Opportunities
           </Link>
-          <h1 className="text-3xl font-bold text-white">{investment.name}</h1>
+          <h1 className="text-3xl font-bold text-white">{projectMetadata?.name || "Loading..."}</h1>
           <div className="flex items-center mt-2">
             <Badge 
               variant="outline" 
-              className={investment.type === "Direct Investment" 
-                ? "border-emerald-600 text-emerald-500 bg-emerald-900/20 mr-2" 
-                : "border-blue-600 text-blue-500 bg-blue-900/20 mr-2"
-              }
+              className="border-emerald-600 text-emerald-500 bg-emerald-900/20 mr-2"
             >
-              {investment.type}
+              Direct Investment
             </Badge>
-            <span className="text-zinc-400">Invested: {investment.investmentDate}</span>
+            {!useMockData && (
+              <Badge 
+                variant="outline" 
+                className={isFundingClosed 
+                  ? "border-blue-600 text-blue-500 bg-blue-900/20 mr-2" 
+                  : "border-yellow-600 text-yellow-500 bg-yellow-900/20 mr-2"
+                }
+              >
+                {isFundingClosed ? "Funding Complete" : "Funding Open"}
+              </Badge>
+            )}
+            <span className="text-zinc-400">Project ID: {projectId}</span>
           </div>
         </div>
         
@@ -267,20 +356,24 @@ export default function InvestmentDetailsPage() {
         </Button>
       </div>
 
+      {/* Main grid layout with investment form on right side if funding is not closed */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Investment metrics stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Investment Amount
+                  {useMockData ? "Investment Amount" : "Total Funding"}
             </CardTitle>
             <Wallet className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {investment.amount.toLocaleString()} <span className="text-base">USD</span>
+                  {useMockData ? `$${investmentAmount.toLocaleString()}` : `${formattedLoanAmount} USDC`}
             </div>
             <p className="text-xs text-zinc-500">
-              {investment.duration} duration
+                  {useMockData ? mockInvestment.duration : `${tenorDays || 0} days tenor`}
             </p>
           </CardContent>
         </Card>
@@ -288,13 +381,13 @@ export default function InvestmentDetailsPage() {
         <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              ROI
+                  {useMockData ? "ROI" : "APR"}
             </CardTitle>
             <LineChart className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {investment.roi}%
+                  {typeof roi === 'number' ? roi.toFixed(2) : '0'}%
             </div>
             <p className="text-xs text-zinc-500">
               Annual percentage return
@@ -305,16 +398,20 @@ export default function InvestmentDetailsPage() {
         <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Current Returns
+                  {useMockData ? "Current Returns" : "Current Funding"}
             </CardTitle>
             <ArrowUpRight className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalReturns.toLocaleString()} <span className="text-base">USD</span>
+                  {useMockData 
+                    ? `$${totalReturns.toLocaleString()}` 
+                    : `${formattedTotalAssetsInvested} USDC`}
             </div>
             <p className="text-xs text-zinc-500">
-              {averageMonthlyReturn.toFixed(0)} USD monthly average
+                  {useMockData 
+                    ? `${(totalReturns / mockInvestment.transactions.filter(tx => tx.type === "Return" && tx.status === "Completed").length).toFixed(0)} USD monthly average` 
+                    : `${fundingPercentage}% of target`}
             </p>
           </CardContent>
         </Card>
@@ -322,7 +419,7 @@ export default function InvestmentDetailsPage() {
         <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Time Remaining
+                  {isFundingClosed ? "Repayment Progress" : "Funding Progress"}
             </CardTitle>
             <Clock className="h-4 w-4 text-emerald-500" />
           </CardHeader>
@@ -334,12 +431,17 @@ export default function InvestmentDetailsPage() {
               <Progress value={completionPercentage} className="h-2 bg-zinc-800/70" indicatorClassName="bg-emerald-500" />
             </div>
             <p className="text-xs text-zinc-500 mt-2">
-              Matures: {investment.maturityDate}
+                  {useMockData 
+                    ? `Matures: ${mockInvestment.maturityDate}` 
+                    : isFundingClosed 
+                      ? "Loan Active" 
+                      : "Funding Open"}
             </p>
           </CardContent>
         </Card>
       </div>
 
+          {/* Tabs for project details */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="bg-zinc-900/50 border border-zinc-800">
           <TabsTrigger value="overview" className="data-[state=active]:bg-emerald-900/50 data-[state=active]:text-emerald-400">Overview</TabsTrigger>
@@ -349,32 +451,36 @@ export default function InvestmentDetailsPage() {
         </TabsList>
         
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20 lg:col-span-2">
+              <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
               <CardHeader>
                 <CardTitle>Project Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-zinc-300">
-                  {investment.description}
+                    {projectMetadata?.description || "Loading project description..."}
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-sm font-medium text-zinc-400 mb-1">Location</h3>
-                      <p className="text-white">{investment.location}</p>
+                        <p className="text-white">{projectMetadata?.location || "Global"}</p>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-sm font-medium text-zinc-400 mb-1">Developer Address</h3>
+                        <p className="text-white font-mono text-sm">{developer || projectMetadata?.developer || "Unknown"}</p>
                     </div>
                     
                     <div>
-                      <h3 className="text-sm font-medium text-zinc-400 mb-1">Developer</h3>
-                      <p className="text-white">{investment.developer}</p>
+                        <h3 className="text-sm font-medium text-zinc-400 mb-1">Vault Address</h3>
+                        <p className="text-white font-mono text-sm">{vaultAddress || "N/A"}</p>
                     </div>
                     
                     <div>
                       <h3 className="text-sm font-medium text-zinc-400 mb-1">Development Stage</h3>
-                      <p className="text-white">{investment.developmentStage}</p>
-                    </div>
+                        <p className="text-white">{projectMetadata?.developmentStage || "Unknown"}</p>
+                      </div>
                   </div>
                   
                   <div className="space-y-4">
@@ -383,64 +489,35 @@ export default function InvestmentDetailsPage() {
                       <Badge 
                         variant="outline" 
                         className={
-                          investment.riskLevel === "Low" ? "border-green-600 text-green-500 bg-green-900/20" :
-                          investment.riskLevel === "Medium-Low" ? "border-emerald-600 text-emerald-500 bg-emerald-900/20" :
-                          investment.riskLevel === "Medium" ? "border-yellow-600 text-yellow-500 bg-yellow-900/20" :
+                            projectMetadata?.riskLevel === "Low" ? "border-green-600 text-green-500 bg-green-900/20" :
+                            projectMetadata?.riskLevel === "Medium-Low" ? "border-emerald-600 text-emerald-500 bg-emerald-900/20" :
+                            projectMetadata?.riskLevel === "Medium" ? "border-yellow-600 text-yellow-500 bg-yellow-900/20" :
                           "border-red-600 text-red-500 bg-red-900/20"
                         }
                       >
-                        {investment.riskLevel}
+                          {projectMetadata?.riskLevel || "Unknown"}
                       </Badge>
                     </div>
                     
                     <div>
                       <h3 className="text-sm font-medium text-zinc-400 mb-1">Carbon Credits Generated</h3>
-                      <p className="text-green-500 font-medium">{investment.carbonCredits} credits</p>
+                        <p className="text-green-500 font-medium">{projectMetadata?.carbonCredits || 0} credits</p>
                     </div>
                     
                     <div>
                       <h3 className="text-sm font-medium text-zinc-400 mb-1">Energy Output</h3>
-                      <p className="text-white">{investment.energyOutput}</p>
-                    </div>
+                        <p className="text-white">{projectMetadata?.energyOutput || "0 kWh"}</p>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-sm font-medium text-zinc-400 mb-1">Funding Status</h3>
+                        <p className="text-white">{!useMockData && isFundingClosed ? "Funding Complete" : "Seeking Investment"}</p>
+                      </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            
-            <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
-              <CardHeader>
-                <CardTitle>Investment Timeline</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-6">
-                  <div className="relative pl-6 pb-6 border-l border-zinc-800">
-                    <div className="absolute left-0 top-0 w-3 h-3 -translate-x-1.5 rounded-full bg-emerald-500"></div>
-                    <h3 className="text-white font-medium">Investment Date</h3>
-                    <p className="text-zinc-400 text-sm">{investment.investmentDate}</p>
-                  </div>
-                  
-                  <div className="relative pl-6 pb-6 border-l border-zinc-800">
-                    <div className="absolute left-0 top-0 w-3 h-3 -translate-x-1.5 rounded-full bg-yellow-500"></div>
-                    <h3 className="text-white font-medium">Current Phase</h3>
-                    <p className="text-zinc-400 text-sm">Active - Generating Returns</p>
-                  </div>
-                  
-                  <div className="relative pl-6">
-                    <div className="absolute left-0 top-0 w-3 h-3 -translate-x-1.5 rounded-full bg-zinc-600"></div>
-                    <h3 className="text-white font-medium">Maturity Date</h3>
-                    <p className="text-zinc-400 text-sm">{investment.maturityDate}</p>
-                  </div>
-                </div>
-                
-                <div className="pt-4 mt-4 border-t border-zinc-800">
-                  <h3 className="text-white font-medium mb-2">Completion Progress</h3>
-                  <Progress value={completionPercentage} className="h-2 bg-zinc-800/70" indicatorClassName="bg-emerald-500" />
-                  <p className="text-zinc-400 text-sm mt-2">{completionPercentage}% complete</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+            </TabsContent>
         
         <TabsContent value="performance">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -451,7 +528,7 @@ export default function InvestmentDetailsPage() {
               <CardContent>
                 <div className="h-80">
                   <div className="h-full flex items-end justify-between gap-2">
-                    {investment.monthlyPerformance.map((month, index) => (
+                        {mockInvestment?.monthlyPerformance.map((month, index) => (
                       <div key={index} className="flex-1 flex flex-col items-center">
                         <div className="w-full flex flex-col items-center gap-1">
                           <div 
@@ -498,7 +575,7 @@ export default function InvestmentDetailsPage() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-zinc-400">Initial Investment</span>
-                    <span className="text-white font-medium">${investment.amount.toLocaleString()}</span>
+                        <span className="text-white font-medium">${investmentAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-zinc-400">Current Returns</span>
@@ -506,11 +583,11 @@ export default function InvestmentDetailsPage() {
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-zinc-400">Monthly Average</span>
-                    <span className="text-white font-medium">${averageMonthlyReturn.toFixed(0)}</span>
+                        <span className="text-white font-medium">${(totalReturns / investmentAmount).toFixed(0)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-zinc-400">Projected Total Returns</span>
-                    <span className="text-white font-medium">${Math.round(investment.amount * (investment.roi / 100) * (parseInt(investment.duration) / 12)).toLocaleString()}</span>
+                        <span className="text-white font-medium">${Math.round(investmentAmount * (roi / 100) * (parseInt(mockInvestment?.duration) / 12)).toLocaleString()}</span>
                   </div>
                 </div>
                 
@@ -519,13 +596,13 @@ export default function InvestmentDetailsPage() {
                   <div className="bg-zinc-800/50 h-4 rounded-full overflow-hidden">
                     <div 
                       className="bg-gradient-to-r from-emerald-600 to-green-500 h-full rounded-full"
-                      style={{ width: `${totalReturns / investment.amount * 100}%` }}
+                          style={{ width: `${totalReturns / investmentAmount * 100}%` }}
                     ></div>
                   </div>
                   <div className="flex justify-between mt-2 text-xs">
                     <span className="text-zinc-400">0%</span>
-                    <span className="text-emerald-500 font-medium">{(totalReturns / investment.amount * 100).toFixed(1)}% return to date</span>
-                    <span className="text-zinc-400">{investment.roi}%</span>
+                        <span className="text-emerald-500 font-medium">{(totalReturns / investmentAmount * 100).toFixed(1)}% return to date</span>
+                        <span className="text-zinc-400">{typeof roi === 'number' ? roi.toFixed(1) : '0'}%</span>
                   </div>
                 </div>
                 
@@ -535,13 +612,13 @@ export default function InvestmentDetailsPage() {
                     <div className="bg-black/70 rounded-lg p-3 border border-emerald-900/20">
                       <div className="flex gap-2 items-center">
                         <Leaf className="h-5 w-5 text-green-500" />
-                        <span className="text-white">{investment.carbonCredits} Credits</span>
+                            <span className="text-white">{projectMetadata?.carbonCredits || 0} Credits</span>
                       </div>
                     </div>
                     <div className="bg-black/70 rounded-lg p-3 border border-emerald-900/20">
                       <div className="flex gap-2 items-center">
                         <BarChart className="h-5 w-5 text-emerald-500" />
-                        <span className="text-white">{investment.energyOutput}</span>
+                            <span className="text-white">{projectMetadata?.energyOutput || "0 kWh"}</span>
                       </div>
                     </div>
                   </div>
@@ -567,7 +644,7 @@ export default function InvestmentDetailsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {investment.transactions.map((tx, index) => (
+                      {mockInvestment?.transactions.map((tx, index) => (
                     <TableRow key={index} className="hover:bg-emerald-900/10 border-b border-zinc-800/30">
                       <TableCell>{tx.date}</TableCell>
                       <TableCell>
@@ -606,7 +683,7 @@ export default function InvestmentDetailsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {investment.documents.map((doc, index) => (
+                    {mockInvestment?.documents.map((doc, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border border-zinc-800/50 rounded-lg hover:border-emerald-900/30 hover:bg-black/50 transition-colors">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-emerald-900/20 rounded-full flex items-center justify-center mr-4">
@@ -628,6 +705,60 @@ export default function InvestmentDetailsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+        </div>
+        
+        {/* Investment form - only show if:
+          1. Vault address is available
+          2. Funding is not closed
+        */}
+        <div className="lg:col-span-1">
+          {!useMockData && vaultAddress && (
+            <InvestmentForm
+              vaultAddress={vaultAddress}
+              projectName={projectMetadata?.name || `Project #${projectId}`}
+              totalFunding={formattedLoanAmount}
+              currentFunding={formattedTotalAssetsInvested}
+              fundingPercentage={fundingPercentage}
+              isFundingClosed={!!isFundingClosed}
+              onInvestmentComplete={handleInvestmentComplete}
+            />
+          )}
+          
+          {/* If funding is closed and the user has invested, show their investment details */}
+          {!useMockData && vaultAddress && isFundingClosed && shares && Number(shares) > 0 && (
+            <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20 mt-6">
+              <CardHeader>
+                <CardTitle className="text-white">Your Investment</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Shares:</span>
+                  <span className="text-white">{shares?.toString() || "0"}</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Claimable Principal:</span>
+                  <span className="text-white">{formattedClaimablePrincipal} USDC</span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Claimable Yield:</span>
+                  <span className="text-white">{formattedClaimableYield} USDC</span>
+                </div>
+                
+                <div className="flex gap-2 mt-4">
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">Claim Principal</Button>
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">Claim Yield</Button>
+                </div>
+                
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Redeem All
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </>
   );
 } 

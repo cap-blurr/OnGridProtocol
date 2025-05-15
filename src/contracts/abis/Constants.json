@@ -1,0 +1,600 @@
+{
+  "abi": [
+    {
+      "type": "function",
+      "name": "BASIS_POINTS_DENOMINATOR",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "BURNER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "CAPITAL_RAISING_FEE_FIRST_TIME_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "CAPITAL_RAISING_FEE_REPEAT_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "CARBON_TREASURY_SHARE_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DEFAULT_ADMIN_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DEPOSIT_FUNDER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DEVELOPER_DEPOSIT_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "DEV_ESCROW_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "HIGH_VALUE_THRESHOLD",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "KYC_ADMIN_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MGMT_FEE_AUM_TIER1_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MGMT_FEE_AUM_TIER1_THRESHOLD",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MGMT_FEE_AUM_TIER2_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "MINTER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PAUSER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PROJECT_HANDLER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "PROTOCOL_TREASURY_SHARE_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "RELEASER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "REPAYMENT_HANDLER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "REPAYMENT_ROUTER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "RISK_ORACLE_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SECONDS_PER_YEAR",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "SLASHER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TX_FEE_TIER1_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TX_FEE_TIER1_THRESHOLD",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TX_FEE_TIER2_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TX_FEE_TIER2_THRESHOLD",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "TX_FEE_TIER3_BPS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "UPGRADER_ROLE",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "USDC_DECIMALS",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint8", "internalType": "uint8" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "USDC_UNIT",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    }
+  ],
+  "bytecode": {
+    "object": "0x6106e1610034600b8282823980515f1a607314602857634e487b7160e01b5f525f60045260245ffd5b305f52607381538281f3fe73000000000000000000000000000000000000000030146080604052600436106101f2575f3560e01c8063ac28af2411610114578063e2714580116100a9578063f03dcb6e11610079578063f03dcb6e14610468578063f72c0d8b14610470578063ff2f4e4a14610497578063ff62f87c14610406575f80fd5b8063e271458014610406578063e4f020231461040f578063e63ab1e914610436578063e6a69ab81461045d575f80fd5b8063cfa498a3116100e4578063cfa498a314610388578063d2a618de14610391578063d5391393146103b8578063dc655e3c146103df575f80fd5b8063ac28af2414610337578063c1419def1461035e578063ca7b64bb14610378578063cd9b238414610380575f80fd5b80635095af641161018a57806396fe905e1161015a57806396fe905e146102f8578063a217fddf14610301578063a3f8754b14610308578063ab3fbf5a1461032f575f80fd5b80635095af64146102b95780636eb63543146102e05780637eb1aaa0146102e85780637ee3b3b2146102f0575f80fd5b80632b587880116101c55780632b58788014610299578063308a05ee146102a157806345e27d07146102a95780634af28676146102b1575f80fd5b806302d7fd92146101f657806324765d0814610230578063282c51f31461025757806329964ac31461027e575b5f80fd5b61021d7f811427a0fa4932aef534bba16bc34e9b7b2d7d2a79c475fca1765f6cc1faebea81565b6040519081526020015b60405180910390f35b61021d7f3f57c52536792344d29a07b54000a77b3ed100d4e466b7a4fda1fc52c2bdee6281565b61021d7f3c11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a84881565b610286609681565b60405161ffff9091168152602001610227565b61021d6104be565b610286604b81565b61021d6104d9565b61021d6104f2565b61021d7f12b42e8a160f6064dc959c6f251e3af0750ad213dbecf573b4710d67d6c28e3981565b610286606481565b610286601481565b61021d6104fe565b610286611f4081565b61021d5f81565b61021d7f02509c39826ef4d4fc9a6478dd388f892df655e831b495ea37e26344d4c48aca81565b610286603281565b61021d7f88f3509f0e42391f2d94ebfb2a37cbd0782b1b8f73715330017f4663290b811781565b610366600681565b60405160ff9091168152602001610227565b61021d610517565b610286602381565b61028661271081565b61021d7f51a687be621618bb42f5dcbb17ee3798544ce951156fd30a67d800a241b4801981565b61021d7f9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a681565b61021d7fc78f9bcb4e7702881693fc003818cea41b963ca2641dc5446bfdd14affd4afcb81565b6102866107d081565b61021d7fc1959c1680e978dd9c68669ea488ae9b3e8f764684bd2da104ac2d5b5f57006381565b61021d7f65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a81565b61021d6301e1338081565b61028660c881565b61021d7f189ab7a9244df0848122154315af71fe140f3db0fe014031783b0946b8c9d2e381565b61021d7f42847befda217a8205614b97eeba0062d90a739902cf3467520ceec14471153981565b6104ca6006600a61067f565b6104d690612710610694565b81565b6104e56006600a61067f565b6104d690620186a0610694565b6104d66006600a61067f565b61050a6006600a61067f565b6104d690620f4240610694565b6105236006600a61067f565b6104d69061c350610694565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b6001815b60018411156105975780850481111561057b5761057b61052f565b600184161561058957908102905b60019390931c928002610560565b935093915050565b5f826105ad57506001610679565b816105b957505f610679565b81600181146105cf57600281146105d9576105f5565b6001915050610679565b60ff8411156105ea576105ea61052f565b50506001821b610679565b5060208310610133831016604e8410600b8410161715610618575081810a610679565b6106437fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff848461055c565b807fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff048211156106755761067561052f565b0290505b92915050565b5f61068d60ff84168361059f565b9392505050565b80820281158282048414176106795761067961052f56fea26469706673582212208e3c06d5b7aa5ea4dbaab39502b40a06b0a72bb038d0aa0b1346e3ef68c9480864736f6c634300081a0033",
+    "sourceMap": "250:3685:89:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;250:3685:89;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x73000000000000000000000000000000000000000030146080604052600436106101f2575f3560e01c8063ac28af2411610114578063e2714580116100a9578063f03dcb6e11610079578063f03dcb6e14610468578063f72c0d8b14610470578063ff2f4e4a14610497578063ff62f87c14610406575f80fd5b8063e271458014610406578063e4f020231461040f578063e63ab1e914610436578063e6a69ab81461045d575f80fd5b8063cfa498a3116100e4578063cfa498a314610388578063d2a618de14610391578063d5391393146103b8578063dc655e3c146103df575f80fd5b8063ac28af2414610337578063c1419def1461035e578063ca7b64bb14610378578063cd9b238414610380575f80fd5b80635095af641161018a57806396fe905e1161015a57806396fe905e146102f8578063a217fddf14610301578063a3f8754b14610308578063ab3fbf5a1461032f575f80fd5b80635095af64146102b95780636eb63543146102e05780637eb1aaa0146102e85780637ee3b3b2146102f0575f80fd5b80632b587880116101c55780632b58788014610299578063308a05ee146102a157806345e27d07146102a95780634af28676146102b1575f80fd5b806302d7fd92146101f657806324765d0814610230578063282c51f31461025757806329964ac31461027e575b5f80fd5b61021d7f811427a0fa4932aef534bba16bc34e9b7b2d7d2a79c475fca1765f6cc1faebea81565b6040519081526020015b60405180910390f35b61021d7f3f57c52536792344d29a07b54000a77b3ed100d4e466b7a4fda1fc52c2bdee6281565b61021d7f3c11d16cbaffd01df69ce1c404f6340ee057498f5f00246190ea54220576a84881565b610286609681565b60405161ffff9091168152602001610227565b61021d6104be565b610286604b81565b61021d6104d9565b61021d6104f2565b61021d7f12b42e8a160f6064dc959c6f251e3af0750ad213dbecf573b4710d67d6c28e3981565b610286606481565b610286601481565b61021d6104fe565b610286611f4081565b61021d5f81565b61021d7f02509c39826ef4d4fc9a6478dd388f892df655e831b495ea37e26344d4c48aca81565b610286603281565b61021d7f88f3509f0e42391f2d94ebfb2a37cbd0782b1b8f73715330017f4663290b811781565b610366600681565b60405160ff9091168152602001610227565b61021d610517565b610286602381565b61028661271081565b61021d7f51a687be621618bb42f5dcbb17ee3798544ce951156fd30a67d800a241b4801981565b61021d7f9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a681565b61021d7fc78f9bcb4e7702881693fc003818cea41b963ca2641dc5446bfdd14affd4afcb81565b6102866107d081565b61021d7fc1959c1680e978dd9c68669ea488ae9b3e8f764684bd2da104ac2d5b5f57006381565b61021d7f65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a81565b61021d6301e1338081565b61028660c881565b61021d7f189ab7a9244df0848122154315af71fe140f3db0fe014031783b0946b8c9d2e381565b61021d7f42847befda217a8205614b97eeba0062d90a739902cf3467520ceec14471153981565b6104ca6006600a61067f565b6104d690612710610694565b81565b6104e56006600a61067f565b6104d690620186a0610694565b6104d66006600a61067f565b61050a6006600a61067f565b6104d690620f4240610694565b6105236006600a61067f565b6104d69061c350610694565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b6001815b60018411156105975780850481111561057b5761057b61052f565b600184161561058957908102905b60019390931c928002610560565b935093915050565b5f826105ad57506001610679565b816105b957505f610679565b81600181146105cf57600281146105d9576105f5565b6001915050610679565b60ff8411156105ea576105ea61052f565b50506001821b610679565b5060208310610133831016604e8410600b8410161715610618575081810a610679565b6106437fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff848461055c565b807fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff048211156106755761067561052f565b0290505b92915050565b5f61068d60ff84168361059f565b9392505050565b80820281158282048414176106795761067961052f56fea26469706673582212208e3c06d5b7aa5ea4dbaab39502b40a06b0a72bb038d0aa0b1346e3ef68c9480864736f6c634300081a0033",
+    "sourceMap": "250:3685:89:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2861:68;;2902:27;2861:68;;;;;168:25:112;;;156:2;141:18;2861:68:89;;;;;;;;3837:82;;3885:34;3837:82;;2781:62;;2819:24;2781:62;;1060:59;;1116:3;1060:59;;;;;386:6:112;374:19;;;356:38;;344:2;329:18;1060:59:89;204:196:112;1686:67:89;;;:::i;1453:50::-;;1501:2;1453:50;;1853:68;;;:::i;422:55::-;;;:::i;3054:64::-;;3093:25;3054:64;;1358:51;;1406:3;1358:51;;2009:44;;2051:2;2009:44;;1276:76;;;:::i;2204:57::-;;2257:4;2204:57;;2474:49;;2519:4;2474:49;;3692:72;;3735:29;3692:72;;1759:44;;1801:2;1759:44;;2956:66;;2996:26;2956:66;;377:39;;415:1;377:39;;;;;775:4:112;763:17;;;745:36;;733:2;718:18;377:39:89;595:192:112;653:65:89;;;:::i;1927:44::-;;1969:2;1927:44;;539:55;;589:5;539:55;;3423:84;;3472:35;3423:84;;2701:62;;2739:24;2701:62;;3557:70;;3599:28;3557:70;;2274:55;;2325:4;2274:55;;3150:78;;3196:32;3150:78;;2529:62;;2567:24;2529:62;;294:51;;337:8;294:51;;983:63;;1043:3;983:63;;2597:66;;2637:26;2597:66;;3302:80;;3349:33;3302:80;;1686:67;458:19;415:1;458:2;:19;:::i;:::-;1735:18;;:6;:18;:::i;:::-;1686:67;:::o;1853:68::-;458:19;415:1;458:2;:19;:::i;:::-;1902;;:7;:19;:::i;422:55::-;458:19;415:1;458:2;:19;:::i;1276:76::-;458:19;415:1;458:2;:19;:::i;:::-;1331:21;;:9;:21;:::i;653:65::-;458:19;415:1;458:2;:19;:::i;:::-;700:18;;:6;:18;:::i;792:184:112:-;844:77;841:1;834:88;941:4;938:1;931:15;965:4;962:1;955:15;981:375;1069:1;1087:5;1101:249;1122:1;1112:8;1109:15;1101:249;;;1172:4;1167:3;1163:14;1157:4;1154:24;1151:50;;;1181:18;;:::i;:::-;1231:1;1221:8;1217:16;1214:49;;;1245:16;;;;1214:49;1328:1;1324:16;;;;;1284:15;;1101:249;;;981:375;;;;;;:::o;1361:1022::-;1410:5;1440:8;1430:80;;-1:-1:-1;1481:1:112;1495:5;;1430:80;1529:4;1519:76;;-1:-1:-1;1566:1:112;1580:5;;1519:76;1611:4;1629:1;1624:59;;;;1697:1;1692:174;;;;1604:262;;1624:59;1654:1;1645:10;;1668:5;;;1692:174;1729:3;1719:8;1716:17;1713:43;;;1736:18;;:::i;:::-;-1:-1:-1;;1792:1:112;1778:16;;1851:5;;1604:262;;1950:2;1940:8;1937:16;1931:3;1925:4;1922:13;1918:36;1912:2;1902:8;1899:16;1894:2;1888:4;1885:12;1881:35;1878:77;1875:203;;;-1:-1:-1;1987:19:112;;;2063:5;;1875:203;2110:102;2145:66;2135:8;2129:4;2110:102;:::i;:::-;2308:6;2240:66;2236:79;2227:7;2224:92;2221:118;;;2319:18;;:::i;:::-;2357:20;;-1:-1:-1;1361:1022:112;;;;;:::o;2388:140::-;2446:5;2475:47;2516:4;2506:8;2502:19;2496:4;2475:47;:::i;:::-;2466:56;2388:140;-1:-1:-1;;;2388:140:112:o;2533:168::-;2606:9;;;2637;;2654:15;;;2648:22;;2634:37;2624:71;;2675:18;;:::i",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "BASIS_POINTS_DENOMINATOR()": "cfa498a3",
+    "BURNER_ROLE()": "282c51f3",
+    "CAPITAL_RAISING_FEE_FIRST_TIME_BPS()": "f03dcb6e",
+    "CAPITAL_RAISING_FEE_REPEAT_BPS()": "29964ac3",
+    "CARBON_TREASURY_SHARE_BPS()": "e2714580",
+    "DEFAULT_ADMIN_ROLE()": "a217fddf",
+    "DEPOSIT_FUNDER_ROLE()": "e4f02023",
+    "DEVELOPER_DEPOSIT_BPS()": "ff62f87c",
+    "DEV_ESCROW_ROLE()": "dc655e3c",
+    "HIGH_VALUE_THRESHOLD()": "ca7b64bb",
+    "KYC_ADMIN_ROLE()": "02d7fd92",
+    "MGMT_FEE_AUM_TIER1_BPS()": "6eb63543",
+    "MGMT_FEE_AUM_TIER1_THRESHOLD()": "7ee3b3b2",
+    "MGMT_FEE_AUM_TIER2_BPS()": "308a05ee",
+    "MINTER_ROLE()": "d5391393",
+    "PAUSER_ROLE()": "e63ab1e9",
+    "PROJECT_HANDLER_ROLE()": "ff2f4e4a",
+    "PROTOCOL_TREASURY_SHARE_BPS()": "96fe905e",
+    "RELEASER_ROLE()": "ac28af24",
+    "REPAYMENT_HANDLER_ROLE()": "d2a618de",
+    "REPAYMENT_ROUTER_ROLE()": "24765d08",
+    "RISK_ORACLE_ROLE()": "a3f8754b",
+    "SECONDS_PER_YEAR()": "e6a69ab8",
+    "SLASHER_ROLE()": "5095af64",
+    "TX_FEE_TIER1_BPS()": "ab3fbf5a",
+    "TX_FEE_TIER1_THRESHOLD()": "2b587880",
+    "TX_FEE_TIER2_BPS()": "cd9b2384",
+    "TX_FEE_TIER2_THRESHOLD()": "45e27d07",
+    "TX_FEE_TIER3_BPS()": "7eb1aaa0",
+    "UPGRADER_ROLE()": "f72c0d8b",
+    "USDC_DECIMALS()": "c1419def",
+    "USDC_UNIT()": "4af28676"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.26+commit.8a97fa7a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"BASIS_POINTS_DENOMINATOR\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BURNER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"CAPITAL_RAISING_FEE_FIRST_TIME_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"CAPITAL_RAISING_FEE_REPEAT_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"CARBON_TREASURY_SHARE_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEPOSIT_FUNDER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEVELOPER_DEPOSIT_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DEV_ESCROW_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"HIGH_VALUE_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"KYC_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MGMT_FEE_AUM_TIER1_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MGMT_FEE_AUM_TIER1_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MGMT_FEE_AUM_TIER2_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PAUSER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PROJECT_HANDLER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PROTOCOL_TREASURY_SHARE_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RELEASER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"REPAYMENT_HANDLER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"REPAYMENT_ROUTER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RISK_ORACLE_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SECONDS_PER_YEAR\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"SLASHER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TX_FEE_TIER1_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TX_FEE_TIER1_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TX_FEE_TIER2_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TX_FEE_TIER2_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TX_FEE_TIER3_BPS\",\"outputs\":[{\"internalType\":\"uint16\",\"name\":\"\",\"type\":\"uint16\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"UPGRADER_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDC_DECIMALS\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDC_UNIT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Defines shared constants used throughout the OnGrid Finance protocol.\",\"kind\":\"dev\",\"methods\":{},\"title\":\"Constants\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"This contract is intended to be inherited or its values imported directly.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/common/Constants.sol\":\"Constants\"},\"evmVersion\":\"cancun\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":10000},\"remappings\":[\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@prb-math/=lib/prb-math/src/\",\":@solmate/=lib/solmate/src/\",\":ds-test/=lib/solmate/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":prb-math/=lib/prb-math/src/\",\":solmate/=lib/solmate/src/\"]},\"sources\":{\"src/common/Constants.sol\":{\"keccak256\":\"0x002b6097ac54c958ffaa412a72d67e2c6168af6db3bdb42f2581d12815795726\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://e3cca0073a9fe36f7411d26a638ba5283eb38f80ed90584feb481eff61770bb0\",\"dweb:/ipfs/QmNbm2ovuKC66cf1rZqFReKFFFMwez2LaZ28arzZMcXQzk\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": { "version": "0.8.26+commit.8a97fa7a" },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "BASIS_POINTS_DENOMINATOR",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "BURNER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "CAPITAL_RAISING_FEE_FIRST_TIME_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "CAPITAL_RAISING_FEE_REPEAT_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "CARBON_TREASURY_SHARE_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DEFAULT_ADMIN_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DEPOSIT_FUNDER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DEVELOPER_DEPOSIT_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "DEV_ESCROW_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "HIGH_VALUE_THRESHOLD",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "KYC_ADMIN_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "MGMT_FEE_AUM_TIER1_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "MGMT_FEE_AUM_TIER1_THRESHOLD",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "MGMT_FEE_AUM_TIER2_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "MINTER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "PAUSER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "PROJECT_HANDLER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "PROTOCOL_TREASURY_SHARE_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "RELEASER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "REPAYMENT_HANDLER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "REPAYMENT_ROUTER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "RISK_ORACLE_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "SECONDS_PER_YEAR",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "SLASHER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TX_FEE_TIER1_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TX_FEE_TIER1_THRESHOLD",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TX_FEE_TIER2_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TX_FEE_TIER2_THRESHOLD",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "TX_FEE_TIER3_BPS",
+          "outputs": [
+            { "internalType": "uint16", "name": "", "type": "uint16" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "UPGRADER_ROLE",
+          "outputs": [
+            { "internalType": "bytes32", "name": "", "type": "bytes32" }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "USDC_DECIMALS",
+          "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "USDC_UNIT",
+          "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+          ]
+        }
+      ],
+      "devdoc": { "kind": "dev", "methods": {}, "version": 1 },
+      "userdoc": { "kind": "user", "methods": {}, "version": 1 }
+    },
+    "settings": {
+      "remappings": [
+        "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+        "@prb-math/=lib/prb-math/src/",
+        "@solmate/=lib/solmate/src/",
+        "ds-test/=lib/solmate/lib/ds-test/src/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "forge-std/=lib/forge-std/src/",
+        "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        "prb-math/=lib/prb-math/src/",
+        "solmate/=lib/solmate/src/"
+      ],
+      "optimizer": { "enabled": true, "runs": 10000 },
+      "metadata": { "bytecodeHash": "ipfs" },
+      "compilationTarget": { "src/common/Constants.sol": "Constants" },
+      "evmVersion": "cancun",
+      "libraries": {}
+    },
+    "sources": {
+      "src/common/Constants.sol": {
+        "keccak256": "0x002b6097ac54c958ffaa412a72d67e2c6168af6db3bdb42f2581d12815795726",
+        "urls": [
+          "bzz-raw://e3cca0073a9fe36f7411d26a638ba5283eb38f80ed90584feb481eff61770bb0",
+          "dweb:/ipfs/QmNbm2ovuKC66cf1rZqFReKFFFMwez2LaZ28arzZMcXQzk"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "id": 89
+}

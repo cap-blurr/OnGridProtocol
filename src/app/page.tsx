@@ -32,5 +32,9 @@ export default function Home() {
     }
   }, [isConnected, userType, router, isMounted, isLoading]);
 
-  return <LandingPage />;
+  return (
+    <main>
+      <LandingPage />
+    </main>
+  );
 }

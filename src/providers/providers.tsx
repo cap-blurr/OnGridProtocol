@@ -19,7 +19,7 @@ const wagmiConfig = createConfig({
   ],
   ssr: true,
   transports: {
-    [baseSepolia.id]: http(),
+        [baseSepolia.id]: http('https://base-sepolia.g.alchemy.com/v2/1gJpy5A2EiQrD8o1RIjPOo0-xXf_CFLA'),
   },
 });
 

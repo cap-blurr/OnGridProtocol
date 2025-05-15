@@ -1,613 +1,312 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { useAccount } from "wagmi";
+import { useContractAddresses } from "@/hooks/contracts/useDeveloperRegistry";
+import { useContractRead, useWatchContractEvent } from "wagmi";
+import ProjectFactoryABI from "@/contracts/abis/ProjectFactory.json";
+import DirectProjectVaultABI from "@/contracts/abis/DirectProjectVault.json";
+import { formatEther, formatUnits } from "ethers";
+import { useRouter } from "next/navigation";
 import {
+  ArrowUpRight, 
   Leaf,
-  LineChart,
-  ArrowRight,
-  Zap,
+  Calendar, 
+  BarChart, 
+  Search,
+  Clock,
+  AlertCircle,
   Sun,
   Wind,
-  Droplets,
-  TreePine,
-  ArrowUpRight,
-  Globe2,
-  DollarSign
+  Loader2
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
 
-// Mock data for available investment opportunities
-const mockOpportunities = {
-  featured: [
-    {
-      id: "op-1",
-      name: "Colorado Solar Array",
-      type: "Solar",
-      target: 500000,
-      raised: 325000,
-      roi: { min: 8.5, max: 12.3 },
-      location: "Colorado, USA",
-      duration: "7 years",
-      description: "A large-scale solar array project in southern Colorado providing clean energy to over 10,000 homes.",
-      carbonReduction: 45000,
-      image: "/images/solar-project.jpg"
-    },
-    {
-      id: "op-2",
-      name: "Midwest Wind Collective",
-      type: "Wind",
-      target: 750000,
-      raised: 420000,
-      roi: { min: 7.8, max: 11.5 },
-      location: "Iowa, USA",
-      duration: "10 years",
-      description: "Wind farm collective spanning three counties with 45 turbines producing consistent clean energy.",
-      carbonReduction: 62000,
-      image: "/images/wind-project.jpg"
-    }
-  ],
-  projects: [
-    {
-      id: "op-3",
-      name: "Pacific Tidal Energy",
-      type: "Tidal",
-      target: 900000,
-      raised: 380000,
-      roi: { min: 9.1, max: 14.7 },
-      location: "Oregon Coast, USA",
-      duration: "12 years",
-      description: "Innovative tidal energy project harnessing the power of ocean waves to generate predictable clean energy.",
-      carbonReduction: 58000,
-      image: "/images/tidal-project.jpg"
-    },
-    {
-      id: "op-4",
-      name: "Arizona Solar Initiative",
-      type: "Solar",
-      target: 350000,
-      raised: 120000,
-      roi: { min: 7.5, max: 10.2 },
-      location: "Arizona, USA",
-      duration: "5 years",
-      description: "Desert solar implementation with next-gen panels optimized for high temperature environments.",
-      carbonReduction: 32000,
-      image: "/images/solar-desert.jpg"
-    },
-    {
-      id: "op-5",
-      name: "Geothermal Expansion Project",
-      type: "Geothermal",
-      target: 1200000,
-      raised: 750000,
-      roi: { min: 6.8, max: 9.5 },
-      location: "Nevada, USA",
-      duration: "15 years",
-      description: "Expansion of existing geothermal power plant to increase capacity by 45% with minimal environmental impact.",
-      carbonReduction: 85000,
-      image: "/images/geothermal.jpg"
-    },
-    {
-      id: "op-6",
-      name: "Urban Microgrids Network",
-      type: "Mixed Renewable",
-      target: 280000,
-      raised: 95000,
-      roi: { min: 8.2, max: 13.8 },
-      location: "Chicago, USA",
-      duration: "8 years",
-      description: "Network of interconnected urban microgrids combining solar, wind and battery storage for resilient city power.",
-      carbonReduction: 28000,
-      image: "/images/microgrid.jpg"
-    }
-  ],
-  pools: [
-    {
-      id: "pool-1",
-      name: "Green Energy Growth Fund",
-      risk: "Low",
-      target: 2000000,
-      raised: 1450000,
-      roi: { min: 6.5, max: 8.2 },
-      duration: "5 years",
-      description: "Diversified portfolio of established renewable energy projects with stable returns and low risk profile.",
-      projectCount: 12
-    },
-    {
-      id: "pool-2",
-      name: "Renewable Innovation Fund",
-      risk: "Medium",
-      target: 1500000,
-      raised: 780000,
-      roi: { min: 9.5, max: 14.8 },
-      duration: "7 years",
-      description: "Investment in emerging technologies and innovative approaches to renewable energy generation.",
-      projectCount: 8
-    },
-    {
-      id: "pool-3",
-      name: "High Impact Clean Energy Fund",
-      risk: "High",
-      target: 1000000,
-      raised: 420000,
-      roi: { min: 12.5, max: 22.0 },
-      duration: "10 years",
-      description: "High risk, high reward investments in breakthrough clean energy technologies with significant growth potential.",
-      projectCount: 6
-    }
-  ]
-};
-
-// Get icon based on project type
-const getProjectIcon = (type: string) => {
-  switch (type) {
-    case "Solar":
-      return <Sun className="h-5 w-5 text-yellow-500" />;
-    case "Wind":
-      return <Wind className="h-5 w-5 text-blue-400" />;
-    case "Tidal":
-      return <Droplets className="h-5 w-5 text-blue-500" />;
-    case "Geothermal":
-      return <Zap className="h-5 w-5 text-red-500" />;
-    case "Mixed Renewable":
-      return <TreePine className="h-5 w-5 text-green-500" />;
-    default:
-      return <Leaf className="h-5 w-5 text-emerald-500" />;
-  }
-};
-
-// Get risk badge color
-const getRiskColor = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return "bg-green-500/20 text-green-500 border-green-700";
-    case "Medium":
-      return "bg-yellow-500/20 text-yellow-500 border-yellow-700";
-    case "High":
-      return "bg-red-500/20 text-red-500 border-red-700";
-    default:
-      return "bg-zinc-500/20 text-zinc-400 border-zinc-600";
-  }
-};
+interface ProjectVault {
+  id: string;
+  vaultAddress: string;
+  developer: string;
+  loanAmount: bigint;
+  currentFunding: bigint;
+  fundingPercentage: number;
+  apr: number;
+  tenorDays: number;
+  isFundingClosed: boolean;
+  name: string; // From metadata
+}
 
 export default function InvestmentOpportunitiesPage() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [projects, setProjects] = useState<ProjectVault[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<ProjectVault[]>([]);
+  const { address } = useAccount();
+  const addresses = useContractAddresses();
+  const router = useRouter();
+
+  // Mock project names while real metadata loading is implemented
+  const projectTypes = ["Solar Farm", "Wind Turbines", "Hydro Power", "Biomass Plant", "Geothermal"];
+  const locations = ["California", "Texas", "New York", "Arizona", "Florida", "Colorado"];
+
+  // Listen for ProjectCreated events to find available vaults
+  useWatchContractEvent({
+    address: addresses.projectFactoryProxy as `0x${string}`,
+    abi: ProjectFactoryABI.abi,
+    eventName: 'ProjectCreated',
+    listener(logs) {
+      if (logs.length > 0) {
+        logs.forEach(log => {
+          const { args } = log;
+          if (args) {
+            const projectId = args.projectId.toString();
+            const vaultAddress = args.vaultAddress as string;
+            const developer = args.developer as string;
+            const loanAmount = args.loanAmount as bigint;
+
+            // Check if we already have this project
+            if (!projects.some(p => p.id === projectId)) {
+              // Fetch additional vault details
+              fetchVaultDetails(vaultAddress, projectId, developer, loanAmount);
+            }
+          }
+        });
+      }
+    },
+  });
+
+  // Mock function to simulate fetching vault details
+  // In a real implementation, you would use useContractRead for each vault
+  const fetchVaultDetails = async (vaultAddress: string, projectId: string, developer: string, loanAmount: bigint) => {
+    try {
+      // This would be replaced with actual contract reads
+      const mockTenor = Math.floor(Math.random() * 365) + 180; // 180-545 days
+      const mockAPR = 8 + Math.random() * 5; // 8-13%
+      const mockFunding = Math.floor(Math.random() * Number(loanAmount));
+      const mockFundingPercentage = (mockFunding / Number(loanAmount)) * 100;
+      const mockClosed = Math.random() > 0.7; // 30% chance of being closed
+      
+      // Generate a mock name
+      const type = projectTypes[Math.floor(Math.random() * projectTypes.length)];
+      const location = locations[Math.floor(Math.random() * locations.length)];
+      const mockName = `${location} ${type} Project`;
+
+      const newProject: ProjectVault = {
+        id: projectId,
+        vaultAddress,
+        developer,
+        loanAmount,
+        currentFunding: BigInt(mockFunding),
+        fundingPercentage: mockFundingPercentage,
+        apr: mockAPR,
+        tenorDays: mockTenor,
+        isFundingClosed: mockClosed,
+        name: mockName
+      };
+
+      setProjects(prev => [...prev, newProject]);
+    } catch (error) {
+      console.error("Error fetching vault details:", error);
+    }
+  };
+
+  // Simulate loading projects on mount
+  useEffect(() => {
+    const loadMockProjects = async () => {
+      // In a real implementation, you would query past events or have a backend API
+      // that provides the list of active vaults
+      const mockProjects: ProjectVault[] = [];
+      
+      for (let i = 1; i <= 5; i++) {
+        const loanAmount = BigInt(Math.floor(Math.random() * 1000000) * 1e6); // Random amount up to 1M USDC
+        const currentFunding = BigInt(Math.floor(Math.random() * Number(loanAmount)));
+        const fundingPercentage = (Number(currentFunding) / Number(loanAmount)) * 100;
+        const type = projectTypes[Math.floor(Math.random() * projectTypes.length)];
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        
+        mockProjects.push({
+          id: `${i}`,
+          vaultAddress: `0x${i}${'0'.repeat(39)}`,
+          developer: `0x${'d'.repeat(40)}`,
+          loanAmount,
+          currentFunding,
+          fundingPercentage,
+          apr: 8 + Math.random() * 5, // 8-13%
+          tenorDays: Math.floor(Math.random() * 365) + 180, // 180-545 days
+          isFundingClosed: Math.random() > 0.7, // 30% chance of being closed
+          name: `${location} ${type} Project`
+        });
+      }
+      
+      setProjects(mockProjects);
+      setFilteredProjects(mockProjects);
+      setIsLoading(false);
+    };
+    
+    loadMockProjects();
+  }, []);
+
+  // Filter projects based on search term
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = projects.filter(project => 
+        project.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredProjects(filtered);
+    } else {
+      setFilteredProjects(projects);
+    }
+  }, [searchTerm, projects]);
+
+  const handleProjectClick = (projectId: string, vaultAddress: string) => {
+    router.push(`/dashboard/investments/details/${projectId}?vault=${vaultAddress}`);
+  };
 
   return (
-    <div className="relative">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
-      }} />
-      
-      {/* Background accents */}
-      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      
-      <div className="relative">
-        <div className="mb-8 relative pl-6">
-          {/* Thin accent line */}
-          <div className="absolute -left-4 top-0 h-full w-px bg-emerald-700/30" />
-          
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-emerald-500 mb-2 relative">
-            Investments
-            <div className="absolute -left-6 top-1/2 w-3 h-px bg-emerald-500" />
-          </span>
-          
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Investment Opportunities
-          </h1>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Investment Opportunities</h1>
           <p className="text-zinc-400">
-            Discover and invest in renewable energy projects driving positive environmental impact
+          Explore and fund high-impact renewable energy projects
           </p>
         </div>
         
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                Available Projects
-              </CardTitle>
-              <Globe2 className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="text-2xl font-bold text-white">
-                {mockOpportunities.projects.length + mockOpportunities.featured.length}
-              </div>
-              <p className="text-xs text-emerald-400">
-                Across multiple technologies
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                Potential ROI Range
-              </CardTitle>
-              <LineChart className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="text-2xl font-bold text-white">
-                6.5% - 22.0%
-              </div>
-              <div className="flex items-center">
-                <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
-                <span className="text-xs text-emerald-400">Varies by risk profile</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white">
-                CO₂ Reduction Potential
-              </CardTitle>
-              <Leaf className="h-4 w-4 text-emerald-500" />
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="text-2xl font-bold text-white">
-                310,000+ <span className="text-base ml-1">tonnes</span>
-              </div>
-              <p className="text-xs text-emerald-400">
-                Combined impact of all projects
-              </p>
-            </CardContent>
-          </Card>
+      {/* Search and filter */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Input 
+            placeholder="Search projects by name or location" 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600"
+          />
         </div>
-        
-        {/* Featured Projects */}
-        <div className="mb-10">
-          <h2 className="text-xl font-bold text-white mb-4">Featured Opportunities</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {mockOpportunities.featured.map(project => (
-              <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <div className="h-40 w-full bg-emerald-900/20 overflow-hidden relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {getProjectIcon(project.type)}
-                    <span className="text-white ml-2">{project.type} Energy Project</span>
+              </div>
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          <span className="ml-3 text-zinc-400">Loading investment opportunities...</span>
+              </div>
+      ) : filteredProjects.length === 0 ? (
+        <Card className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/30 overflow-hidden">
+          <CardContent className="py-10">
+            <div className="text-center">
+              <AlertCircle className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-white mb-1">No projects found</h3>
+              <p className="text-zinc-400">Try adjusting your search criteria or check back later for new opportunities.</p>
+              </div>
+            </CardContent>
+          </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredProjects.map((project) => (
+            <Card 
+              key={project.id} 
+              className={`relative bg-black/40 backdrop-blur-sm border ${
+                project.isFundingClosed 
+                  ? 'border-zinc-800/30 opacity-70' 
+                  : 'border-emerald-800/30 hover:border-emerald-600/50'
+              } transition-all cursor-pointer overflow-hidden`}
+              onClick={() => !project.isFundingClosed && handleProjectClick(project.id, project.vaultAddress)}
+            >
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+            
+              {project.isFundingClosed && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+                  <div className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-md">
+                    <span className="text-zinc-400 font-medium">Funding Closed</span>
                   </div>
                 </div>
+              )}
                 
                 <CardHeader className="relative">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-white text-xl">{project.name}</CardTitle>
-                    <Badge variant="outline" className="bg-emerald-900/30 text-emerald-300 border-emerald-700">
-                      Featured
+                <div className="flex justify-between items-start mb-2">
+                  <Badge 
+                    variant="outline" 
+                    className="bg-emerald-900/30 text-emerald-300 border-emerald-800"
+                  >
+                    {project.name.includes("Solar") ? (
+                      <Sun className="h-3 w-3 mr-1 text-emerald-300" />
+                    ) : project.name.includes("Wind") ? (
+                      <Wind className="h-3 w-3 mr-1 text-emerald-300" />
+                    ) : (
+                      <Leaf className="h-3 w-3 mr-1 text-emerald-300" />
+                    )}
+                    Energy Project
+                  </Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="bg-blue-900/30 text-blue-300 border-blue-800"
+                  >
+                    ID: {project.id}
                     </Badge>
                   </div>
-                  <CardDescription className="text-zinc-400 mt-1">
-                    {project.location} • {project.duration}
+                <CardTitle className="text-white">{project.name}</CardTitle>
+                <CardDescription className="text-zinc-400">
+                  Developer: {project.developer.substring(0, 6)}...{project.developer.substring(38)}
                   </CardDescription>
                 </CardHeader>
                 
                 <CardContent className="relative space-y-4">
-                  <p className="text-zinc-300">{project.description}</p>
-                  
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Target</span>
-                      <span className="text-white">${project.target.toLocaleString()}</span>
-                    </div>
-                    
-                    <Progress 
-                      value={(project.raised / project.target) * 100} 
-                      className="h-2 bg-zinc-800" 
-                      indicatorClassName="bg-emerald-500" 
-                    />
-                    
-                    <div className="flex justify-between text-sm">
-                      <span className="text-zinc-400">Raised</span>
-                      <span className="text-emerald-400">${project.raised.toLocaleString()} ({Math.round((project.raised / project.target) * 100)}%)</span>
-                    </div>
+                    <span className="text-zinc-400">Target Funding</span>
+                    <span className="text-white">{formatUnits(project.loanAmount, USDC_DECIMALS)} USDC</span>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-zinc-400">ROI Range</p>
-                      <p className="text-base font-medium text-emerald-400">{project.roi.min}% - {project.roi.max}%</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-400">Current Progress</span>
+                    <span className="text-white">{formatUnits(project.currentFunding, USDC_DECIMALS)} USDC</span>
+                      </div>
+                      <Progress 
+                    value={project.fundingPercentage} 
+                    className="h-2 mt-1 bg-zinc-800" 
+                        indicatorClassName="bg-emerald-500" 
+                      />
+                  <div className="flex justify-end text-xs text-emerald-400">
+                    {project.fundingPercentage.toFixed(1)}% funded
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-zinc-400">CO₂ Reduction</p>
-                      <p className="text-base font-medium text-white">{project.carbonReduction.toLocaleString()} tonnes</p>
-                    </div>
-                  </div>
-                </CardContent>
                 
-                <CardFooter className="relative bg-zinc-900/30 border-t border-zinc-800/50 flex justify-between">
-                  <p className="text-zinc-400 text-sm">
-                    <DollarSign className="h-4 w-4 inline-block text-emerald-500" /> Minimum investment: $5,000
-                  </p>
-                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 group">
-                    Invest Now <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-        
-        {/* All Projects and Pools */}
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-black/50 border border-zinc-800 p-1 w-full flex">
-            <TabsTrigger 
-              value="all" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5"
-            >
-              All Opportunities
-            </TabsTrigger>
-            <TabsTrigger 
-              value="projects" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5"
-            >
-              Direct Projects
-            </TabsTrigger>
-            <TabsTrigger 
-              value="pools" 
-              className="flex-1 data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 px-6 py-2.5"
-            >
-              Investment Pools
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* All Opportunities Tab */}
-          <TabsContent value="all">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {mockOpportunities.projects.slice(0, 3).map(project => (
-                <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                  
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
+                <Separator className="bg-zinc-800/50" />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col items-center p-3 bg-zinc-900/50 rounded-md">
+                    <span className="text-zinc-400 text-xs mb-1">APR</span>
+                    <div className="flex items-center">
+                      <BarChart className="h-3 w-3 mr-1 text-emerald-500" />
+                      <span className="text-white font-medium">{project.apr.toFixed(1)}%</span>
+                    </div>
+                      </div>
+                  <div className="flex flex-col items-center p-3 bg-zinc-900/50 rounded-md">
+                    <span className="text-zinc-400 text-xs mb-1">Tenor</span>
                       <div className="flex items-center">
-                        {getProjectIcon(project.type)}
-                        <Badge variant="outline" className="ml-2 border-zinc-700 bg-zinc-800/50 text-zinc-300">
-                          {project.type}
-                        </Badge>
-                      </div>
+                      <Calendar className="h-3 w-3 mr-1 text-emerald-500" />
+                      <span className="text-white font-medium">{project.tenorDays} days</span>
                     </div>
-                    <CardTitle className="text-white text-lg mt-2">{project.name}</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      {project.location} • {project.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative space-y-3 p-4 pt-0">
-                    <p className="text-zinc-300 text-sm line-clamp-2">{project.description}</p>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-zinc-400">Progress</span>
-                        <span className="text-emerald-400">{Math.round((project.raised / project.target) * 100)}%</span>
-                      </div>
-                      <Progress 
-                        value={(project.raised / project.target) * 100} 
-                        className="h-1.5 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI Range</p>
-                        <p className="text-sm font-medium text-emerald-400">{project.roi.min}% - {project.roi.max}%</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Target</p>
-                        <p className="text-sm font-medium text-white">${project.target.toLocaleString()}</p>
                       </div>
                     </div>
                   </CardContent>
                   
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3">
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 w-full">
-                      View Project Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-              
-              {mockOpportunities.pools.map(pool => (
-                <Card key={pool.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                  
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
-                      <Badge variant="outline" className={getRiskColor(pool.risk)}>
-                        {pool.risk} Risk
-                      </Badge>
-                      <Badge variant="outline" className="bg-indigo-900/30 text-indigo-300 border-indigo-700">
-                        Pool
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-white text-lg mt-2">{pool.name}</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      {pool.projectCount} Projects • {pool.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative space-y-3 p-4 pt-0">
-                    <p className="text-zinc-300 text-sm line-clamp-2">{pool.description}</p>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-zinc-400">Progress</span>
-                        <span className="text-emerald-400">{Math.round((pool.raised / pool.target) * 100)}%</span>
-                      </div>
-                      <Progress 
-                        value={(pool.raised / pool.target) * 100} 
-                        className="h-1.5 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI Range</p>
-                        <p className="text-sm font-medium text-emerald-400">{pool.roi.min}% - {pool.roi.max}%</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Target</p>
-                        <p className="text-sm font-medium text-white">${pool.target.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3">
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 w-full">
-                      View Pool Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-            
-            <div className="mt-8 flex justify-center">
-              <Button variant="outline" className="border-emerald-800 hover:bg-emerald-900/20 hover:text-emerald-300 group">
-                View All Opportunities <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </TabsContent>
-          
-          {/* Direct Projects Tab */}
-          <TabsContent value="projects">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[...mockOpportunities.featured, ...mockOpportunities.projects].map(project => (
-                <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                  
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        {getProjectIcon(project.type)}
-                        <Badge variant="outline" className="ml-2 border-zinc-700 bg-zinc-800/50 text-zinc-300">
-                          {project.type}
-                        </Badge>
-                      </div>
-                    </div>
-                    <CardTitle className="text-white text-lg mt-2">{project.name}</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      {project.location} • {project.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative space-y-3 p-4 pt-0">
-                    <p className="text-zinc-300 text-sm line-clamp-2">{project.description}</p>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-zinc-400">Progress</span>
-                        <span className="text-emerald-400">{Math.round((project.raised / project.target) * 100)}%</span>
-                      </div>
-                      <Progress 
-                        value={(project.raised / project.target) * 100} 
-                        className="h-1.5 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI Range</p>
-                        <p className="text-sm font-medium text-emerald-400">{project.roi.min}% - {project.roi.max}%</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Target</p>
-                        <p className="text-sm font-medium text-white">${project.target.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3">
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 w-full">
+              <CardFooter className="relative border-t border-zinc-800/50 pt-4">
+                <Button 
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                  disabled={project.isFundingClosed}
+                >
                       View Project Details
                     </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
-          </TabsContent>
-          
-          {/* Investment Pools Tab */}
-          <TabsContent value="pools">
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {mockOpportunities.pools.map(pool => (
-                <Card key={pool.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                  {/* Subtle gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                  
-                  <CardHeader className="relative p-4">
-                    <div className="flex justify-between items-center">
-                      <Badge variant="outline" className={getRiskColor(pool.risk)}>
-                        {pool.risk} Risk
-                      </Badge>
-                      <Badge variant="outline" className="bg-indigo-900/30 text-indigo-300 border-indigo-700">
-                        Pool
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-white text-lg mt-2">{pool.name}</CardTitle>
-                    <CardDescription className="text-zinc-400">
-                      {pool.projectCount} Projects • {pool.duration}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="relative space-y-3 p-4 pt-0">
-                    <p className="text-zinc-300 text-sm line-clamp-2">{pool.description}</p>
-                    
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-zinc-400">Progress</span>
-                        <span className="text-emerald-400">{Math.round((pool.raised / pool.target) * 100)}%</span>
-                      </div>
-                      <Progress 
-                        value={(pool.raised / pool.target) * 100} 
-                        className="h-1.5 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div>
-                        <p className="text-xs text-zinc-400">ROI Range</p>
-                        <p className="text-sm font-medium text-emerald-400">{pool.roi.min}% - {pool.roi.max}%</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">Target</p>
-                        <p className="text-sm font-medium text-white">${pool.target.toLocaleString()}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="relative border-t border-zinc-800/50 px-4 py-3">
-                    <Button size="sm" variant="outline" className="text-xs border-emerald-800 text-emerald-400 hover:bg-emerald-900/20 w-full">
-                      View Pool Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+      )}
     </div>
   );
 } 

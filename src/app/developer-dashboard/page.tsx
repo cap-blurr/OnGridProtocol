@@ -26,16 +26,21 @@ import {
   Server,
   Database,
   Sun,
-  BarChart3
+  BarChart3,
+  AlertCircle,
+  Check
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useUserType } from "@/providers/userType";
 import { useAccount } from "wagmi";
+import { useIsVerified } from "@/hooks/contracts/useDeveloperRegistry";
 import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
 import { useRouter } from 'next/navigation';
 import { DashboardTabs } from "@/components/ui/custom-tabs";
+import toast from 'react-hot-toast';
+import CreateProjectModal from "@/components/developer/CreateProjectModal";
 
 // Mock data for solar developer dashboard
 const mockData = {
@@ -92,15 +97,19 @@ const mockData = {
 
 export default function SolarDeveloperDashboard() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const { isConnected } = useAccount();
-  const { userType, isLoading } = useUserType();
+  const { address: connectedAddress, isConnected } = useAccount();
+  const { userType, isLoading: isLoadingUserType } = useUserType();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("projects");
+  const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
+
+  // Fetch KYC status
+  const { data: kycStatus, isLoading: isLoadingKyc, error: kycError } = useIsVerified(connectedAddress);
 
   // Add auth redirection only for developer dashboard access
   useEffect(() => {
     // First wait for auth state to be loaded
-    if (isLoading) return;
+    if (isLoadingUserType || isLoadingKyc) return;
     
     // Redirect unauthenticated users to home
     if (!isConnected) {
@@ -122,17 +131,23 @@ export default function SolarDeveloperDashboard() {
     
     // User is authenticated and a developer, allow access
     setIsLoadingAuth(false);
-  }, [isConnected, userType, isLoading, router]);
+  }, [isConnected, userType, isLoadingUserType, router, kycStatus, isLoadingKyc]);
 
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCreateProject = async () => {
-    setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsProcessing(false);
+    if (!kycStatus) {
+      // If KYC is not verified, redirect to KYC page or show a message
+      toast.error("Please complete KYC verification to create a project.");
+      router.push('/developer-dashboard/kyc');
+      return;
+    }
+    
+    // Open the create project modal
+    setIsCreateProjectModalOpen(true);
   };
   
-  if (isLoadingAuth) {
+  if (isLoadingAuth || isLoadingUserType || isLoadingKyc) {
     return <LoadingScreen />;
   }
 
@@ -143,9 +158,15 @@ export default function SolarDeveloperDashboard() {
 
   return (
     <div className="relative">
+      {/* CreateProjectModal */}
+      <CreateProjectModal 
+        isOpen={isCreateProjectModalOpen}
+        onClose={() => setIsCreateProjectModalOpen(false)}
+      />
+      
       {/* Subtle grid background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
       }} />
       
       {/* Background accents */}
@@ -168,10 +189,38 @@ export default function SolarDeveloperDashboard() {
           <p className="text-zinc-400">
             Manage your solar projects and DePIN infrastructure
           </p>
+          {/* Display KYC Status */}
+          {kycError && (
+            <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-700 text-red-300">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>KYC Status Error</AlertTitle>
+              <AlertDescription>
+                Could not fetch KYC status. Please try again later.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!kycError && kycStatus === false && (
+            <Alert variant="default" className="mb-4 bg-yellow-900/30 border-yellow-700 text-yellow-300 cursor-pointer hover:bg-yellow-800/40" onClick={() => router.push('/developer-dashboard/kyc')}>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>KYC Verification Required</AlertTitle>
+              <AlertDescription>
+                Your KYC is not verified. Please complete the KYC process to create and manage projects. Click here to start.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!kycError && kycStatus === true && (
+            <Alert variant="default" className="mb-4 bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Check className="h-4 w-4" />
+              <AlertTitle>KYC Verified</AlertTitle>
+              <AlertDescription>
+                Your organization is KYC verified. You can now create and manage projects.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
         
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+         {/* Stats Cards */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
           <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
             

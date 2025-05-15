@@ -39,6 +39,9 @@ import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
 import { useRouter } from "next/navigation";
 import { DashboardTabs } from "@/components/ui/custom-tabs";
+import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
+import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
+import CarbonCreditsDashboardCard from "@/components/project/CarbonCreditsDashboardCard";
 
 const mockData = {
   investments: {
@@ -361,175 +364,23 @@ export default function DashboardPage() {
                 </Button>
               </div>
             </div>
+
+            {/* Divider */}
+            <hr className="my-8 border-zinc-800/50" />
+
+            {/* Pool Investment Section */}
+            <PoolInvestmentCard />
+
+            {/* Divider */}
+            <hr className="my-8 border-zinc-800/50" />
+
+            {/* Direct Project Investment Section */}
+            <DirectProjectInvestmentList />
+
           </TabsContent>
           
           <TabsContent value="carbonCredits">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Carbon Credits
-                  </CardTitle>
-                  <Leaf className="h-4 w-4 text-[#FFDC00]" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    {mockData.carbonCredits.totalCredits.toLocaleString()}
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Equivalent to ${mockData.carbonCredits.creditValue.toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">
-                    CO₂ Reduced
-                  </CardTitle>
-                  <Trees className="h-4 w-4 text-green-500" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    {mockData.carbonCredits.tco2eReduced.toLocaleString()} <span className="text-base ml-1">tonnes</span>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    From {mockData.investments.totalProjects} projects
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Energy Produced
-                  </CardTitle>
-                  <BarChart3 className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    {mockData.carbonCredits.energyProduced.toLocaleString()} <span className="text-base ml-1">kWh</span>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Total from all devices
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Device Efficiency
-                  </CardTitle>
-                  <RefreshCw className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    {mockData.carbonCredits.deviceEfficiency}%
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Average across all devices
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <BarChart3 className="h-5 w-5 text-emerald-500" />
-                    Daily Energy Output
-                  </CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Energy production over the last week
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="h-80 flex items-end justify-between gap-2">
-                    {mockData.carbonCredits.dailyEnergyOutput.map((day, index) => (
-                      <div key={index} className="flex flex-col items-center gap-2">
-                        <div 
-                          className="w-12 bg-emerald-500/40 hover:bg-emerald-500/60 transition-colors rounded-t-md border border-emerald-600/50" 
-                          style={{ height: `${(day.output / 500) * 100}%` }}
-                        >
-                          <div className="h-full relative group">
-                            <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black border border-emerald-600/50 text-white text-xs rounded px-2 py-1 pointer-events-none transition-opacity z-10">
-                              {day.output} kWh
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs text-zinc-300 font-medium">{day.day}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <Leaf className="h-5 w-5 text-[#FFDC00]" />
-                    Device Status
-                  </CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Current performance of your energy devices
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="space-y-6">
-                    {mockData.carbonCredits.devices.map((device) => (
-                      <div key={device.id} className="border border-zinc-800 rounded-lg p-4">
-                        <div className="flex justify-between items-center mb-4">
-                          <div>
-                            <h3 className="font-medium text-white">{device.name}</h3>
-                            <Badge variant={device.status === "Active" ? "success" : "destructive"} className="mt-1">
-                              {device.status}
-                            </Badge>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-semibold text-emerald-500">{device.output.toLocaleString()} <span className="text-xs text-zinc-400">kWh</span></p>
-                            <p className="text-xs text-zinc-400">Current output</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-zinc-400">Efficiency</span>
-                            <span className="text-zinc-300">{device.efficiency}%</span>
-                          </div>
-                          <Progress value={device.efficiency} className="h-2 bg-zinc-800" indicatorClassName="bg-emerald-500" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Button variant="outline" className="w-full mt-6 border-emerald-800 hover:bg-emerald-900/30 group" asChild>
-                    <Link href="/dashboard/carbon-credits/device-stats">
-                      View Detailed Device Stats <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+            <CarbonCreditsDashboardCard />
           </TabsContent>
         </DashboardTabs>
       </div>
