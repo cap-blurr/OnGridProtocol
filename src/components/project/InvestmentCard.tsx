@@ -98,7 +98,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
       return;
     }
     
-    if (isFundingClosed.data) {
+    if (isFundingClosed) {
       toast.error('Funding is closed for this project');
       return;
     }
@@ -106,18 +106,18 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
     invest(investAmount);
   };
   
-  const isDisabled = !isConnected || isApproving || isInvesting || isFundingClosed.data;
+  const isDisabled = !isConnected || isApproving || isInvesting || isFundingClosed;
   
   return (
     <Card className="bg-black/40 backdrop-blur-sm border border-emerald-800/30">
       <CardHeader>
         <CardTitle className="text-white flex justify-between items-center">
           <span>Invest in Project #{id}</span>
-          <Badge variant="outline" className={isFundingClosed.data 
+          <Badge variant="outline" className={isFundingClosed 
             ? "bg-amber-900/30 text-amber-300 border-amber-700" 
             : "bg-emerald-900/30 text-emerald-300 border-emerald-700"
           }>
-            {isFundingClosed.data ? 'Funding Closed' : 'Funding Open'}
+            {isFundingClosed ? 'Funding Closed' : 'Funding Open'}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -136,16 +136,16 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-black/20 p-3 rounded-md">
             <div className="text-xs text-zinc-400 mb-1">Target</div>
-            <div className="text-white font-medium">${loanAmount.formatted} USDC</div>
+            <div className="text-white font-medium">${formattedLoanAmount} USDC</div>
           </div>
           <div className="bg-black/20 p-3 rounded-md">
             <div className="text-xs text-zinc-400 mb-1">Raised</div>
-            <div className="text-white font-medium">${totalAssetsInvested.formatted} USDC</div>
+            <div className="text-white font-medium">${formattedTotalAssetsInvested} USDC</div>
           </div>
         </div>
         
         {/* Investment form */}
-        {!isFundingClosed.data && (
+        {!isFundingClosed && (
           <div className="mt-4">
             <label className="block mb-2 text-zinc-300">Amount to Invest (USDC)</label>
             <Input
@@ -166,7 +166,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
       </CardContent>
       
       <CardFooter className="flex flex-col space-y-3">
-        {!isFundingClosed.data && (
+        {!isFundingClosed && (
           needsApproval ? (
             <Button 
               onClick={handleApprove} 
@@ -187,7 +187,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
           )
         )}
         
-        {isFundingClosed.data && (
+        {isFundingClosed && (
           <p className="text-amber-400 text-center">
             Funding is closed for this project. Check other available projects.
           </p>

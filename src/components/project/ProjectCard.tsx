@@ -78,13 +78,13 @@ export function ProjectCard({
         
         {/* Status badge */}
         <Badge 
-          variant={isFundingClosed.data ? "destructive" : "outline"} 
-          className={isFundingClosed.data 
+          variant={isFundingClosed ? "destructive" : "outline"} 
+          className={isFundingClosed 
             ? "bg-amber-900/30 text-amber-300 border-amber-700" 
             : "bg-emerald-900/30 text-emerald-300 border-emerald-700"
           }
         >
-          {isFundingClosed.data ? "Funding Closed" : "Funding Open"}
+          {isFundingClosed ? "Funding Closed" : "Funding Open"}
         </Badge>
         
         <div className="space-y-4 my-4">
