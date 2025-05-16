@@ -22,6 +22,7 @@ export function useGetDeveloperInfo(developerAddress?: `0x${string}`) {
     abi: DeveloperRegistryABI,
     functionName: 'getDeveloperInfo',
     args: developerAddress ? [developerAddress] : undefined,
+    chainId: 84532,
     query: {
       enabled: !!developerAddress,
     },
@@ -37,6 +38,7 @@ export function useIsVerified(developerAddress?: `0x${string}`) {
     abi: DeveloperRegistryABI,
     functionName: 'isVerified',
     args: developerAddress ? [developerAddress] : undefined,
+    chainId: 84532,
     query: {
       enabled: !!developerAddress,
     },
