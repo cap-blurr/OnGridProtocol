@@ -105,7 +105,7 @@ export function ProjectCard({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-zinc-400">Raised</span>
-              <span className="text-sm text-white font-medium">${totalAssetsInvested.formatted} USDC</span>
+              <span className="text-sm text-white font-medium">${totalAssetsInvested} USDC</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-zinc-400">Developer</span>

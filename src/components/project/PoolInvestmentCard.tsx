@@ -36,7 +36,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
     = usePoolInfo(poolId);
   const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess, error: depositError }
     = useDepositToPool(poolId);
-  const { shares: userShares, isLoading: isLoadingUserShares, refetch: refetchUserShares, error: userSharesError }
+  const { shares: userShares, isLoading: isLoadingUserShares,}
     = useUserShares(poolId, userAddress);
   const { redeem, isLoading: isRedeeming, isSuccess: isRedeemSuccess, error: redeemError }
     = useRedeemFromPool(poolId);
@@ -163,7 +163,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
         <CardDescription className="text-sm text-zinc-400 pt-1 flex items-center">
             <Coins size={14} className="mr-1.5 text-emerald-500"/> Your Shares: 
             {isLoadingUserShares ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <span className="text-emerald-300 ml-1">{formattedUserShares}</span>}
-            {userSharesError && <span className="text-xs text-red-400 ml-2">(Error loading shares)</span>}
+            {userShares && <span className="text-xs text-red-400 ml-2">(Error loading shares)</span>}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
@@ -288,3 +288,7 @@ export default function PoolInvestmentCard() {
     </Card>
   );
 } 
+
+function refetchUserShares() {
+  throw new Error('Function not implemented.');
+}

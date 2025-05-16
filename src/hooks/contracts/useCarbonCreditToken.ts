@@ -85,7 +85,7 @@ export function useOGCCTokenInfo() {
 export function useOGCCBalance(userAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   const tokenAddress = addresses.carbonCreditToken as `0x${string}` | undefined;
-  const { data: decimals } = useOGCCTokenInfo(); // To get actual decimals for formatting
+  const { decimals } = useOGCCTokenInfo(); // To get actual decimals for formatting
 
   // Using wagmi's useBalance for ERC20 is often simpler if decimals are known
   const { data, isLoading, isError, refetch } = useBalance({

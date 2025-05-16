@@ -31,7 +31,9 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
     loanAmount,
     totalAssetsInvested,
     isFundingClosed,
-    fundingPercentage
+    fundingPercentage,
+    formattedLoanAmount,
+    formattedTotalAssetsInvested
   } = useVaultDetails(vaultAddress);
   
   // Get USDC balance
