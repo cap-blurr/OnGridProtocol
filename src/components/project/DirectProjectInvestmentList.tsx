@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import DirectProjectInvestmentItem, { HighValueProjectData } from './DirectProjectInvestmentItem';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Info } from 'lucide-react';
+import { Loader2, Info, AlertCircle } from 'lucide-react';
 
 // TODO: Replace with actual data fetching logic for high-value projects
 // This would typically involve querying your backend or Supabase table where 
