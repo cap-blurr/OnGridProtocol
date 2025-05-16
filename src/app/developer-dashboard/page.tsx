@@ -137,15 +137,27 @@ export default function SolarDeveloperDashboard() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCreateProject = async () => {
-    if (!kycStatus) {
-      // If KYC is not verified, redirect to KYC page or show a message
-      toast.error("Please complete KYC verification to create a project.");
-      router.push('/developer-dashboard/kyc');
+    // Explicitly handle loading and error states for KYC check
+    if (isLoadingKyc) {
+      toast.loading("Checking KYC status...", { id: "kycCheckToast" });
       return;
     }
-    
-    // Open the create project modal
-    setIsCreateProjectModalOpen(true);
+    // Dismiss any existing toast before showing a new one or proceeding
+    toast.dismiss("kycCheckToast"); 
+
+    if (kycError) {
+      console.error("KYC Status Error:", kycError);
+      toast.error("Could not verify KYC status. Please ensure your wallet is connected correctly and try again.");
+      return;
+    }
+
+    // Now check the actual kycStatus boolean value
+    if (kycStatus === true) {
+      setIsCreateProjectModalOpen(true);
+    } else { // kycStatus is false or undefined (if somehow not caught by isLoading/isError and query was disabled initially)
+      toast.error("KYC verification is required to create a project. Please complete the KYC process.");
+      router.push('/developer-dashboard/kyc');
+    }
   };
   
   if (isLoadingAuth || isLoadingUserType || isLoadingKyc) {
