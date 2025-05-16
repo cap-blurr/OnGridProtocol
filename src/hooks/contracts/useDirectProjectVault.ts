@@ -8,7 +8,7 @@ import { USDC_DECIMALS } from './useUSDC';
 
 // Hook to get vault details
 export function useVaultDetails(vaultAddress?: `0x${string}`) {
-  const { data: loanAmount } = useContractRead({
+  const { data: loanAmount, isLoading: isLoadingLoanAmount, error: loanAmountError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getLoanAmount',
@@ -17,7 +17,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: totalAssetsInvested } = useContractRead({
+  const { data: totalAssetsInvested, isLoading: isLoadingTotalAssets, error: totalAssetsError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getTotalAssetsInvested',
@@ -26,7 +26,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: isFundingClosed } = useContractRead({
+  const { data: isFundingClosed, isLoading: isLoadingFundingClosed, error: fundingClosedError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'isFundingClosed',
@@ -35,7 +35,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: currentAprBps } = useContractRead({
+  const { data: currentAprBps, isLoading: isLoadingApr, error: aprError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getCurrentAprBps',
@@ -44,7 +44,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: developer } = useContractRead({
+  const { data: developer, isLoading: isLoadingDeveloper, error: developerError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'developer',
@@ -53,7 +53,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: projectId } = useContractRead({
+  const { data: projectId, isLoading: isLoadingProjectId, error: projectIdError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'projectId',
@@ -62,7 +62,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: loanTenor } = useContractRead({
+  const { data: loanTenor, isLoading: isLoadingLoanTenor, error: loanTenorError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'loanTenor',
@@ -71,14 +71,24 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: loanStartTime } = useContractRead({
+  const { data: loanStartTime, isLoading: isLoadingLoanStart, error: loanStartError } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'loanStartTime',
     query: {
-        enabled: !!vaultAddress,
+      enabled: !!vaultAddress,
     },
   });
+
+  // Check if any of the calls are loading or have errors
+  const isLoading = isLoadingLoanAmount || isLoadingTotalAssets || isLoadingFundingClosed || 
+                   isLoadingApr || isLoadingDeveloper || isLoadingProjectId || 
+                   isLoadingLoanTenor || isLoadingLoanStart;
+  
+  // Return the first error encountered
+  const error = loanAmountError || totalAssetsError || fundingClosedError || 
+               aprError || developerError || projectIdError || 
+               loanTenorError || loanStartError;
 
   return {
     loanAmount: loanAmount as bigint,
@@ -97,6 +107,8 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     aprPercentage: currentAprBps ? (currentAprBps as number) / 100 : 0, // BPS is basis points, 1 BPS = 0.01%
     tenorDays: loanTenor ? Number(loanTenor as bigint) : 0,
     startTimestamp: loanStartTime ? Number(loanStartTime as bigint) * 1000 : 0, // Convert to milliseconds
+    isLoading,
+    error
   };
 }
 
@@ -121,7 +133,7 @@ export function useInvestorShares(vaultAddress?: `0x${string}`, investorAddress?
 
 // Hook to get investor's claimable amounts
 export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddress?: `0x${string}`) {
-  const { data: claimablePrincipal, isLoading: isLoadingPrincipal } = useContractRead({
+  const { data: claimablePrincipal, isLoading: isLoadingPrincipal, refetch: refetchPrincipal } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'claimablePrincipal',
@@ -131,7 +143,7 @@ export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddres
     },
   });
   
-  const { data: claimableYield, isLoading: isLoadingYield } = useContractRead({
+  const { data: claimableYield, isLoading: isLoadingYield, refetch: refetchYield } = useContractRead({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'claimableYield',
@@ -141,12 +153,18 @@ export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddres
     },
   });
   
+  const refetch = () => {
+    refetchPrincipal();
+    refetchYield();
+  };
+  
   return {
     claimablePrincipal: claimablePrincipal as bigint,
     claimableYield: claimableYield as bigint,
     formattedClaimablePrincipal: claimablePrincipal ? formatUnits(claimablePrincipal as bigint, USDC_DECIMALS) : '0',
     formattedClaimableYield: claimableYield ? formatUnits(claimableYield as bigint, USDC_DECIMALS) : '0',
-    isLoading: isLoadingPrincipal || isLoadingYield
+    isLoading: isLoadingPrincipal || isLoadingYield,
+    refetch
   };
 }
 

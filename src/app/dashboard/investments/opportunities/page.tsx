@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
+import { Log } from 'viem';
 
 interface ProjectVault {
   id: string;
@@ -59,10 +60,10 @@ export default function InvestmentOpportunitiesPage() {
     address: addresses.projectFactoryProxy as `0x${string}`,
     abi: ProjectFactoryABI.abi,
     eventName: 'ProjectCreated',
-    listener(logs) {
+    onLogs(logs: Log[]) {
       if (logs.length > 0) {
         logs.forEach(log => {
-          const { args } = log;
+          const { args } = log as any;
           if (args) {
             const projectId = args.projectId.toString();
             const vaultAddress = args.vaultAddress as string;

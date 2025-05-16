@@ -1,6 +1,6 @@
 'use client';
 
-import { useVaultInfo } from '@/hooks/contracts/useDirectProjectVault';
+import { useVaultDetails } from '@/hooks/contracts/useDirectProjectVault';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -44,7 +44,7 @@ export function ProjectCard({
     totalAssetsInvested,
     isFundingClosed,
     fundingPercentage
-  } = useVaultInfo(vaultAddress);
+  } = useVaultDetails(vaultAddress);
   
   // Get appropriate icon
   const TypeIcon = typeIcons[type];

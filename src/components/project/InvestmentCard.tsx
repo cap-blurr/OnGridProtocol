@@ -12,8 +12,7 @@ import { parseUnits } from 'ethers';
 import toast from 'react-hot-toast';
 
 // Import custom hooks
-import { useVaultInfo } from '@/hooks/contracts/useDirectProjectVault';
-import { useInvest } from '@/hooks/contracts/useDirectProjectVault';
+import { useVaultDetails, useInvestInVault } from '@/hooks/contracts/useDirectProjectVault';
 import { useUSDCBalance, useUSDCAllowance, useUSDCApprove, isApprovalNeeded, USDC_DECIMALS } from '@/hooks/contracts/useUSDC';
 
 export interface InvestmentCardProps {
@@ -33,7 +32,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
     totalAssetsInvested,
     isFundingClosed,
     fundingPercentage
-  } = useVaultInfo(vaultAddress);
+  } = useVaultDetails(vaultAddress);
   
   // Get USDC balance
   const { formattedBalance, refetch: refetchBalance } = useUSDCBalance(address);
@@ -48,7 +47,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
   const { approve, isLoading: isApproving, isSuccess: isApproveSuccess } = useUSDCApprove();
   
   // Invest function
-  const { invest, isLoading: isInvesting, isSuccess: isInvestSuccess } = useInvest(vaultAddress);
+  const { invest, isLoading: isInvesting, isSuccess: isInvestSuccess } = useInvestInVault(vaultAddress);
   
   // Check if approval is needed when amount changes
   useEffect(() => {

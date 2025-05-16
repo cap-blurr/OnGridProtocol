@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle, AlertCircle, Info, TrendingUp, Clock, Users, DownloadCloud, DollarSign } from 'lucide-react';
 import { formatUnits } from 'ethers';
 import toast from 'react-hot-toast';

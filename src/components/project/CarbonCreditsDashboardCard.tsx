@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { useAccount } from 'wagmi';
 import {
   useOGCCTokenInfo,
@@ -126,13 +126,13 @@ export default function CarbonCreditsDashboardCard() {
     );
   }
   
-  const InfoRow = ({ label, value, icon: Icon, unit = '' }: { label: string; value?: string | number | boolean; icon?: React.ElementType; unit?: string }) => (
+  const InfoRow = ({ label, value, icon: Icon, unit = '' }: { label: string; value?: string | number | boolean | ReactNode; icon?: React.ElementType; unit?: string }) => (
     <div className="flex justify-between items-center py-2 border-b border-zinc-700/50 last:border-b-0">
       <span className="text-sm text-zinc-400 flex items-center">
         {Icon && <Icon size={16} className="mr-2 text-emerald-500" />} {label}
       </span>
       <span className="text-sm text-white font-medium">
-        {typeof value === 'boolean' ? (value ? <ThumbsUp size={16} className="text-green-500"/> : <ThumbsDown size={16} className="text-red-500"/>) : value?.toString() || 'N/A'} {unit}
+        {typeof value === 'boolean' ? (value ? <ThumbsUp size={16} className="text-green-500"/> : <ThumbsDown size={16} className="text-red-500"/>) : value || 'N/A'} {typeof value !== 'object' && unit}
       </span>
     </div>
   );
@@ -158,8 +158,18 @@ export default function CarbonCreditsDashboardCard() {
           
           <hr className="my-3 border-zinc-700/50" />
           <h4 className="text-md font-semibold text-emerald-300 mb-2">Your Balances</h4>
-          <InfoRow label={`Your ${ogccSymbol || 'OGCC'} Balance`} value={isLoadingOgccUserBalance ? <Loader2 size={16} className='animate-spin' /> : formattedOgccUserBalance} unit={ogccSymbol} icon={Coins} />
-          <InfoRow label="Your USDC Balance" value={isLoadingUsdcUserBalance ? <Loader2 size={16} className='animate-spin' /> : formattedUsdcUserBalance} unit="USDC" icon={Coins} />
+          <InfoRow 
+            label={`Your ${ogccSymbol || 'OGCC'} Balance`} 
+            value={isLoadingOgccUserBalance ? <Loader2 size={16} className='animate-spin' /> as ReactNode : formattedOgccUserBalance} 
+            unit={ogccSymbol} 
+            icon={Coins} 
+          />
+          <InfoRow 
+            label="Your USDC Balance" 
+            value={isLoadingUsdcUserBalance ? <Loader2 size={16} className='animate-spin' /> as ReactNode : formattedUsdcUserBalance} 
+            unit="USDC" 
+            icon={Coins} 
+          />
         </div>
 
         {/* Column 2: Exchange Info & Actions */}
@@ -192,7 +202,7 @@ export default function CarbonCreditsDashboardCard() {
                 </p>
               )}
               <p className="text-xs text-zinc-500 mt-1">
-                Your current allowance: {isLoadingOgccAllowance ? <Loader2 size={12} className='animate-spin inline-block' /> : formattedOgccAllowance} {ogccSymbol}
+                Your current allowance: {isLoadingOgccAllowance ? (<Loader2 size={12} className='animate-spin inline-block' /> as ReactNode) : formattedOgccAllowance} {ogccSymbol}
               </p>
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-2">
                 {needsOgccApproval && (

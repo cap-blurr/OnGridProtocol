@@ -3,6 +3,7 @@ import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import ProjectFactoryABI from '@/contracts/abis/ProjectFactory.json';
+import { Log } from 'viem';
 
 // Hook to create a new project
 export function useCreateProject() {
@@ -28,9 +29,9 @@ export function useCreateProject() {
     address: addresses.projectFactoryProxy as `0x${string}`,
     abi: ProjectFactoryABI.abi,
     eventName: 'ProjectCreated',
-    listener(logs) {
+    onLogs(logs: Log[]) {
       if (logs.length > 0) {
-        setProjectEvents(prev => [...prev, { type: 'high-value', data: logs[0].args }]);
+        setProjectEvents(prev => [...prev, { type: 'high-value', data: (logs[0] as any).args }]);
       }
     },
   });
@@ -40,9 +41,9 @@ export function useCreateProject() {
     address: addresses.projectFactoryProxy as `0x${string}`,
     abi: ProjectFactoryABI.abi,
     eventName: 'LowValueProjectSubmitted',
-    listener(logs) {
+    onLogs(logs: Log[]) {
       if (logs.length > 0) {
-        setProjectEvents(prev => [...prev, { type: 'low-value', data: logs[0].args }]);
+        setProjectEvents(prev => [...prev, { type: 'low-value', data: (logs[0]as any).args }]);
       }
     },
   });
