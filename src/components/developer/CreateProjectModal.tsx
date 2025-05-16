@@ -225,18 +225,15 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       if (supabaseError) {
         console.error("Error saving to Supabase:", supabaseError);
         toast.error(`Failed to save project metadata: ${supabaseError.message}`, { id: "supabaseSave" });
-        // For testing, we can fallback to a placeholder if Supabase fails
-        finalMetadataCID = `error_fallback_uuid:${uuidv4()}`;
-        // return; // Optionally, you could stop here if Supabase save is critical
+        // finalMetadataCID = `error_fallback_uuid:${uuidv4()}`; // Remove fallback
+        return; // Stop here if Supabase save is critical
       } else {
         toast.success("Project details saved!", { id: "supabaseSave" });
-        // Use the internal Supabase row 'id' (UUID) as the metadataCID for the contract
-        // Or you could use the generatedSupabaseProjectId if your contract expects that format
         finalMetadataCID = supabaseData.id; 
         console.log("Supabase save successful, internal ID:", supabaseData.id);
         console.log("Using Supabase internal ID as metadataCID for contract:", finalMetadataCID);
       }
-      setMetadataCID(finalMetadataCID); // Set the state for the contract call
+      setMetadataCID(finalMetadataCID);
       // -- End Supabase Integration --
       
       // Check if USDC balance is sufficient for deposit
