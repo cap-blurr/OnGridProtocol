@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+// import toast from 'react-hot-toast'; // Optional: if you want to add toast notifications for errors
 
 export type UserType = 'normal' | 'developer' | null;
 
@@ -13,7 +14,7 @@ interface UserTypeContextProps {
 const UserTypeContext = createContext<UserTypeContextProps | undefined>(undefined);
 
 export function UserTypeProvider({ children }: { children: ReactNode }) {
-  const [userType, setUserType] = useState<UserType>(null);
+  const [userTypeValue, setUserTypeValue] = useState<UserType>(null); // Internal React state
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,36 +23,44 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       try {
         const savedType = localStorage.getItem('userType') as UserType;
         if (savedType) {
-          setUserType(savedType);
+          setUserTypeValue(savedType); // Update internal React state
         }
-        setIsLoading(false);
+        // If no savedType, userTypeValue remains null, which is correct.
       } catch (error) {
-        console.error("Error loading user type:", error);
-        setIsLoading(false);
+        console.error("Error loading user type from localStorage:", error);
+        // toast.error("Failed to load account type preference."); // Optional
+      } finally {
+        setIsLoading(false); // Ensure loading is set to false regardless of success/failure
       }
     };
 
     loadUserType();
-  }, []);
+  }, []); // Runs once on mount
 
-  const handleSetUserType = (type: UserType) => {
-    setUserType(type);
+  // This is the function exposed via context for components to call
+  const updateUserType = (type: UserType) => {
     try {
       if (type) {
         localStorage.setItem('userType', type);
       } else {
+        // If type is null, remove it from localStorage
         localStorage.removeItem('userType');
       }
+      setUserTypeValue(type); // Update internal React state only after successful localStorage operation
     } catch (error) {
-      console.error("Error saving user type:", error);
+      console.error("Error saving user type to localStorage:", error);
+      // toast.error("Failed to save account type preference. Please try again."); // Optional
+      // If localStorage fails, userTypeValue (React state) does NOT get updated to the new 'type'.
+      // It will retain its value from the last successful set or load.
+      // This means the UI will reflect the persisted state, not an optimistic unpersisted one.
     }
   };
 
   return (
     <UserTypeContext.Provider
       value={{
-        userType,
-        setUserType: handleSetUserType,
+        userType: userTypeValue,
+        setUserType: updateUserType, // Expose the robust updater
         isLoading,
       }}
     >

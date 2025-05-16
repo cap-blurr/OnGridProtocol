@@ -139,9 +139,10 @@ export default function DashboardPage() {
       return;
     }
     
-    // Redirect users with no type selection to home
-    // They'll be shown the account type modal
-    if (isConnected && !userType) {
+    // If connected but no user type is selected (and not loading), redirect to home
+    // where AccountTypeModal can be displayed.
+    if (!userType) { 
+      router.push('/');
       return;
     }
     
