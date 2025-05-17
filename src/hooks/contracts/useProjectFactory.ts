@@ -72,19 +72,29 @@ export function useCreateProject() {
       requestedTenor: bigint;
       metadataCID: string;
     }) => {
-      if (!addresses.projectFactoryProxy) {
-        toast.error("Project Factory address not found. Ensure network is supported.");
-        console.error("Project Factory address is undefined in useCreateProject.");
-        return;
+      try {
+        if (!addresses.projectFactoryProxy) {
+          toast.error("Project Factory address not found. Ensure network is supported.");
+          console.error("Project Factory address is undefined in useCreateProject.");
+          return;
+        }
+        
+        console.log("Sending to contract:", {
+          address: addresses.projectFactoryProxy,
+          method: 'createProject',
+          args: [params]
+        });
+        
+        writeContract({
+          address: addresses.projectFactoryProxy as `0x${string}`,
+          abi: ProjectFactoryABI.abi,
+          functionName: 'createProject',
+          args: [params] 
+        });
+      } catch (err) {
+        console.error("Error initiating contract transaction:", err);
+        toast.error(`Transaction initiation failed: ${(err as Error).message}`);
       }
-      // The ABI for ProjectFactory.createProject expects a single argument 'params' which is a struct.
-      // Passing the 'params' object directly as the single element in the 'args' array is the correct way.
-      writeContract({
-        address: addresses.projectFactoryProxy as `0x${string}`,
-        abi: ProjectFactoryABI.abi,
-        functionName: 'createProject',
-        args: [params] 
-      });
     },
     isLoading: isLoading || isConfirming,
     isSuccess,

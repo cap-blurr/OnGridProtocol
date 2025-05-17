@@ -276,17 +276,35 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
     
     const trimmedMetadataCID = metadataCID.trim();
-    if (!trimmedMetadataCID) {
-      toast.error("Metadata CID is required. Please go back to details and enter it.");
+    if (!trimmedMetadataCID || trimmedMetadataCID.length < 5) { // Arbitrary min length
+      toast.error("Please provide a valid metadata CID");
       return;
     }
     
     try {
+      const tenorValue = parseInt(tenorDays);
+      if (tenorValue <= 0 || tenorValue > 10000) {
+        toast.error("Tenor must be between 1 and 10,000 days");
+        return;
+      }
+
       const params = {
         loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS),
         requestedTenor: BigInt(parseInt(tenorDays)),
         metadataCID: trimmedMetadataCID
       };
+      
+      console.log("Creating project with parameters:", {
+        loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS).toString(),
+        requestedTenor: BigInt(parseInt(tenorDays)).toString(),
+        metadataCID: trimmedMetadataCID
+      });
+      
+      // If the contract expects IPFS CIDs in a specific format (like removing 'ipfs://' prefix)
+      let formattedCID = trimmedMetadataCID;
+      if (formattedCID.startsWith('ipfs://')) {
+        formattedCID = formattedCID.replace('ipfs://', '');
+      }
       
       createProject(params);
     } catch (err) {
