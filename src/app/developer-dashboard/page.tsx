@@ -33,7 +33,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useUserType } from "@/providers/userType";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from "wagmi";
 import { useIsVerified } from "@/hooks/contracts/useDeveloperRegistry";
 import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
@@ -41,9 +41,10 @@ import { useRouter } from 'next/navigation';
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import toast from 'react-hot-toast';
 import CreateProjectModal from "@/components/developer/CreateProjectModal";
-import { parseEther, formatEther, Address, Abi, Hex } from 'viem';
+import { parseEther, formatEther, Address, Abi } from 'viem';
 import projectFactoryAbiJson from '@/contracts/abis/ProjectFactory.json';
 import developerRegistryAbiJson from '@/contracts/abis/DeveloperRegistry.json';
+import { getAddresses, NetworkAddresses } from "@/contracts/addresses";
 
 // Mock data for solar developer dashboard
 const mockData = {
@@ -98,9 +99,6 @@ const mockData = {
   ]
 };
 
-const NEXT_PUBLIC_PROJECT_FACTORY_ADDRESS = process.env.NEXT_PUBLIC_PROJECT_FACTORY_ADDRESS as Address | undefined;
-const NEXT_PUBLIC_DEVELOPER_REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_DEVELOPER_REGISTRY_ADDRESS as Address | undefined;
-
 const projectFactoryAbi = projectFactoryAbiJson.abi as Abi;
 const developerRegistryAbi = developerRegistryAbiJson.abi as Abi;
 
@@ -125,23 +123,50 @@ export default function SolarDeveloperDashboard() {
   const [activeTab, setActiveTab] = useState("projects");
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  
+  const chainId = useChainId();
+  const [currentAddresses, setCurrentAddresses] = useState<NetworkAddresses | undefined>(undefined);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Fetch KYC status
   const { data: kycStatus, isLoading: isLoadingKyc, error: kycError } = useIsVerified(connectedAddress);
 
-  // Wagmi hooks for contract interaction
-  const { data: writeHash, writeContract, isPending: isWritePending, error: writeError } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed, error: receiptError } = useWaitForTransactionReceipt({ hash: writeHash });
+  // Wagmi hooks for contract interaction (if CreateProjectModal doesn't handle them internally)
+  // const { data: writeHash, writeContract, isPending: isWritePending, error: writeError } = useWriteContract();
+  // const { isLoading: isConfirming, isSuccess: isConfirmed, error: receiptError } = useWaitForTransactionReceipt({ hash: writeHash });
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [txStatus, setTxStatus] = useState('');
+  useEffect(() => {
+    if (chainId) {
+      try {
+        setCurrentAddresses(getAddresses(chainId));
+      } catch (error) {
+        console.error("Failed to get contract addresses for chain ID:", chainId, error);
+        setCurrentAddresses(undefined);
+        // Optionally, show a toast message to the user
+        // toast.error(`Configuration error: Unsupported network (Chain ID: ${chainId}).`);
+      }
+    } else {
+      setCurrentAddresses(undefined); 
+    }
+  }, [chainId]);
+  
+  useEffect(() => {
+    if (isMounted && !isLoadingUserType && currentAddresses !== undefined && !isLoadingKyc) {
+      setIsLoadingData(false);
+    } else {
+      setIsLoadingData(true);
+    }
+  }, [isMounted, isLoadingUserType, currentAddresses, isLoadingKyc]);
+
+
+  const [isProcessing, setIsProcessing] = useState(false); 
 
   const handleCreateProject = async () => {
-    if (isLoadingKyc) {
+    if (isLoadingKyc) { 
       toast.loading("Checking KYC status...", { id: "kycCheckToast" });
       return;
     }
@@ -149,7 +174,7 @@ export default function SolarDeveloperDashboard() {
 
     if (kycError) {
       console.error("KYC Status Error:", kycError);
-      toast.error("Could not verify KYC status. Please ensure your wallet is connected correctly and try again.");
+      toast.error(`Could not verify KYC status: ${getErrorMessage(kycError)}. Please try again.`);
       return;
     }
 
@@ -161,7 +186,7 @@ export default function SolarDeveloperDashboard() {
     }
   };
   
-  if (!isMounted || isLoadingUserType || isLoadingKyc) {
+  if (isLoadingData) { 
     return <LoadingScreen />;
   }
 
@@ -182,18 +207,35 @@ export default function SolarDeveloperDashboard() {
     );
   }
 
-  if (!NEXT_PUBLIC_PROJECT_FACTORY_ADDRESS || !NEXT_PUBLIC_DEVELOPER_REGISTRY_ADDRESS) {
+  if (!currentAddresses) { 
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
         <p className="text-xl text-red-400">
-          Configuration Error: Critical contract addresses are not set. Please contact support.
+          Unsupported Network (Chain ID: {chainId ?? 'N/A'}). Please connect to a supported network like Base Sepolia.
+        </p>
+        <p className="text-gray-300 mt-2">If you believe this is an error, please check your wallet connection or contact support.</p>
+      </div>
+    );
+  }
+  
+  // Ensure projectFactoryProxy exists before attempting to use it,
+  // currentAddresses itself could be defined but specific addresses might be missing if not configured.
+  const projectFactoryAddressForModal = currentAddresses.projectFactoryProxy;
+
+  if (!projectFactoryAddressForModal || !currentAddresses.developerRegistryProxy) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
+        <p className="text-xl text-red-400">
+          Configuration Error: Critical contract addresses (ProjectFactory or DeveloperRegistry) are missing for Base Sepolia. Please contact support.
         </p>
       </div>
     );
   }
 
-  if (kycError) {
+
+  if (kycError && !isLoadingKyc) { 
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
@@ -208,10 +250,30 @@ export default function SolarDeveloperDashboard() {
 
   return (
     <div className="relative">
-      <CreateProjectModal 
-        isOpen={isCreateProjectModalOpen}
-        onClose={() => setIsCreateProjectModalOpen(false)}
-      />
+      {/* 
+        The CreateProjectModal component's props need to be checked.
+        The 'projectFactoryAddress' prop was causing a TypeScript error,
+        indicating it's not defined in CreateProjectModalProps.
+        
+        Possible solutions:
+        1. If CreateProjectModal is intended to receive this address, update its
+           props interface (CreateProjectModalProps in CreateProjectModal.tsx)
+           to include: `projectFactoryAddress: \`0x$\{string}\`;` (or `Address`).
+        2. If CreateProjectModal fetches this address internally (e.g., using useChainId and getAddresses),
+           then passing this prop is unnecessary and can be removed.
+        3. The prop name might be different in CreateProjectModalProps (e.g., `factoryAddress`, `contractAddress`).
+
+        For now, it's commented out to resolve the immediate TS error in this file.
+        Functionality of CreateProjectModal needs to be verified.
+      */}
+      {projectFactoryAddressForModal && ( 
+        <CreateProjectModal 
+          isOpen={isCreateProjectModalOpen}
+          onClose={() => setIsCreateProjectModalOpen(false)}
+          // projectFactoryAddress={projectFactoryAddressForModal} 
+          // developerRegistryAddress={currentAddresses.developerRegistryProxy} // Similar check needed if this prop is used
+        />
+      )}
       
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
@@ -235,7 +297,7 @@ export default function SolarDeveloperDashboard() {
           <p className="text-zinc-400">
             Manage your solar projects and DePIN infrastructure
           </p>
-          {kycError && (
+          {kycError && !isLoadingKyc && ( 
             <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-700 text-red-300">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>KYC Status Error</AlertTitle>
@@ -244,7 +306,7 @@ export default function SolarDeveloperDashboard() {
               </AlertDescription>
             </Alert>
           )}
-          {!kycError && kycStatus === false && (
+          {!kycError && kycStatus === false && !isLoadingKyc && ( 
             <Alert variant="default" className="mb-4 bg-yellow-900/30 border-yellow-700 text-yellow-300 cursor-pointer hover:bg-yellow-800/40" onClick={() => router.push('/developer-dashboard/kyc')}>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>KYC Verification Required</AlertTitle>
@@ -253,7 +315,7 @@ export default function SolarDeveloperDashboard() {
               </AlertDescription>
             </Alert>
           )}
-          {!kycError && kycStatus === true && (
+          {!kycError && kycStatus === true && !isLoadingKyc && ( 
             <Alert variant="default" className="mb-4 bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4" />
               <AlertTitle>KYC Verified</AlertTitle>
@@ -267,6 +329,7 @@ export default function SolarDeveloperDashboard() {
         {kycStatus === true ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+              {/* Card components (mockData) */}
               <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
                 
@@ -337,7 +400,7 @@ export default function SolarDeveloperDashboard() {
               <Button 
                 className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
                 onClick={handleCreateProject}
-                disabled={isProcessing || isLoadingKyc}
+                disabled={isProcessing || isLoadingKyc} 
               >
                 {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sun className="h-4 w-4" />}
                 Create New Solar Project
@@ -353,6 +416,7 @@ export default function SolarDeveloperDashboard() {
               activeTab={activeTab}
               onValueChange={setActiveTab}
             >
+              {/* TabsContent using mockData */}
               <TabsContent value="projects" className="space-y-4">
                 <div className="overflow-x-auto -mx-3 px-3">
                   <Table className="w-full">
@@ -498,11 +562,21 @@ export default function SolarDeveloperDashboard() {
             </Card>
           </>
         ) : (
+          // This part is shown if kycStatus is false (and not loading, and no kycError)
           <div className="text-center p-6 bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl backdrop-blur-md">
-            <h2 className="text-2xl font-semibold text-yellow-300 mb-4">Project Creation Disabled</h2>
+            <h2 className="text-2xl font-semibold text-yellow-300 mb-4">Project Creation & Management Disabled</h2>
             <p className="text-gray-300">
-              Please complete KYC verification to access project management and creation tools.
+              Your connected wallet (<code className="bg-gray-700 px-1 rounded">{connectedAddress}</code>) is not recognized as a KYC-verified developer.
             </p>
+            <p className="text-gray-300 mt-2">
+              Please complete the KYC process to access these features.
+            </p>
+            <Button 
+              onClick={() => router.push('/developer-dashboard/kyc')} 
+              className="mt-6 bg-yellow-600 hover:bg-yellow-700 text-white"
+            >
+              Go to KYC Page
+            </Button>
           </div>
         )}
       </div>
