@@ -156,12 +156,10 @@ export default function SolarDeveloperDashboard() {
   }, [chainId]);
   
   useEffect(() => {
-    if (isMounted && !isLoadingUserType && currentAddresses !== undefined && !isLoadingKyc && !isLoadingProjects) {
-      setIsLoadingData(false);
-    } else {
-      setIsLoadingData(isMounted ? (isLoadingUserType || isLoadingKyc || isLoadingProjects || currentAddresses === undefined) : true );
-    }
-  }, [isMounted, isLoadingUserType, currentAddresses, isLoadingKyc, isLoadingProjects]);
+    // Simplified isLoadingData logic: it's true if essential initial data is still loading.
+    // Project loading status (isLoadingProjects) is handled separately within the component body.
+    setIsLoadingData(isMounted ? (isLoadingUserType || currentAddresses === undefined || isLoadingKyc) : true );
+  }, [isMounted, isLoadingUserType, currentAddresses, isLoadingKyc]);
 
   const [isProcessing, setIsProcessing] = useState(false); 
 
@@ -186,7 +184,7 @@ export default function SolarDeveloperDashboard() {
     }
   };
   
-  if (isLoadingData) { 
+  if (isLoadingData && !isMounted) { // Adjusted initial loading condition slightly for clarity
     return <LoadingScreen />;
   }
 
@@ -199,6 +197,10 @@ export default function SolarDeveloperDashboard() {
     );
   }
 
+  if (isLoadingUserType && isMounted) { // Show loading screen if user type is still loading after mount
+    return <LoadingScreen />;
+  }
+
   if (!userType || userType !== 'developer') {
     return (
         <div className="container mx-auto px-4 py-8 text-center">
@@ -207,7 +209,7 @@ export default function SolarDeveloperDashboard() {
     );
   }
 
-  if (!currentAddresses) { 
+  if (!currentAddresses && isMounted) { // Show unsupported network if addresses not found after mount
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
@@ -221,9 +223,9 @@ export default function SolarDeveloperDashboard() {
   
   // Ensure projectFactoryProxy exists before attempting to use it,
   // currentAddresses itself could be defined but specific addresses might be missing if not configured.
-  const projectFactoryAddressForModal = currentAddresses.projectFactoryProxy;
+  const projectFactoryAddressForModal = currentAddresses?.projectFactoryProxy;
 
-  if (!projectFactoryAddressForModal || !currentAddresses.developerRegistryProxy) {
+  if (isMounted && currentAddresses && (!projectFactoryAddressForModal || !currentAddresses.developerRegistryProxy)) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
@@ -234,7 +236,7 @@ export default function SolarDeveloperDashboard() {
     );
   }
 
-  if (kycError && !isLoadingKyc) { 
+  if (kycError && !isLoadingKyc && isMounted) { 
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold text-white mb-6">Developer Dashboard</h1>
@@ -242,40 +244,6 @@ export default function SolarDeveloperDashboard() {
         <p className="text-gray-300 mt-2">{getErrorMessage(kycError)}</p>
         <p className="text-gray-300 mt-2">
           Please ensure the Developer Registry contract is correctly configured and reachable, or try again later.
-        </p>
-      </div>
-    );
-  }
-
-  if (isLoadingProjects) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" /> 
-        <p className="ml-2 text-zinc-400">Loading projects...</p>
-      </div>
-    );
-  }
-
-  if (projectsError) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 text-center bg-zinc-900 p-6 rounded-lg border border-red-500/30">
-        <AlertCircle size={48} className="text-red-500 mb-4" />
-        <h3 className="text-xl font-semibold text-white">Error Loading Projects</h3>
-        <p className="text-zinc-400">
-          Failed to fetch project data. Please try again later.
-        </p>
-      </div>
-    );
-  }
-
-  if (!developerProjects || developerProjects.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-10 text-center bg-zinc-900/70 p-8 rounded-lg border border-zinc-800">
-        <FileText size={48} className="text-zinc-500 mb-4" />
-        <h3 className="text-xl font-semibold text-white">No Projects Found</h3>
-        <p className="text-zinc-400 max-w-md">
-          You haven't created any projects yet, or no projects match your current view. 
-          Get started by creating a new project.
         </p>
       </div>
     );
@@ -315,6 +283,15 @@ export default function SolarDeveloperDashboard() {
           <p className="text-zinc-400">
             Manage your solar projects and DePIN infrastructure
           </p>
+          {isLoadingKyc && isMounted && ( // Show KYC loading indicator if still loading
+            <Alert variant="default" className="mb-4 bg-zinc-800/50 border-zinc-700 text-zinc-300">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <AlertTitle>Loading KYC Status</AlertTitle>
+                <AlertDescription>
+                    Checking your KYC verification status...
+                </AlertDescription>
+            </Alert>
+          )}
           {kycError && !isLoadingKyc && ( 
             <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-700 text-red-300">
               <AlertCircle className="h-4 w-4" />
@@ -324,7 +301,7 @@ export default function SolarDeveloperDashboard() {
               </AlertDescription>
             </Alert>
           )}
-          {!kycError && kycStatus === false && !isLoadingKyc && ( 
+          {!isLoadingKyc && !kycError && kycStatus === false && ( 
             <Alert variant="default" className="mb-4 bg-yellow-900/30 border-yellow-700 text-yellow-300 cursor-pointer hover:bg-yellow-800/40" onClick={() => router.push('/developer-dashboard/kyc')}>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>KYC Verification Required</AlertTitle>
@@ -333,7 +310,7 @@ export default function SolarDeveloperDashboard() {
               </AlertDescription>
             </Alert>
           )}
-          {!kycError && kycStatus === true && !isLoadingKyc && ( 
+          {!isLoadingKyc && !kycError && kycStatus === true && ( 
             <Alert variant="default" className="mb-4 bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4" />
               <AlertTitle>KYC Verified</AlertTitle>
@@ -344,99 +321,96 @@ export default function SolarDeveloperDashboard() {
           )}
         </div>
         
-        {kycStatus === true ? (
+        {/* Main content visible based on KYC status, but project list handles its own loading/error state */}
+        {kycStatus === true || (kycStatus === false && !isLoadingKyc && !kycError) ? ( // Show dashboard structure if KYC is resolved (true or false) or still loading if no error
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-              {/* Card components (mockData) */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
-                  <CardTitle className="text-sm font-medium text-white">Total Energy Output</CardTitle>
-                  <Sun className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative p-4 pt-0">
-                  <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.totalEnergy.toLocaleString()} kWh</div>
-                  <p className="text-xs text-emerald-400">
-                    <span className="inline-flex items-center">
-                      <ArrowUpRight className="h-3 w-3 mr-1" />
-                      {mockData.analytics.dailyGrowth}%
-                    </span>{" "}
-                    from yesterday
-                  </p>
-                </CardContent>
-              </Card>
+            {kycStatus === true && ( // Only show stat cards and create project button if KYC is true
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+                  {/* Card components (mockData) */}
+                  <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                    
+                    <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+                      <CardTitle className="text-sm font-medium text-white">Total Energy Output</CardTitle>
+                      <Sun className="h-4 w-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent className="relative p-4 pt-0">
+                      <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.totalEnergy.toLocaleString()} kWh</div>
+                      <p className="text-xs text-emerald-400">
+                        <span className="inline-flex items-center">
+                          <ArrowUpRight className="h-3 w-3 mr-1" />
+                          {mockData.analytics.dailyGrowth}%
+                        </span>{" "}
+                        from yesterday
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
-                  <CardTitle className="text-sm font-medium text-white">Panel Efficiency</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative p-4 pt-0">
-                  <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.averageEfficiency}%</div>
-                  <Progress value={mockData.analytics.averageEfficiency} className="h-1 mt-2 bg-zinc-800" indicatorClassName="bg-emerald-500" />
-                </CardContent>
-              </Card>
+                  <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                    
+                    <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+                      <CardTitle className="text-sm font-medium text-white">Panel Efficiency</CardTitle>
+                      <BarChart3 className="h-4 w-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent className="relative p-4 pt-0">
+                      <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.averageEfficiency}%</div>
+                      <Progress value={mockData.analytics.averageEfficiency} className="h-1 mt-2 bg-zinc-800" indicatorClassName="bg-emerald-500" />
+                    </CardContent>
+                  </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
-                  <CardTitle className="text-sm font-medium text-white">Data Transfer Speed</CardTitle>
-                  <Clock className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative p-4 pt-0">
-                  <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.responseTime}</div>
-                  <p className="text-xs text-emerald-400">
-                    Last 24 hours
-                  </p>
-                </CardContent>
-              </Card>
+                  <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                    
+                    <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+                      <CardTitle className="text-sm font-medium text-white">Data Transfer Speed</CardTitle>
+                      <Clock className="h-4 w-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent className="relative p-4 pt-0">
+                      <div className="text-xl md:text-2xl font-bold text-white">{mockData.analytics.responseTime}</div>
+                      <p className="text-xs text-emerald-400">
+                        Last 24 hours
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
-                  <CardTitle className="text-sm font-medium text-white">DePIN Status</CardTitle>
-                  <Network className="h-4 w-4 text-emerald-500" />
-                </CardHeader>
-                <CardContent className="relative p-4 pt-0">
-                  <div className="text-xl md:text-2xl font-bold text-white">Operational</div>
-                  <p className="text-xs text-emerald-400">
-                    All systems online
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                  <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                    
+                    <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-4">
+                      <CardTitle className="text-sm font-medium text-white">DePIN Status</CardTitle>
+                      <Network className="h-4 w-4 text-emerald-500" />
+                    </CardHeader>
+                    <CardContent className="relative p-4 pt-0">
+                      <div className="text-xl md:text-2xl font-bold text-white">Operational</div>
+                      <p className="text-xs text-emerald-400">
+                        All systems online
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-              <div className="flex items-center gap-2">
-                <SwitchAccountButton />
-                <Button onClick={refetchProjects} variant="outline" disabled={isLoadingProjects} className="h-10">
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingProjects ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-              </div>
-              <Button 
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 h-10"
-                onClick={handleCreateProject}
-                disabled={isProcessing || isLoadingKyc} 
-              >
-                {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sun className="h-4 w-4" />}
-                Create New Solar Project
-              </Button>
-            </div>
-            
-            {projectsError && (
-              <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-700 text-red-300">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error Fetching Projects</AlertTitle>
-                <AlertDescription>{projectsError}</AlertDescription>
-              </Alert>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                  <div className="flex items-center gap-2">
+                    <SwitchAccountButton />
+                    <Button onClick={refetchProjects} variant="outline" disabled={isLoadingProjects} className="h-10">
+                      <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingProjects ? 'animate-spin' : ''}`} />
+                      Refresh Projects
+                    </Button>
+                  </div>
+                  <Button 
+                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 h-10"
+                    onClick={handleCreateProject}
+                    disabled={isProcessing || isLoadingKyc || kycStatus !== true} 
+                  >
+                    {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sun className="h-4 w-4" />}
+                    Create New Solar Project
+                  </Button>
+                </div>
+              </>
             )}
-
+            
             <DashboardTabs
               tabs={[
                 { value: "projects", label: "My Solar Projects" },
@@ -444,12 +418,42 @@ export default function SolarDeveloperDashboard() {
               activeTab={activeTab}
               onValueChange={setActiveTab}
             >
-              <TabsContent value="projects" className="space-y-4">
-                {isLoadingProjects && !projectsError && <p className="text-zinc-400">Loading projects...</p>}
-                {!isLoadingProjects && !projectsError && developerProjects.length === 0 && (
-                  <p className="text-zinc-400 text-center py-8">You haven't created any projects yet.</p>
+              <TabsContent value="projects" className="space-y-4 min-h-[200px]"> {/* Added min-h for better layout during loading/empty states */}
+                {isLoadingProjects && (
+                  <div className="flex flex-col justify-center items-center text-center py-10 bg-zinc-900/70 p-8 rounded-lg border border-zinc-800">
+                    <Loader2 className="h-12 w-12 animate-spin text-emerald-500 mb-4" />
+                    <p className="text-lg text-zinc-300">Loading projects...</p>
+                  </div>
                 )}
-                {!isLoadingProjects && !projectsError && developerProjects.length > 0 && (
+                {!isLoadingProjects && projectsError && (
+                  <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error Loading Projects</AlertTitle>
+                    <AlertDescription>{getErrorMessage(projectsError)}</AlertDescription>
+                  </Alert>
+                )}
+                {!isLoadingProjects && !projectsError && (!developerProjects || developerProjects.length === 0) && (
+                  <div className="flex flex-col items-center justify-center py-10 text-center bg-zinc-900/70 p-8 rounded-lg border border-zinc-800">
+                    <FileText size={48} className="text-zinc-500 mb-4" />
+                    <h3 className="text-xl font-semibold text-white">No Projects Found</h3>
+                    <p className="text-zinc-400 max-w-md">
+                      {kycStatus === true 
+                        ? "You haven't created any projects yet. Get started by creating a new project."
+                        : "Complete KYC verification to create and manage your solar projects."}
+                    </p>
+                    {kycStatus === true && (
+                       <Button 
+                        className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                        onClick={handleCreateProject}
+                        disabled={isProcessing || isLoadingKyc} 
+                      >
+                        {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sun className="h-4 w-4" />}
+                        Create New Solar Project
+                      </Button>
+                    )}
+                  </div>
+                )}
+                {!isLoadingProjects && !projectsError && developerProjects && developerProjects.length > 0 && (
                   <div className="overflow-x-auto -mx-3 px-3">
                     <Table className="w-full">
                       <TableHeader>
@@ -524,45 +528,40 @@ export default function SolarDeveloperDashboard() {
               </TabsContent>
             </DashboardTabs>
             
-            <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mt-8">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-              
-              <CardHeader className="relative">
-                <CardTitle className="text-white">Recent DePIN Activity</CardTitle>
-              </CardHeader>
-              
-              <CardContent className="relative">
-                <div className="space-y-4">
-                  {mockData.recentActivities.map((activity, i) => (
-                    <div key={i} className="flex justify-between items-center pb-3 border-b border-zinc-800/30">
-                      <div>
-                        <div className="font-medium text-white">{activity.event}</div>
-                        <div className="text-xs text-zinc-400">Project: {activity.project}</div>
+            {kycStatus === true && ( // Only show recent activity if KYC is true
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden mt-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                
+                <CardHeader className="relative">
+                  <CardTitle className="text-white">Recent DePIN Activity</CardTitle>
+                </CardHeader>
+                
+                <CardContent className="relative">
+                  <div className="space-y-4">
+                    {mockData.recentActivities.map((activity, i) => (
+                      <div key={i} className="flex justify-between items-center pb-3 border-b border-zinc-800/30">
+                        <div>
+                          <div className="font-medium text-white">{activity.event}</div>
+                          <div className="text-xs text-zinc-400">Project: {activity.project}</div>
+                        </div>
+                        <div className="text-sm text-zinc-300">{activity.time}</div>
                       </div>
-                      <div className="text-sm text-zinc-300">{activity.time}</div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </>
         ) : (
-          // This part is shown if kycStatus is false (and not loading, and no kycError)
-          <div className="text-center p-6 bg-gray-800 bg-opacity-70 rounded-xl shadow-2xl backdrop-blur-md">
-            <h2 className="text-2xl font-semibold text-yellow-300 mb-4">Project Creation & Management Disabled</h2>
-            <p className="text-gray-300">
-              Your connected wallet (<code className="bg-gray-700 px-1 rounded">{connectedAddress}</code>) is not recognized as a KYC-verified developer.
-            </p>
-            <p className="text-gray-300 mt-2">
-              Please complete the KYC process to access these features.
-            </p>
-            <Button 
-              onClick={() => router.push('/developer-dashboard/kyc')} 
-              className="mt-6 bg-yellow-600 hover:bg-yellow-700 text-white"
-            >
-              Go to KYC Page
-            </Button>
-          </div>
+          // This part is shown if kycStatus is loading or there was a kycError (already handled by early returns or specific alerts)
+          // If kycStatus is definitively false (and no error, not loading), the alerts above guide the user.
+          // The main "Go to KYC page" block for `kycStatus === false` is handled by the specific KYC alert.
+          // This fallback can be a general message if none of the above conditions for dashboard content are met,
+          // though the KYC alerts should generally cover the non-verified case.
+          // We can refine this if specific UI is needed when kycStatus is false and project tab is active.
+          // For now, the KYC alert for `kycStatus === false` provides the primary CTA.
+          // If `isLoadingKyc` is true, a loading indicator specific to KYC is shown above.
+          null // Or a placeholder if absolutely necessary, but specific KYC alerts are preferred.
         )}
       </div>
     </div>
