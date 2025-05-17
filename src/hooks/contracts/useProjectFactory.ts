@@ -72,7 +72,7 @@ export function useCreateProject() {
         address: addresses.projectFactoryProxy as `0x${string}`,
         abi: ProjectFactoryABI.abi,
         functionName: 'createProject',
-        args: [params.loanAmountRequested, params.requestedTenor, params.metadataCID]
+        args: [params]
       });
     },
     isLoading: isLoading || isConfirming,

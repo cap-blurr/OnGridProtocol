@@ -1,4 +1,4 @@
-import { useContractRead, useContractWrite, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { getAddresses } from '@/contracts/addresses';
 import DeveloperRegistryJSON from '@/contracts/abis/DeveloperRegistry.json';
 import { useEffect } from 'react';
@@ -17,7 +17,7 @@ export function useContractAddresses() {
 export function useGetDeveloperInfo(developerAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   
-  return useContractRead({
+  return useReadContract({
     address: addresses.developerRegistryProxy as `0x${string}`,
     abi: DeveloperRegistryABI,
     functionName: 'getDeveloperInfo',
@@ -33,7 +33,7 @@ export function useGetDeveloperInfo(developerAddress?: `0x${string}`) {
 export function useIsVerified(developerAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   
-  return useContractRead({
+  return useReadContract({
     address: addresses.developerRegistryProxy as `0x${string}`,
     abi: DeveloperRegistryABI,
     functionName: 'isVerified',
@@ -49,7 +49,7 @@ export function useIsVerified(developerAddress?: `0x${string}`) {
 export function useSubmitKYC() {
   const addresses = useContractAddresses();
   
-  const { writeContract, isPending, data: hash, error } = useContractWrite();
+  const { writeContract, isPending, data: hash, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ 
     hash 
@@ -85,7 +85,7 @@ export function useSubmitKYC() {
 export function useSetVerifiedStatus() {
   const addresses = useContractAddresses();
   
-  const { writeContract, isPending, data: hash, error } = useContractWrite();
+  const { writeContract, isPending, data: hash, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ 
     hash 
