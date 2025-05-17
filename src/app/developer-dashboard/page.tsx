@@ -28,12 +28,13 @@ import {
   Sun,
   BarChart3,
   AlertCircle,
-  Check
+  Check,
+  ExternalLink
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useUserType } from "@/providers/userType";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { useIsVerified } from "@/hooks/contracts/useDeveloperRegistry";
 import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
@@ -41,10 +42,8 @@ import { useRouter } from 'next/navigation';
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import toast from 'react-hot-toast';
 import CreateProjectModal from "@/components/developer/CreateProjectModal";
-import { parseEther, formatEther, Address, Abi } from 'viem';
-import projectFactoryAbiJson from '@/contracts/abis/ProjectFactory.json';
-import developerRegistryAbiJson from '@/contracts/abis/DeveloperRegistry.json';
 import { getAddresses, NetworkAddresses } from "@/contracts/addresses";
+import { useDeveloperProjects, OnChainProject, IPFS_GATEWAY_PREFIX } from "@/hooks/contracts/useDeveloperProjects";
 
 // Mock data for solar developer dashboard
 const mockData = {
@@ -99,9 +98,6 @@ const mockData = {
   ]
 };
 
-const projectFactoryAbi = projectFactoryAbiJson.abi as Abi;
-const developerRegistryAbi = developerRegistryAbiJson.abi as Abi;
-
 // Helper function to safely get an error message
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -126,14 +122,18 @@ export default function SolarDeveloperDashboard() {
   
   const chainId = useChainId();
   const [currentAddresses, setCurrentAddresses] = useState<NetworkAddresses | undefined>(undefined);
-  const [isLoadingData, setIsLoadingData] = useState(true);
-
-  // Fetch KYC status
+  
   const { data: kycStatus, isLoading: isLoadingKyc, error: kycError } = useIsVerified(connectedAddress);
 
-  // Wagmi hooks for contract interaction (if CreateProjectModal doesn't handle them internally)
-  // const { data: writeHash, writeContract, isPending: isWritePending, error: writeError } = useWriteContract();
-  // const { isLoading: isConfirming, isSuccess: isConfirmed, error: receiptError } = useWaitForTransactionReceipt({ hash: writeHash });
+  // Fetch developer projects
+  const { 
+    projects: developerProjects, 
+    isLoading: isLoadingProjects, 
+    error: projectsError,
+    refetchProjects 
+  } = useDeveloperProjects();
+
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
@@ -146,8 +146,7 @@ export default function SolarDeveloperDashboard() {
       } catch (error) {
         console.error("Failed to get contract addresses for chain ID:", chainId, error);
         setCurrentAddresses(undefined);
-        // Optionally, show a toast message to the user
-        // toast.error(`Configuration error: Unsupported network (Chain ID: ${chainId}).`);
+        toast.error(`Configuration error: Unsupported network (Chain ID: ${chainId}).`);
       }
     } else {
       setCurrentAddresses(undefined); 
@@ -155,13 +154,12 @@ export default function SolarDeveloperDashboard() {
   }, [chainId]);
   
   useEffect(() => {
-    if (isMounted && !isLoadingUserType && currentAddresses !== undefined && !isLoadingKyc) {
+    if (isMounted && !isLoadingUserType && currentAddresses !== undefined && !isLoadingKyc && !isLoadingProjects) {
       setIsLoadingData(false);
     } else {
-      setIsLoadingData(true);
+      setIsLoadingData(isMounted ? (isLoadingUserType || isLoadingKyc || isLoadingProjects || currentAddresses === undefined) : true );
     }
-  }, [isMounted, isLoadingUserType, currentAddresses, isLoadingKyc]);
-
+  }, [isMounted, isLoadingUserType, currentAddresses, isLoadingKyc, isLoadingProjects]);
 
   const [isProcessing, setIsProcessing] = useState(false); 
 
@@ -234,7 +232,6 @@ export default function SolarDeveloperDashboard() {
     );
   }
 
-
   if (kycError && !isLoadingKyc) { 
     return (
       <div className="container mx-auto px-4 py-8 text-center">
@@ -250,28 +247,13 @@ export default function SolarDeveloperDashboard() {
 
   return (
     <div className="relative">
-      {/* 
-        The CreateProjectModal component's props need to be checked.
-        The 'projectFactoryAddress' prop was causing a TypeScript error,
-        indicating it's not defined in CreateProjectModalProps.
-        
-        Possible solutions:
-        1. If CreateProjectModal is intended to receive this address, update its
-           props interface (CreateProjectModalProps in CreateProjectModal.tsx)
-           to include: `projectFactoryAddress: \`0x$\{string}\`;` (or `Address`).
-        2. If CreateProjectModal fetches this address internally (e.g., using useChainId and getAddresses),
-           then passing this prop is unnecessary and can be removed.
-        3. The prop name might be different in CreateProjectModalProps (e.g., `factoryAddress`, `contractAddress`).
-
-        For now, it's commented out to resolve the immediate TS error in this file.
-        Functionality of CreateProjectModal needs to be verified.
-      */}
       {projectFactoryAddressForModal && ( 
         <CreateProjectModal 
           isOpen={isCreateProjectModalOpen}
-          onClose={() => setIsCreateProjectModalOpen(false)}
-          // projectFactoryAddress={projectFactoryAddressForModal} 
-          // developerRegistryAddress={currentAddresses.developerRegistryProxy} // Similar check needed if this prop is used
+          onClose={() => {
+            setIsCreateProjectModalOpen(false);
+            refetchProjects();
+          }}
         />
       )}
       
@@ -396,9 +378,13 @@ export default function SolarDeveloperDashboard() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
               <div className="flex items-center gap-2">
                 <SwitchAccountButton />
+                <Button onClick={refetchProjects} variant="outline" disabled={isLoadingProjects} className="h-10">
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingProjects ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
               </div>
               <Button 
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 h-10"
                 onClick={handleCreateProject}
                 disabled={isProcessing || isLoadingKyc} 
               >
@@ -407,135 +393,98 @@ export default function SolarDeveloperDashboard() {
               </Button>
             </div>
             
+            {projectsError && (
+              <Alert variant="destructive" className="mb-4 bg-red-900/30 border-red-700 text-red-300">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error Fetching Projects</AlertTitle>
+                <AlertDescription>{projectsError}</AlertDescription>
+              </Alert>
+            )}
+
             <DashboardTabs
               tabs={[
-                { value: "projects", label: "Solar Projects" },
-                { value: "metrics", label: "Project Metrics" },
-                { value: "devices", label: "Monitoring Devices" }
+                { value: "projects", label: "My Solar Projects" },
               ]}
               activeTab={activeTab}
               onValueChange={setActiveTab}
             >
-              {/* TabsContent using mockData */}
               <TabsContent value="projects" className="space-y-4">
-                <div className="overflow-x-auto -mx-3 px-3">
-                  <Table className="w-full">
-                    <TableHeader>
-                      <TableRow className="border-b border-zinc-800/50 hover:bg-transparent">
-                        <TableHead className="text-zinc-400">Project Name</TableHead>
-                        <TableHead className="text-zinc-400">Status</TableHead>
-                        <TableHead className="text-zinc-400">Energy Output</TableHead>
-                        <TableHead className="text-zinc-400 text-right">Last Update</TableHead>
-                        <TableHead className="text-zinc-400 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {mockData.projects.map((project) => (
-                        <TableRow key={project.id} className="border-b border-zinc-800/20 hover:bg-zinc-800/10">
-                          <TableCell className="font-medium text-white">{project.name}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={`${
-                                project.status === "Live"
-                                  ? "bg-emerald-900/30 text-emerald-300 border-emerald-700"
-                                  : project.status === "Testing"
-                                  ? "bg-yellow-900/30 text-yellow-300 border-yellow-700"
-                                  : "bg-blue-900/30 text-blue-300 border-blue-700"
-                              }`}
-                            >
-                              {project.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{project.energyOutput.toLocaleString()} kWh</TableCell>
-                          <TableCell className="text-right">{project.lastActive}</TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/20">
-                              View
-                            </Button>
-                          </TableCell>
+                {isLoadingProjects && !projectsError && <p className="text-zinc-400">Loading projects...</p>}
+                {!isLoadingProjects && !projectsError && developerProjects.length === 0 && (
+                  <p className="text-zinc-400 text-center py-8">You haven't created any projects yet.</p>
+                )}
+                {!isLoadingProjects && !projectsError && developerProjects.length > 0 && (
+                  <div className="overflow-x-auto -mx-3 px-3">
+                    <Table className="w-full">
+                      <TableHeader>
+                        <TableRow className="border-b border-zinc-800/50 hover:bg-transparent">
+                          <TableHead className="text-zinc-400">Name / ID</TableHead>
+                          <TableHead className="text-zinc-400">Status</TableHead>
+                          <TableHead className="text-zinc-400">Loan Amount</TableHead>
+                          <TableHead className="text-zinc-400">Type</TableHead>
+                          <TableHead className="text-zinc-400">Created</TableHead>
+                          <TableHead className="text-zinc-400 text-right">Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="metrics" className="space-y-4">
-                <div className="overflow-x-auto -mx-3 px-3">
-                  <Table className="w-full">
-                    <TableHeader>
-                      <TableRow className="border-b border-zinc-800/50 hover:bg-transparent">
-                        <TableHead className="text-zinc-400">Project</TableHead>
-                        <TableHead className="text-zinc-400">Energy Generated</TableHead>
-                        <TableHead className="text-zinc-400">Carbon Offset</TableHead>
-                        <TableHead className="text-zinc-400">Efficiency Rate</TableHead>
-                        <TableHead className="text-zinc-400 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {mockData.projects.map((project) => (
-                        <TableRow key={project.id} className="border-b border-zinc-800/20 hover:bg-zinc-800/10">
-                          <TableCell className="font-medium text-white">{project.name}</TableCell>
-                          <TableCell>{project.solarMetrics[0].value} kWh</TableCell>
-                          <TableCell>{project.solarMetrics[1].value} kg</TableCell>
-                          <TableCell>{project.solarMetrics[2].value}%</TableCell>
-                          <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/20">
-                              Details
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="devices" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {mockData.projects.map((project) => (
-                    <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-                      
-                      <CardHeader className="relative">
-                        <div className="flex justify-between items-center">
-                          <CardTitle className="text-white">{project.name}</CardTitle>
-                          <Badge
-                            variant="outline"
-                            className={`${
-                              project.status === "Live"
-                                ? "bg-emerald-900/30 text-emerald-300 border-emerald-700"
-                                : project.status === "Testing"
-                                ? "bg-yellow-900/30 text-yellow-300 border-yellow-700"
-                                : "bg-blue-900/30 text-blue-300 border-blue-700"
-                            }`}
-                          >
-                            {project.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      
-                      <CardContent className="relative space-y-4">
-                        <div className="space-y-2">
-                          {project.solarMetrics.map((metric, i) => (
-                            <div key={i} className="flex justify-between items-center">
-                              <div className="text-sm text-zinc-300">{metric.metric}</div>
-                              <div className="text-sm text-zinc-400">{metric.value} {i === 0 ? 'kWh' : i === 1 ? 'kg' : '%'}</div>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className="flex justify-between items-center pt-2 border-t border-zinc-800/50">
-                          <div className="text-sm text-zinc-400">Last active: {project.lastActive}</div>
-                          <Button size="sm" variant="ghost" className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-900/20">
-                            Monitor
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {developerProjects.map((project: OnChainProject) => (
+                          <TableRow key={project.id} className="border-b border-zinc-800/20 hover:bg-zinc-800/10">
+                            <TableCell className="font-medium text-white">
+                              {project.metadata?.name || `Project ${project.id.substring(0,8)}...`}
+                              <p className="text-xs text-zinc-500">ID: {project.id}</p>
+                              {project.metadata?.description && <p className="text-xs text-zinc-400 mt-1 truncate max-w-xs">{project.metadata.description}</p>}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  project.status === "Metadata Error" ? "bg-red-900/30 text-red-300 border-red-700" :
+                                  project.status === "Metadata Loaded" && project.isLowValue && !project.lowValueSuccess ? "bg-yellow-900/30 text-yellow-300 border-yellow-700" :
+                                  project.status === "Metadata Loaded" ? "bg-emerald-900/30 text-emerald-300 border-emerald-700" :
+                                  "bg-blue-900/30 text-blue-300 border-blue-700" 
+                                }
+                              >
+                                {project.isLowValue ? (project.lowValueSuccess ? 'Funded (Low Value)' : 'Pending Funding (LV)') : 'High Value'}
+                                <span className="ml-1 text-xs opacity-70">({project.status})</span>
+                              </Badge>
+                              {project.metadataError && <p className="text-xs text-red-400 mt-1">{project.metadataError}</p>}
+                            </TableCell>
+                            <TableCell>{project.loanAmount} USDC</TableCell>
+                            <TableCell>{project.isLowValue ? "Low-Value Pool" : "Direct Vault"}</TableCell>
+                             <TableCell className="text-xs text-zinc-400">
+                                {project.timestamp ? project.timestamp.toLocaleDateString() : 'N/A'}
+                             </TableCell>
+                            <TableCell className="text-right space-x-1">
+                              {project.metadataCID && (
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="text-sky-400 hover:text-sky-300 hover:bg-sky-900/20"
+                                  onClick={() => window.open(`${IPFS_GATEWAY_PREFIX}${project.metadataCID}`, '_blank')}
+                                  title="View Metadata on IPFS"
+                                >
+                                  <ExternalLink size={14}/>
+                                </Button>
+                              )}
+                              {project.vaultAddress && currentAddresses && ( // Example: Link to vault on explorer
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="text-sky-400 hover:text-sky-300 hover:bg-sky-900/20"
+                                  // onClick={() => window.open(`https://basescan.org/address/${project.vaultAddress}`, '_blank')} // Adjust explorer URL
+                                  title="View Vault on Explorer"
+                                >
+                                  <Box size={14}/>
+                                </Button>
+                              )}
+                              {/* Add more actions like "View Details" linking to a project details page */}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </TabsContent>
             </DashboardTabs>
             
