@@ -3,6 +3,7 @@ import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect } from 'react';
 import { formatUnits, parseUnits } from 'ethers';
 import toast from 'react-hot-toast';
+import { useChainId } from 'wagmi';
 
 // Standard ERC20 ABI (partial, only what we need)
 const ERC20_ABI = [
@@ -81,16 +82,28 @@ export const USDC_DECIMALS = 6;
 // Get USDC balance
 export function useUSDCBalance(accountAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
-  
-  const { data, isLoading, isError, refetch } = useContractRead({
+  const chainId = useChainId(); // Get current chain ID for logging or explicit use
+
+  console.log(`useUSDCBalance: Fetching balance for account ${accountAddress} on chain ${chainId} using USDC address ${addresses.usdc}`);
+
+  const { data, isLoading, isError, error, refetch } = useContractRead({
     address: addresses.usdc as `0x${string}`,
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: accountAddress ? [accountAddress] : undefined,
+    // chainId: chainId, // Optionally pass chainId if your config requires it per call
     query: { 
-        enabled: !!accountAddress 
+        enabled: !!accountAddress && !!addresses.usdc,
+        retry: 2, // Add a couple of retries
     },
   });
+
+  useEffect(() => {
+    if (isError && error) {
+      console.error("useUSDCBalance - Error fetching balance:", error);
+      // You could toast here too if needed, but the component using the hook usually handles UI for errors
+    }
+  }, [isError, error]);
   
   const formattedBalance = data 
     ? formatUnits(data as bigint, USDC_DECIMALS)
@@ -101,6 +114,7 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
     formattedBalance,
     isLoading,
     isError,
+    error, 
     refetch
   };
 }
