@@ -11,8 +11,6 @@ export type NetworkAddresses = {
   feeRouterProxy: `0x${string}`;
   liquidityPoolManagerProxy: `0x${string}`;
   developerDepositEscrow: `0x${string}`;
-  usdcToken: `0x${string}`;
-  constants: `0x${string}`;
   devEscrowImpl: `0x${string}`;
   directProjectVaultImpl: `0x${string}`;
   riskRateOracleAdapterProxy: `0x${string}`;
@@ -23,6 +21,7 @@ export type NetworkAddresses = {
 export const CONTRACT_ADDRESSES: Record<number, NetworkAddresses> = {
   // Base Sepolia (testnet)
   84532: {
+    usdc: "0x145aA83e713BBc200aB08172BE9e347442a6c33E",
     carbonCreditToken: "0xd3D95A6e2a2Ef88F92fb701A40EB358Be2c9be7d",
     rewardDistributor: "0x28e9A8c3da8a05E415cb253A7Faf9Ffe9e195124",
     energyDataBridge: "0x2dCfA53aEfE9F62D4fF13281e72ECE6203D7149A",
@@ -34,9 +33,6 @@ export const CONTRACT_ADDRESSES: Record<number, NetworkAddresses> = {
     feeRouterProxy: "0x461f6Ff6eab107c419123A7757b4Ab7eB65526d7",
     liquidityPoolManagerProxy: "0x177cA24a0Fb50363fcD82E609479e3D8e1dC3e90",
     developerDepositEscrow: "0x29EC1CfaE65f11D75508e608C51D5AD698D46faf",
-    usdcToken: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-    constants: "0xAE26fFB4B09593DdB8BAff280F360F3BCa22F192",
-    usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
     devEscrowImpl: "0x4e9d1884732eA582A617bA498C444a965394010a",
     directProjectVaultImpl: "0x4F46a85840d647D2e1D834bEF312D3C735194742",
     riskRateOracleAdapterProxy: "0xd941D58aD8aC8f070909C18f7D45Ffa1EDc84D47",

@@ -29,7 +29,9 @@ import {
   BarChart3,
   AlertCircle,
   Check,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Loader2
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -240,6 +242,40 @@ export default function SolarDeveloperDashboard() {
         <p className="text-gray-300 mt-2">{getErrorMessage(kycError)}</p>
         <p className="text-gray-300 mt-2">
           Please ensure the Developer Registry contract is correctly configured and reachable, or try again later.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoadingProjects) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" /> 
+        <p className="ml-2 text-zinc-400">Loading projects...</p>
+      </div>
+    );
+  }
+
+  if (projectsError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center bg-zinc-900 p-6 rounded-lg border border-red-500/30">
+        <AlertCircle size={48} className="text-red-500 mb-4" />
+        <h3 className="text-xl font-semibold text-white">Error Loading Projects</h3>
+        <p className="text-zinc-400">
+          Failed to fetch project data. Please try again later.
+        </p>
+      </div>
+    );
+  }
+
+  if (!developerProjects || developerProjects.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 text-center bg-zinc-900/70 p-8 rounded-lg border border-zinc-800">
+        <FileText size={48} className="text-zinc-500 mb-4" />
+        <h3 className="text-xl font-semibold text-white">No Projects Found</h3>
+        <p className="text-zinc-400 max-w-md">
+          You haven't created any projects yet, or no projects match your current view. 
+          Get started by creating a new project.
         </p>
       </div>
     );

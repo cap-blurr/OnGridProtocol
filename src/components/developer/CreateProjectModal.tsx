@@ -32,7 +32,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import toast from "react-hot-toast";
 import ProjectFactoryABI from "@/contracts/abis/ProjectFactory.json";
-import ConstantsABI from "@/contracts/abis/Constants.json";
 import { useProjectFactory } from "@/hooks/contracts/useProjectFactory";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -49,6 +48,11 @@ interface CreateProjectModalProps {
   onClose: () => void;
 }
 
+// Define deposit constants directly in the component or import from a config file
+// Assuming a 20% deposit requirement
+const FIXED_DEVELOPER_DEPOSIT_BPS = BigInt(2000); // 2000 BPS = 20%
+const FIXED_BASIS_POINTS_DENOMINATOR = BigInt(10000); // Denominator for BPS
+
 export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
   // Form state
   const [projectName, setProjectName] = useState<string>("");
@@ -58,6 +62,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   const [tenorDays, setTenorDays] = useState<string>("365");
   const [metadataCID, setMetadataCID] = useState<string>("");
   const [depositAmount, setDepositAmount] = useState<string>("0");
+  const [depositPercentage, setDepositPercentage] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState<ProjectCreationStep>(ProjectCreationStep.DETAILS);
   const [newProjectId, setNewProjectId] = useState<string | null>(null);
   const [vaultAddress, setVaultAddress] = useState<string | null>(null);
@@ -79,19 +84,6 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
 
   // USDC approve function
   const { approve, isLoading: isApproving, isSuccess: isApproveSuccess } = useUSDCApprove();
-
-  // Get constants from the Constants contract
-  const { data: developerDepositBps } = useContractRead({
-    address: addresses.constants as `0x${string}`,
-    abi: ConstantsABI.abi,
-    functionName: 'DEVELOPER_DEPOSIT_BPS',
-  });
-
-  const { data: basisPointsDenominator } = useContractRead({
-    address: addresses.constants as `0x${string}`,
-    abi: ConstantsABI.abi,
-    functionName: 'BASIS_POINTS_DENOMINATOR',
-  });
 
   // Use the updated hook for project creation
   const { 
@@ -128,21 +120,32 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
   }, [projectEvents, currentStep]);
 
-  // Calculate deposit amount when loan amount or constants change
+  // Calculate deposit amount and percentage when loan amount or constants change
   useEffect(() => {
-    if (loanAmount && developerDepositBps && basisPointsDenominator) {
+    // Use the fixed constants defined above
+    const developerDepositBps = FIXED_DEVELOPER_DEPOSIT_BPS;
+    const basisPointsDenominator = FIXED_BASIS_POINTS_DENOMINATOR;
+
+    if (loanAmount && developerDepositBps && basisPointsDenominator && basisPointsDenominator !== BigInt(0)) {
       try {
         const loanAmountBigInt = parseUnits(loanAmount, USDC_DECIMALS);
-        const calculatedDeposit = (loanAmountBigInt * BigInt(developerDepositBps as number)) / BigInt(basisPointsDenominator as number);
+        const calculatedDeposit = (loanAmountBigInt * developerDepositBps) / basisPointsDenominator;
         setDepositAmount(formatUnits(calculatedDeposit, USDC_DECIMALS));
+
+        // Calculate percentage
+        const percentage = (Number(developerDepositBps) * 100) / Number(basisPointsDenominator);
+        setDepositPercentage(percentage);
+
       } catch (err) {
         console.error("Error calculating deposit amount:", err);
         setDepositAmount("0");
+        setDepositPercentage(null);
       }
     } else {
       setDepositAmount("0");
+      setDepositPercentage(null);
     }
-  }, [loanAmount, developerDepositBps, basisPointsDenominator]);
+  }, [loanAmount]);
 
   // Reset form when modal closes or opens
   useEffect(() => {
@@ -156,6 +159,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setTenorDays("365");
         setMetadataCID("");
         setDepositAmount("0");
+        setDepositPercentage(null);
         setCurrentStep(ProjectCreationStep.DETAILS);
         setNewProjectId(null);
         setVaultAddress(null);
@@ -249,7 +253,8 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       return;
     }
     
-    if (!metadataCID.trim()) {
+    const trimmedMetadataCID = metadataCID.trim();
+    if (!trimmedMetadataCID) {
       toast.error("Metadata CID is required. Please go back to details and enter it.");
       return;
     }
@@ -258,7 +263,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       const params = {
         loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS),
         requestedTenor: BigInt(parseInt(tenorDays)),
-        metadataCID: metadataCID
+        metadataCID: trimmedMetadataCID
       };
       
       createProject(params);
@@ -361,14 +366,14 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
             </div>
             
             {/* Deposit calculation summary */}
-            {depositAmount !== "0" && (
+            {depositAmount !== "0" && depositPercentage !== null && (
               <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300 flex flex-col space-y-2">
                 <div className="flex items-start">
                   <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
                   <div>
                     <AlertTitle>Deposit Requirement</AlertTitle>
                     <AlertDescription>
-                      You will need to deposit {depositAmount} USDC as a 20% project deposit.
+                      You will need to deposit {depositAmount} USDC as a {depositPercentage}% project deposit.
                     </AlertDescription>
                   </div>
                 </div>
