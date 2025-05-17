@@ -67,27 +67,32 @@ export function useDeveloperProjects() {
     if (!developerAddress || !publicClient || !currentAddresses?.projectFactoryProxy) {
       setIsLoading(false);
       setProjects([]);
-      // setError("Wallet not connected or contract addresses unavailable."); // Avoid setting error for expected states
       return;
     }
 
+    console.log("useDeveloperProjects: Starting project fetch...");
     setIsLoading(true);
     setError(null);
-    setProjects([]); // Clear previous projects
+    setProjects([]); 
 
-    // Define a smaller block range for fetching logs to avoid RPC limits
-    const BLOCK_RANGE_LIMIT = BigInt(499); // Max 500 blocks, 499 is safer
-    // Consider using the actual deployment block of your ProjectFactory contract
-    // instead of 0n for better performance on long-lived chains.
-    // For now, let's assume initialFromBlock should be a reasonably recent block or deployment block.
-    // Fetching from block 0 on a mainnet or long-lived testnet will be very slow and hit limits.
-    // This should be configured based on your contract's deployment block or a known recent block.
-    const initialFromBlock = BigInt(process.env.NEXT_PUBLIC_PROJECT_FACTORY_DEPLOYMENT_BLOCK || 0); 
-
-
+    const BLOCK_RANGE_LIMIT = BigInt(499);
+    
     try {
-      const latestBlock = await publicClient.getBlockNumber();
+      const latestBlockNumber = await publicClient.getBlockNumber();
+      let effectiveInitialFromBlock = BigInt(process.env.NEXT_PUBLIC_PROJECT_FACTORY_DEPLOYMENT_BLOCK || -1); // Use -1 to distinguish from actual 0
+
+      if (effectiveInitialFromBlock < BigInt(0)) { // Check if env var was not set or invalid
+        // If no deployment block is set, fetch a limited recent range for faster loading in dev/test.
+        // Adjust defaultScanRange as needed. 50,000 blocks is a reasonable recent history for a testnet.
+        const defaultScanRange = BigInt(50000); 
+        effectiveInitialFromBlock = latestBlockNumber > defaultScanRange ? latestBlockNumber - defaultScanRange : BigInt(0);
+        console.warn(`useDeveloperProjects: NEXT_PUBLIC_PROJECT_FACTORY_DEPLOYMENT_BLOCK not set. Defaulting to scan from block ${effectiveInitialFromBlock}. For production or full history, set this to your contract's deployment block.`);
+      } else {
+        console.log(`useDeveloperProjects: Using configured deployment block: ${effectiveInitialFromBlock}`);
+      }
       
+      console.log(`useDeveloperProjects: Fetching logs from block ${effectiveInitialFromBlock} to ${latestBlockNumber}`);
+
       const projectCreatedEvent = parseAbiItem('event ProjectCreated(uint256 indexed projectId, address indexed developer, address vaultAddress, address devEscrowAddress, uint256 loanAmount, string metadataCID)');
       const lowValueProjectSubmittedEvent = parseAbiItem('event LowValueProjectSubmitted(uint256 indexed projectId, address indexed developer, uint256 poolId, uint256 loanAmount, bool success, string metadataCID)');
 
@@ -97,15 +102,13 @@ export function useDeveloperProjects() {
       let allProjectCreatedLogs: ProjectCreatedLog[] = [];
       let allLowValueProjectSubmittedLogs: LowValueProjectSubmittedLog[] = [];
 
-      // Fetch logs in chunks
-      for (let currentFromBlock = initialFromBlock; currentFromBlock <= latestBlock; currentFromBlock += (BLOCK_RANGE_LIMIT + BigInt(1))) {
-        const currentToBlock = (currentFromBlock + BLOCK_RANGE_LIMIT > latestBlock) ? latestBlock : currentFromBlock + BLOCK_RANGE_LIMIT;
+      for (let currentFromBlock = effectiveInitialFromBlock; currentFromBlock <= latestBlockNumber; currentFromBlock += (BLOCK_RANGE_LIMIT + BigInt(1))) {
+        const currentToBlock = (currentFromBlock + BLOCK_RANGE_LIMIT > latestBlockNumber) ? latestBlockNumber : currentFromBlock + BLOCK_RANGE_LIMIT;
         
-        if (currentFromBlock > currentToBlock) break; // Should not happen with correct loop logic
+        if (currentFromBlock > currentToBlock) break; 
 
-        console.log(`Fetching logs from block ${currentFromBlock} to ${currentToBlock}`);
+        // console.log(`Fetching logs chunk from block ${currentFromBlock} to ${currentToBlock}`);
 
-        // Fetch ProjectCreated events for the current chunk
         try {
             const projectCreatedChunk = await publicClient.getLogs({
                 address: currentAddresses.projectFactoryProxy,
@@ -119,11 +122,8 @@ export function useDeveloperProjects() {
             allProjectCreatedLogs = allProjectCreatedLogs.concat(projectCreatedChunk);
         } catch (chunkError) {
             console.error(`Error fetching ProjectCreated logs chunk (${currentFromBlock}-${currentToBlock}):`, chunkError);
-            // Optionally, re-throw or set an error state if a chunk fails critically
         }
         
-
-        // Fetch LowValueProjectSubmitted events for the current chunk
         try {
             const lowValueProjectSubmittedChunk = await publicClient.getLogs({
                 address: currentAddresses.projectFactoryProxy,
@@ -140,12 +140,13 @@ export function useDeveloperProjects() {
         }
       }
       
+      console.log(`useDeveloperProjects: Found ${allProjectCreatedLogs.length} ProjectCreated events and ${allLowValueProjectSubmittedLogs.length} LowValueProjectSubmitted events.`);
+
       const combinedLogs: Array<(ProjectCreatedLog | LowValueProjectSubmittedLog) & { type: string }> = [
         ...allProjectCreatedLogs.map(log => ({ ...log, type: 'ProjectCreated' as const })),
         ...allLowValueProjectSubmittedLogs.map(log => ({ ...log, type: 'LowValueProjectSubmitted' as const }))
       ];
 
-      // Sort by block number and log index to maintain chronological order
       combinedLogs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;
         if (a.blockNumber !== b.blockNumber) {
@@ -155,7 +156,7 @@ export function useDeveloperProjects() {
         return a.logIndex - b.logIndex;
       });
 
-
+      console.log("useDeveloperProjects: Processing metadata for combined logs...");
       const fetchedProjectsPromises = combinedLogs.map(async (log) => {
         // log.args is now correctly typed based on whether it's ProjectCreatedLog or LowValueProjectSubmittedLog
         // However, since it's a union type in combinedLogs, we still need to access common properties
@@ -213,25 +214,29 @@ export function useDeveloperProjects() {
       });
 
       const resolvedProjects = await Promise.all(fetchedProjectsPromises);
-      setProjects(resolvedProjects.sort((a,b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0))); // Sort by newest first
+      setProjects(resolvedProjects.sort((a,b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0))); 
+      console.log(`useDeveloperProjects: Processed ${resolvedProjects.length} projects successfully.`);
 
     } catch (err: any) {
-      console.error("Error fetching projects:", err);
+      console.error("useDeveloperProjects: Error fetching projects:", err);
       setError(err.message || "An unknown error occurred while fetching projects.");
       setProjects([]);
     } finally {
       setIsLoading(false);
+      console.log("useDeveloperProjects: Finished project fetch (isLoading set to false).");
     }
-  }, [developerAddress, publicClient, currentAddresses]);
+  }, [developerAddress, publicClient, currentAddresses]); // Keep dependencies minimal and stable
 
   useEffect(() => {
     if (developerAddress && publicClient && currentAddresses) {
       fetchProjects();
     } else if (!developerAddress || !currentAddresses) {
-        setIsLoading(false);
-        setProjects([]); // Clear projects if wallet disconnects or network is unsupported
+        setIsLoading(false); 
+        setProjects([]); 
     }
-  }, [developerAddress, publicClient, fetchProjects, currentAddresses]);
+    // fetchProjects is memoized with useCallback, its identity changes when its deps change.
+    // Adding it here ensures re-fetch if, for instance, currentAddresses changes due to network switch.
+  }, [developerAddress, publicClient, currentAddresses, fetchProjects]); 
 
   return { projects, isLoading, error, refetchProjects: fetchProjects };
 } 
