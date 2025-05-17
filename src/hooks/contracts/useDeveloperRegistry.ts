@@ -34,7 +34,7 @@ export function useIsVerified(developerAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   
   return useContractRead({
-    address: addresses.developerRegistry as `0x${string}`,
+    address: addresses.developerRegistryProxy as `0x${string}`,
     abi: DeveloperRegistryABI,
     functionName: 'isVerified',
     args: developerAddress ? [developerAddress] : undefined,
@@ -69,7 +69,7 @@ export function useSubmitKYC() {
   return {
     submitKYC: (developer: `0x${string}`, kycHash: `0x${string}`, kycDataLocation: string) => {
       writeContract({
-        address: addresses.developerRegistry as `0x${string}`,
+        address: addresses.developerRegistryProxy as `0x${string}`,
         abi: DeveloperRegistryABI,
         functionName: 'submitKYC',
         args: [developer, kycHash, kycDataLocation]
@@ -102,7 +102,7 @@ export function useSetVerifiedStatus() {
   return {
     setVerifiedStatus: (developer: `0x${string}`, verified: boolean) => {
       writeContract({
-        address: addresses.developerRegistry as `0x${string}`,
+        address: addresses.developerRegistryProxy as `0x${string}`,
         abi: DeveloperRegistryABI,
         functionName: 'setVerifiedStatus',
         args: [developer, verified]
