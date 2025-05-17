@@ -70,7 +70,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   const addresses = useContractAddresses();
 
   // Get USDC balance
-  const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance } = 
+  const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance, isLoading: isLoadingUSDCBalance, isError: isErrorUSDCBalance } = 
     useUSDCBalance(developerAddress);
 
   // Get USDC allowance for DeveloperDepositEscrow
@@ -116,12 +116,11 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
 
   // Calculate deposit amount and percentage when loan amount changes
   useEffect(() => {
-    // Constants are imported from lib/constants
-    const developerDepositBpsBigInt = BigInt(DEVELOPER_DEPOSIT_BPS);
-    const basisPointsDenominatorBigInt = BigInt(BASIS_POINTS_DENOMINATOR);
-
-    if (loanAmount && developerDepositBpsBigInt && basisPointsDenominatorBigInt && basisPointsDenominatorBigInt !== BigInt(0)) {
+    if (loanAmount && parseFloat(loanAmount) > 0 && DEVELOPER_DEPOSIT_BPS && BASIS_POINTS_DENOMINATOR) {
       try {
+        const developerDepositBpsBigInt = BigInt(DEVELOPER_DEPOSIT_BPS);
+        const basisPointsDenominatorBigInt = BigInt(BASIS_POINTS_DENOMINATOR);
+
         const loanAmountBigInt = parseUnits(loanAmount, USDC_DECIMALS);
         const calculatedDeposit = (loanAmountBigInt * developerDepositBpsBigInt) / basisPointsDenominatorBigInt;
         setDepositAmount(formatUnits(calculatedDeposit, USDC_DECIMALS));
@@ -130,15 +129,15 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setDepositPercentage(percentage);
 
       } catch (err) {
-        console.error("Error calculating deposit amount:", err);
-        setDepositAmount("0");
+        console.error("Error calculating deposit amount for loanAmount:", loanAmount, err);
+        setDepositAmount("0"); // Reset on error
         setDepositPercentage(null);
       }
-    } else {
-      setDepositAmount("0");
-      setDepositPercentage(null);
+    } else if (loanAmount === "" || parseFloat(loanAmount) <= 0) { // Handle empty or zero loan amount
+        setDepositAmount("0");
+        setDepositPercentage(null);
     }
-  }, [loanAmount]); // Dependency array simplified
+  }, [loanAmount]); 
 
   // Reset form when modal closes or opens
   useEffect(() => {
@@ -199,8 +198,44 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         return;
       }
 
-      if (usdcBalance && depositAmount !== "0" && depositPercentage !== null) {
-        toast.error(`Insufficient USDC balance. You need ${depositAmount} USDC for the deposit.`);
+      // Add a check for loading balance state
+      if (isLoadingUSDCBalance) {
+        toast.error("Fetching USDC balance... Please wait and try again.");
+        return;
+      }
+      if (isErrorUSDCBalance || usdcBalance === undefined || usdcBalance === null) {
+        toast.error("Could not fetch USDC balance. Please check your connection or try again.");
+        console.error("USDC Balance fetch error or balance is undefined/null. Raw balance:", usdcBalance);
+        return;
+      }
+
+      let depositAmountBigInt: bigint;
+      try {
+        // Ensure depositAmount is a valid number string before parsing
+        if (isNaN(parseFloat(depositAmount)) || parseFloat(depositAmount) <= 0) {
+            toast.error("Calculated deposit amount is invalid. Please check loan amount.");
+            return;
+        }
+        depositAmountBigInt = parseUnits(depositAmount, USDC_DECIMALS);
+      } catch (e) {
+        toast.error("Invalid deposit amount calculated. Please check loan amount.");
+        console.error("Error parsing depositAmount:", depositAmount, e);
+        return;
+      }
+      
+      // ***** DEBUG LOGS START *****
+      console.log("--- Balance Check Inside handleDetailsSubmit ---");
+      console.log("Developer Address:", developerAddress);
+      console.log("USDC Balance (raw bigint from hook):", usdcBalance?.toString());
+      console.log("USDC Balance (formatted string from hook):", formattedUsdcBalance);
+      console.log("Required Deposit (string units state):", depositAmount);
+      console.log("Required Deposit (parsed bigint):", depositAmountBigInt.toString());
+      console.log("USDC_DECIMALS:", USDC_DECIMALS);
+      console.log("Comparison: depositAmountBigInt > usdcBalance  ?", depositAmountBigInt > usdcBalance);
+      // ***** DEBUG LOGS END *****
+      
+      if (depositAmountBigInt > usdcBalance) { 
+        toast.error(`Insufficient USDC balance. You need ${depositAmount} USDC for the deposit. Current balance: ${formattedUsdcBalance}`);
         return;
       }
       
@@ -358,7 +393,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
             </div>
 
             {/* Deposit calculation summary */}
-            {depositAmount !== "0" && depositPercentage !== null && (
+            {depositAmount !== "0" && depositAmount !== "Error" && depositAmount !== "Calculating..." && depositPercentage !== null && (
               <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300 flex flex-col space-y-2">
                 <div className="flex items-start">
                   <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
