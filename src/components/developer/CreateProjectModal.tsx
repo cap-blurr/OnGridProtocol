@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "wagmi";
-import { useUSDCBalance, useUSDCAllowance, useUSDCApprove, USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
+import { useUSDCBalance, useUSDCAllowance, useUSDCApprove, USDC_DECIMALS, isApprovalNeeded } from "@/hooks/contracts/useUSDC";
 import { useContractAddresses } from "@/hooks/contracts/useDeveloperRegistry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatUnits, parseUnits } from "ethers";
@@ -189,12 +189,14 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         toast.error("Please enter a valid loan amount");
         return;
       }
-      if (!tenorDays || parseInt(tenorDays) <= 0) {
-        toast.error("Please enter a valid loan tenor");
+      const tenorValueParsed = parseInt(tenorDays);
+      if (isNaN(tenorValueParsed) || tenorValueParsed <= 0 || tenorValueParsed > 10000) { // Example max value
+        toast.error("Tenor must be a valid number between 1 and 10,000 days");
         return;
       }
-      if (!metadataCID.trim()) {
-        toast.error("Please enter the Project Metadata CID");
+      const trimmedMetadataCIDOnSubmit = metadataCID.trim();
+      if (!trimmedMetadataCIDOnSubmit || trimmedMetadataCIDOnSubmit.length < 5) { // Basic CID check
+        toast.error("Please provide a valid metadata CID");
         return;
       }
 
@@ -212,7 +214,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       let depositAmountBigInt: bigint;
       try {
         // Ensure depositAmount is a valid number string before parsing
-        if (isNaN(parseFloat(depositAmount)) || parseFloat(depositAmount) <= 0) {
+        if (isNaN(parseFloat(depositAmount)) || parseFloat(depositAmount) < 0) { // Allow 0 deposit if applicable
             toast.error("Calculated deposit amount is invalid. Please check loan amount.");
             return;
         }
@@ -222,27 +224,19 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         console.error("Error parsing depositAmount:", depositAmount, e);
         return;
       }
-      
-      // ***** DEBUG LOGS START *****
-      console.log("--- Balance Check Inside handleDetailsSubmit ---");
-      console.log("Developer Address:", developerAddress);
-      console.log("USDC Balance (raw bigint from hook):", usdcBalance?.toString());
-      console.log("USDC Balance (formatted string from hook):", formattedUsdcBalance);
-      console.log("Required Deposit (string units state):", depositAmount);
-      console.log("Required Deposit (parsed bigint):", depositAmountBigInt.toString());
-      console.log("USDC_DECIMALS:", USDC_DECIMALS);
-      console.log("Comparison: depositAmountBigInt > usdcBalance  ?", depositAmountBigInt > usdcBalance);
-      // ***** DEBUG LOGS END *****
-      
+            
       if (depositAmountBigInt > usdcBalance) { 
         toast.error(`Insufficient USDC balance. You need ${depositAmount} USDC for the deposit. Current balance: ${formattedUsdcBalance}`);
         return;
       }
       
-      // Check if approval is needed
-      if (usdcAllowance && depositAmount !== "0" && depositPercentage !== null) {
+      // Use isApprovalNeeded helper from useUSDC.ts
+      // depositAmount is a string in unit form (e.g., "500.00")
+      // usdcAllowance is a bigint
+      if (parseFloat(depositAmount) > 0 && isApprovalNeeded(usdcAllowance, depositAmount)) {
         setCurrentStep(ProjectCreationStep.APPROVE);
       } else {
+        // If deposit is 0 or approval is not needed, proceed to create
         setCurrentStep(ProjectCreationStep.CREATE);
       }
     } catch (err) {
@@ -261,6 +255,11 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       toast.error("Developer Deposit Escrow address not found.");
       return;
     }
+    if (parseFloat(depositAmount) <= 0) {
+      toast.error("Deposit amount is zero or invalid, no approval needed.");
+      setCurrentStep(ProjectCreationStep.CREATE); // Move to create if deposit is 0
+      return;
+    }
     // Approve exact calculated depositAmount
     approve(
       addresses.developerDepositEscrow as `0x${string}`, 
@@ -275,45 +274,51 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       return;
     }
     
-    const trimmedMetadataCID = metadataCID.trim();
-    if (!trimmedMetadataCID || trimmedMetadataCID.length < 5) { // Arbitrary min length
-      toast.error("Please provide a valid metadata CID");
+    let formattedCID = metadataCID.trim();
+    if (!formattedCID || formattedCID.length < 5) { 
+      toast.error("Metadata CID is required. Please go back to details and enter it.");
+      setCurrentStep(ProjectCreationStep.DETAILS); // Send user back
       return;
+    }
+    // Optional: Remove 'ipfs://' prefix if your contract expects raw CID
+    if (formattedCID.startsWith('ipfs://')) {
+      formattedCID = formattedCID.replace('ipfs://', '');
     }
     
     try {
-      const tenorValue = parseInt(tenorDays);
-      if (tenorValue <= 0 || tenorValue > 10000) {
-        toast.error("Tenor must be between 1 and 10,000 days");
+      const loanAmountParsed = parseFloat(loanAmount);
+      const tenorDaysParsed = parseInt(tenorDays);
+
+      if (isNaN(loanAmountParsed) || loanAmountParsed <= 0) {
+        toast.error("Invalid loan amount. Please go back and correct.");
+        setCurrentStep(ProjectCreationStep.DETAILS);
+        return;
+      }
+       if (isNaN(tenorDaysParsed) || tenorDaysParsed <= 0 || tenorDaysParsed > 10000) {
+        toast.error("Invalid loan tenor. Please go back and correct.");
+        setCurrentStep(ProjectCreationStep.DETAILS);
         return;
       }
 
       const params = {
         loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS),
-        requestedTenor: BigInt(parseInt(tenorDays)),
-        metadataCID: trimmedMetadataCID
+        requestedTenor: BigInt(tenorDaysParsed), // Use parsed and validated tenor
+        metadataCID: formattedCID
       };
       
-      console.log("Creating project with parameters:", {
-        loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS).toString(),
-        requestedTenor: BigInt(parseInt(tenorDays)).toString(),
-        metadataCID: trimmedMetadataCID
+      console.log("Creating project with parameters (handleCreateProject):", {
+        loanAmountRequested: params.loanAmountRequested.toString(),
+        requestedTenor: params.requestedTenor.toString(),
+        metadataCID: params.metadataCID
       });
-      
-      // If the contract expects IPFS CIDs in a specific format (like removing 'ipfs://' prefix)
-      let formattedCID = trimmedMetadataCID;
-      if (formattedCID.startsWith('ipfs://')) {
-        formattedCID = formattedCID.replace('ipfs://', '');
-      }
       
       createProject(params);
     } catch (err) {
       console.error("Error creating project:", err);
-      // Check if error is due to string parsing, though parseUnits should handle valid numbers.
       if (err instanceof Error && err.message.includes("invalid BigNumberish string")) {
         toast.error("Failed to create project: Invalid numeric input for amounts or tenor.");
       } else {
-        toast.error("Failed to create project. Please try again.");
+        toast.error(`Failed to create project: ${(err as Error).message}`);
       }
     }
   };
