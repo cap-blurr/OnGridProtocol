@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "wagmi";
 import { useUSDCBalance, useUSDCAllowance, useUSDCApprove, USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
 import { useContractAddresses } from "@/hooks/contracts/useDeveloperRegistry";
-import { useContractRead, useWatchContractEvent } from "wagmi";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatUnits, parseUnits } from "ethers";
 import { 
@@ -34,6 +33,7 @@ import toast from "react-hot-toast";
 import ProjectFactoryABI from "@/contracts/abis/ProjectFactory.json";
 import { useProjectFactory } from "@/hooks/contracts/useProjectFactory";
 import { v4 as uuidv4 } from 'uuid';
+import { DEVELOPER_DEPOSIT_BPS, BASIS_POINTS_DENOMINATOR } from "@/lib/constants";
 
 // Steps in the project creation flow
 enum ProjectCreationStep {
@@ -47,11 +47,6 @@ interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// Define deposit constants directly in the component or import from a config file
-// Assuming a 20% deposit requirement
-const FIXED_DEVELOPER_DEPOSIT_BPS = BigInt(2000); // 2000 BPS = 20%
-const FIXED_BASIS_POINTS_DENOMINATOR = BigInt(10000); // Denominator for BPS
 
 export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
   // Form state
@@ -96,13 +91,12 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   // Monitor project events for completion
   useEffect(() => {
     if (projectEvents.length > 0 && currentStep === ProjectCreationStep.CREATE) {
-      // Get the most recent event
       const latestEvent = projectEvents[projectEvents.length - 1];
       
       if (latestEvent.type === 'high-value') {
-        const { projectId, vaultAddress } = latestEvent.data;
+        const { projectId, vaultAddress: highValueVaultAddress } = latestEvent.data;
         setNewProjectId(projectId.toString());
-        setVaultAddress(vaultAddress);
+        setVaultAddress(highValueVaultAddress);
         setProjectStatus("High-value Project Created");
         setCurrentStep(ProjectCreationStep.COMPLETE);
       } else if (latestEvent.type === 'low-value') {
@@ -120,20 +114,19 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
   }, [projectEvents, currentStep]);
 
-  // Calculate deposit amount and percentage when loan amount or constants change
+  // Calculate deposit amount and percentage when loan amount changes
   useEffect(() => {
-    // Use the fixed constants defined above
-    const developerDepositBps = FIXED_DEVELOPER_DEPOSIT_BPS;
-    const basisPointsDenominator = FIXED_BASIS_POINTS_DENOMINATOR;
+    // Constants are imported from lib/constants
+    const developerDepositBpsBigInt = BigInt(DEVELOPER_DEPOSIT_BPS);
+    const basisPointsDenominatorBigInt = BigInt(BASIS_POINTS_DENOMINATOR);
 
-    if (loanAmount && developerDepositBps && basisPointsDenominator && basisPointsDenominator !== BigInt(0)) {
+    if (loanAmount && developerDepositBpsBigInt && basisPointsDenominatorBigInt && basisPointsDenominatorBigInt !== BigInt(0)) {
       try {
         const loanAmountBigInt = parseUnits(loanAmount, USDC_DECIMALS);
-        const calculatedDeposit = (loanAmountBigInt * developerDepositBps) / basisPointsDenominator;
+        const calculatedDeposit = (loanAmountBigInt * developerDepositBpsBigInt) / basisPointsDenominatorBigInt;
         setDepositAmount(formatUnits(calculatedDeposit, USDC_DECIMALS));
 
-        // Calculate percentage
-        const percentage = (Number(developerDepositBps) * 100) / Number(basisPointsDenominator);
+        const percentage = (Number(developerDepositBpsBigInt) * 100) / Number(basisPointsDenominatorBigInt);
         setDepositPercentage(percentage);
 
       } catch (err) {
@@ -145,12 +138,11 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       setDepositAmount("0");
       setDepositPercentage(null);
     }
-  }, [loanAmount]);
+  }, [loanAmount]); // Dependency array simplified
 
   // Reset form when modal closes or opens
   useEffect(() => {
     if (!isOpen) {
-      // Reset everything when modal is closed
       setTimeout(() => {
         setProjectName("");
         setProjectDescription("");
@@ -166,7 +158,6 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setProjectStatus(null);
       }, 300);
     } else {
-      // Refresh balances and allowances when modal opens
       refetchBalance();
       refetchAllowance();
     }
@@ -175,15 +166,14 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   // Move to next step when approval succeeds
   useEffect(() => {
     if (isApproveSuccess && currentStep === ProjectCreationStep.APPROVE) {
-      refetchAllowance();
+      refetchAllowance(); // Refresh allowance after approval
       setCurrentStep(ProjectCreationStep.CREATE);
     }
   }, [isApproveSuccess, currentStep, refetchAllowance]);
-
-  // Handle form submission - validate inputs
+  
   const handleDetailsSubmit = async () => {
     try {
-      // Basic validation
+      // Basic validation (ensure these are comprehensive)
       if (!projectName.trim()) {
         toast.error("Please enter a project name");
         return;
@@ -200,30 +190,24 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         toast.error("Please enter a valid loan amount");
         return;
       }
-      
       if (!tenorDays || parseInt(tenorDays) <= 0) {
         toast.error("Please enter a valid loan tenor");
         return;
       }
-      
-      // Ensure metadataCID is provided
       if (!metadataCID.trim()) {
         toast.error("Please enter the Project Metadata CID");
         return;
       }
-      
-      // Check if USDC balance is sufficient for deposit
-      if (usdcBalance && parseUnits(depositAmount, USDC_DECIMALS) > usdcBalance) {
+
+      if (usdcBalance && depositAmount !== "0" && depositPercentage !== null) {
         toast.error(`Insufficient USDC balance. You need ${depositAmount} USDC for the deposit.`);
         return;
       }
       
       // Check if approval is needed
-      if (usdcAllowance && parseUnits(depositAmount, USDC_DECIMALS) > usdcAllowance) {
-        // Need to approve
+      if (usdcAllowance && depositAmount !== "0" && depositPercentage !== null) {
         setCurrentStep(ProjectCreationStep.APPROVE);
       } else {
-        // Already approved, proceed to create project
         setCurrentStep(ProjectCreationStep.CREATE);
       }
     } catch (err) {
@@ -238,11 +222,14 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       toast.error("Wallet not connected");
       return;
     }
-    
-    // Approve exact amount
+    if (!addresses.developerDepositEscrow) {
+      toast.error("Developer Deposit Escrow address not found.");
+      return;
+    }
+    // Approve exact calculated depositAmount
     approve(
       addresses.developerDepositEscrow as `0x${string}`, 
-      depositAmount
+      depositAmount // depositAmount is already a string representation of the units
     );
   };
 
@@ -269,7 +256,12 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       createProject(params);
     } catch (err) {
       console.error("Error creating project:", err);
-      toast.error("Failed to create project. Please try again.");
+      // Check if error is due to string parsing, though parseUnits should handle valid numbers.
+      if (err instanceof Error && err.message.includes("invalid BigNumberish string")) {
+        toast.error("Failed to create project: Invalid numeric input for amounts or tenor.");
+      } else {
+        toast.error("Failed to create project. Please try again.");
+      }
     }
   };
 
@@ -364,16 +356,16 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
                 Manually provide the IPFS Content ID (CID) for your project's metadata JSON.
               </p>
             </div>
-            
+
             {/* Deposit calculation summary */}
             {depositAmount !== "0" && depositPercentage !== null && (
               <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300 flex flex-col space-y-2">
                 <div className="flex items-start">
                   <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
                   <div>
-                    <AlertTitle>Deposit Requirement</AlertTitle>
+                    <AlertTitle>Deposit Requirement ({depositPercentage}%)</AlertTitle>
                     <AlertDescription>
-                      You will need to deposit {depositAmount} USDC as a {depositPercentage}% project deposit.
+                      You will need to deposit {depositAmount} USDC.
                     </AlertDescription>
                   </div>
                 </div>
@@ -383,7 +375,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
                     <span>{formattedUsdcBalance} USDC</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Current USDC Allowance:</span>
+                    <span>Current USDC Allowance for Escrow:</span>
                     <span>{formattedAllowance} USDC</span>
                   </div>
                 </div>

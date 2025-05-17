@@ -2,8 +2,9 @@
 
 // From OnGrid Finance Constants.sol (or similar)
 // The share of the loan amount requested that the developer must deposit.
-// 2000 BPS = 20%
-export const DEVELOPER_DEPOSIT_BPS = 2000; // Basis points
+// YOU MUST VERIFY THIS VALUE AGAINST YOUR ProjectFactory.sol or DeveloperDepositEscrow.sol
+// This value is what those contracts will expect for the deposit.
+export const DEVELOPER_DEPOSIT_BPS = 2000; // Example: 2000 BPS = 20%. VERIFY THIS!!
 
 // Denominator for basis points calculations.
 export const BASIS_POINTS_DENOMINATOR = 10000;
