@@ -55,7 +55,7 @@ export function useDeveloperProjects() {
         setCurrentAddresses(getAddresses(chainId));
       } catch (err) {
         console.error("Failed to get contract addresses for chain ID:", chainId, err);
-        setError(`Unsupported network (Chain ID: ${chainId}).`);
+        setError(`Unsupported network (Chain ID: ${chainId}). Please ensure it's configured in addresses.ts.`);
         setCurrentAddresses(undefined);
       }
     } else {
@@ -67,45 +67,82 @@ export function useDeveloperProjects() {
     if (!developerAddress || !publicClient || !currentAddresses?.projectFactoryProxy) {
       setIsLoading(false);
       setProjects([]);
+      // setError("Wallet not connected or contract addresses unavailable."); // Avoid setting error for expected states
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    setProjects([]); // Clear previous projects
+
+    // Define a smaller block range for fetching logs to avoid RPC limits
+    const BLOCK_RANGE_LIMIT = BigInt(499); // Max 500 blocks, 499 is safer
+    // Consider using the actual deployment block of your ProjectFactory contract
+    // instead of 0n for better performance on long-lived chains.
+    // For now, let's assume initialFromBlock should be a reasonably recent block or deployment block.
+    // Fetching from block 0 on a mainnet or long-lived testnet will be very slow and hit limits.
+    // This should be configured based on your contract's deployment block or a known recent block.
+    const initialFromBlock = BigInt(process.env.NEXT_PUBLIC_PROJECT_FACTORY_DEPLOYMENT_BLOCK || 0); 
+
 
     try {
+      const latestBlock = await publicClient.getBlockNumber();
+      
       const projectCreatedEvent = parseAbiItem('event ProjectCreated(uint256 indexed projectId, address indexed developer, address vaultAddress, address devEscrowAddress, uint256 loanAmount, string metadataCID)');
       const lowValueProjectSubmittedEvent = parseAbiItem('event LowValueProjectSubmitted(uint256 indexed projectId, address indexed developer, uint256 poolId, uint256 loanAmount, bool success, string metadataCID)');
 
       type ProjectCreatedLog = GetLogsReturnType<typeof projectCreatedEvent>[0];
       type LowValueProjectSubmittedLog = GetLogsReturnType<typeof lowValueProjectSubmittedEvent>[0];
 
+      let allProjectCreatedLogs: ProjectCreatedLog[] = [];
+      let allLowValueProjectSubmittedLogs: LowValueProjectSubmittedLog[] = [];
 
-      // Fetch ProjectCreated events
-      const projectCreatedLogs: ProjectCreatedLog[] = await publicClient.getLogs({
-        address: currentAddresses.projectFactoryProxy,
-        event: projectCreatedEvent,
-        args: {
-          developer: developerAddress,
-        },
-        fromBlock: BigInt(0), // Adjust as needed, e.g., contract deployment block
-        toBlock: 'latest',
-      });
+      // Fetch logs in chunks
+      for (let currentFromBlock = initialFromBlock; currentFromBlock <= latestBlock; currentFromBlock += (BLOCK_RANGE_LIMIT + BigInt(1))) {
+        const currentToBlock = (currentFromBlock + BLOCK_RANGE_LIMIT > latestBlock) ? latestBlock : currentFromBlock + BLOCK_RANGE_LIMIT;
+        
+        if (currentFromBlock > currentToBlock) break; // Should not happen with correct loop logic
 
-      // Fetch LowValueProjectSubmitted events
-      const lowValueProjectSubmittedLogs: LowValueProjectSubmittedLog[] = await publicClient.getLogs({
-        address: currentAddresses.projectFactoryProxy,
-        event: lowValueProjectSubmittedEvent,
-        args: {
-          developer: developerAddress,
-        },
-        fromBlock: BigInt(0), // Adjust as needed
-        toBlock: 'latest',
-      });
+        console.log(`Fetching logs from block ${currentFromBlock} to ${currentToBlock}`);
+
+        // Fetch ProjectCreated events for the current chunk
+        try {
+            const projectCreatedChunk = await publicClient.getLogs({
+                address: currentAddresses.projectFactoryProxy,
+                event: projectCreatedEvent,
+                args: {
+                    developer: developerAddress,
+                },
+                fromBlock: currentFromBlock,
+                toBlock: currentToBlock,
+            });
+            allProjectCreatedLogs = allProjectCreatedLogs.concat(projectCreatedChunk);
+        } catch (chunkError) {
+            console.error(`Error fetching ProjectCreated logs chunk (${currentFromBlock}-${currentToBlock}):`, chunkError);
+            // Optionally, re-throw or set an error state if a chunk fails critically
+        }
+        
+
+        // Fetch LowValueProjectSubmitted events for the current chunk
+        try {
+            const lowValueProjectSubmittedChunk = await publicClient.getLogs({
+                address: currentAddresses.projectFactoryProxy,
+                event: lowValueProjectSubmittedEvent,
+                args: {
+                    developer: developerAddress,
+                },
+                fromBlock: currentFromBlock,
+                toBlock: currentToBlock,
+            });
+            allLowValueProjectSubmittedLogs = allLowValueProjectSubmittedLogs.concat(lowValueProjectSubmittedChunk);
+        } catch (chunkError) {
+            console.error(`Error fetching LowValueProjectSubmitted logs chunk (${currentFromBlock}-${currentToBlock}):`, chunkError);
+        }
+      }
       
       const combinedLogs: Array<(ProjectCreatedLog | LowValueProjectSubmittedLog) & { type: string }> = [
-        ...projectCreatedLogs.map(log => ({ ...log, type: 'ProjectCreated' as const })),
-        ...lowValueProjectSubmittedLogs.map(log => ({ ...log, type: 'LowValueProjectSubmitted' as const }))
+        ...allProjectCreatedLogs.map(log => ({ ...log, type: 'ProjectCreated' as const })),
+        ...allLowValueProjectSubmittedLogs.map(log => ({ ...log, type: 'LowValueProjectSubmitted' as const }))
       ];
 
       // Sort by block number and log index to maintain chronological order
@@ -159,7 +196,7 @@ export function useDeveloperProjects() {
           try {
             const response = await fetch(`${IPFS_GATEWAY_PREFIX}${project.metadataCID}`);
             if (!response.ok) {
-              throw new Error(`Failed to fetch metadata from IPFS: ${response.statusText}`);
+              throw new Error(`Failed to fetch metadata from IPFS: ${response.statusText} (CID: ${project.metadataCID})`);
             }
             const metadata = await response.json() as ProjectMetadata;
             project.metadata = metadata;
