@@ -64,7 +64,8 @@ export default function ConnectButton() {
 
   // If authenticated, show user info with dropdown
   const walletAddress = user?.wallet?.address;
-  const displayName = user?.email || (walletAddress ? formatAddress(walletAddress) : 'Connected');
+  const emailAddress = user?.email?.address;
+  const displayName = emailAddress || (walletAddress ? formatAddress(walletAddress) : 'Connected');
 
   return (
     <div className="relative">
@@ -74,7 +75,7 @@ export default function ConnectButton() {
         className="flex items-center gap-2 bg-gray-800 border-gray-700 text-white hover:bg-gray-700 transition-colors"
       >
         <div className="w-6 h-6 bg-oga-yellow text-black rounded-full flex items-center justify-center text-xs font-bold">
-          {user?.email?.charAt(0).toUpperCase() || 
+          {emailAddress?.charAt(0).toUpperCase() || 
            (walletAddress ? walletAddress.slice(2, 4).toUpperCase() : '??')}
         </div>
         <span className="hidden sm:block">{displayName}</span>
@@ -97,12 +98,12 @@ export default function ConnectButton() {
             <div className="px-4 py-3 border-b border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-oga-yellow text-black rounded-full flex items-center justify-center text-sm font-bold">
-                  {user?.email?.charAt(0).toUpperCase() || 
+                  {emailAddress?.charAt(0).toUpperCase() || 
                    (walletAddress ? walletAddress.slice(2, 4).toUpperCase() : '??')}
                 </div>
                 <div>
-                  {user?.email && (
-                    <p className="text-sm font-medium text-white">{user.email}</p>
+                  {emailAddress && (
+                    <p className="text-sm font-medium text-white">{emailAddress}</p>
                   )}
                   {walletAddress && (
                     <p className="text-xs text-gray-400">{formatAddress(walletAddress)}</p>

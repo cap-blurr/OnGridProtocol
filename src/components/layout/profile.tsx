@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { KYCModal } from "../kyc/kyc-modal";
 
 export function Profile() {
   const { authenticated, user, logout } = usePrivy();
@@ -21,6 +20,7 @@ export function Profile() {
 
   // Format address for display
   const address = user.wallet?.address;
+  const emailAddress = user.email?.address;
   const displayAddress = address 
     ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
     : '';
@@ -41,7 +41,7 @@ export function Profile() {
               <User className="w-3.5 h-3.5 text-emerald-400" />
             </div>
             <span className="text-zinc-200 font-medium text-sm hidden sm:inline">
-              {user.email || displayAddress}
+              {emailAddress || displayAddress}
             </span>
             <ChevronDown className="w-4 h-4 text-zinc-400" />
           </Button>
@@ -55,7 +55,7 @@ export function Profile() {
               <User className="w-6 h-6 text-emerald-400" />
             </div>
             <span className="text-zinc-200 font-medium mb-1">
-              {user.email || displayAddress}
+              {emailAddress || displayAddress}
             </span>
             <span className="text-emerald-500 text-xs">Connected</span>
           </div>
@@ -82,8 +82,6 @@ export function Profile() {
               </span>
               <ArrowRight className="w-4 h-4" />
             </button>
-
-            <KYCModal />
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
