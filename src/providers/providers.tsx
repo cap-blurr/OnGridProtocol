@@ -1,16 +1,16 @@
 'use client';
- 
-import { ReactNode } from 'react';
-import { WagmiProvider, createConfig, http } from 'wagmi';
+
+import { PrivyProvider } from '@privy-io/react-auth';
+import { WagmiProvider } from 'wagmi';
+import { createConfig, http } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { base } from 'viem/chains';
+import { useState } from 'react';
 import { UserTypeProvider } from './userType';
-import { State as WagmiState } from 'wagmi';
 
-const wagmiConfig = createConfig({
+// Wagmi configuration
+const config = createConfig({
   chains: [baseSepolia],
   connectors: [
     coinbaseWallet({
@@ -19,43 +19,33 @@ const wagmiConfig = createConfig({
   ],
   ssr: true,
   transports: {
-        [baseSepolia.id]: http('https://base-sepolia.g.alchemy.com/v2/1gJpy5A2EiQrD8o1RIjPOo0-xXf_CFLA'),
+    [baseSepolia.id]: http(),
   },
 });
 
-const queryClient = new QueryClient();
- 
-export function Providers({ 
-  children, 
-  initialState 
-}: { 
-  children: ReactNode;
-  initialState?: WagmiState;
-}) {
+export default function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={wagmiConfig} initialState={initialState}>
-        <OnchainKitProvider
-          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-          chain={base}
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <PrivyProvider
+          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
+          clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
           config={{
-            appearance: {
-              name: 'OnGrid Protocol',
-              mode: 'dark',
-              theme: 'dark',
-            },
-            wallet: {
-              display: 'modal',
-              termsUrl: 'https://ongridprotocol.com/terms',
-              privacyUrl: 'https://ongridprotocol.com/privacy',
-            },
+            // Create embedded wallets for users who don't have a wallet
+            embeddedWallets: {
+              ethereum: {
+                createOnLogin: 'users-without-wallets'
+              }
+            }
           }}
         >
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
-        </OnchainKitProvider>
-      </WagmiProvider>
-    </QueryClientProvider>
+        </PrivyProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

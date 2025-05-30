@@ -11,14 +11,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUserType } from "@/providers/userType";
-import { useAccount } from "wagmi";
+import { usePrivy } from '@privy-io/react-auth';
 import { CheckCircle2, Code, UserCheck } from "lucide-react";
 
 export default function AccountTypeModal() {
   const [open, setOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<'normal' | 'developer' | null>(null);
-  const { setUserType } = useUserType();
-  const { isConnected } = useAccount();
+  const { setUserType, userType } = useUserType();
+  const { ready, authenticated } = usePrivy();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -26,14 +26,14 @@ export default function AccountTypeModal() {
     setIsMounted(true);
   }, []);
 
-  // Show modal when wallet is connected
+  // Show modal when wallet is connected and user type isn't set
   useEffect(() => {
-    if (isMounted && isConnected) {
+    if (isMounted && ready && authenticated && !userType) {
       setOpen(true);
     } else {
       setOpen(false);
     }
-  }, [isConnected, isMounted]);
+  }, [authenticated, ready, isMounted, userType]);
 
   const handleTypeSelection = (type: 'normal' | 'developer') => {
     setSelectedType(type);
@@ -49,7 +49,7 @@ export default function AccountTypeModal() {
   };
 
   // Don't render during SSR or if modal shouldn't be shown
-  if (!isMounted) return null;
+  if (!isMounted || !ready) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
