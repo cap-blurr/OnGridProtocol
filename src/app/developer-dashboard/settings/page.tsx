@@ -204,13 +204,13 @@ export default function DeveloperSettings() {
                     variant="outline"
                     size="icon"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="border-oga-green/50 text-oga-green hover:bg-oga-green/10"
+                    className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green transition-all duration-200"
                   >
                     {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                   <Button 
                     variant="outline"
-                    className="border-oga-green/50 text-oga-green hover:bg-oga-green/10"
+                    className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green font-medium transition-all duration-200"
                   >
                     Regenerate
                   </Button>
@@ -320,7 +320,7 @@ export default function DeveloperSettings() {
           {/* Save Button */}
           <div className="flex justify-end">
             <Button 
-              className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+              className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white hover:text-white font-medium transition-all duration-200"
               size="lg"
             >
               <Save className="w-4 h-4 mr-2" />

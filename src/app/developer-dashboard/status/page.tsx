@@ -269,19 +269,19 @@ export default function InstallationStatus() {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button 
-                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white hover:text-white font-medium transition-all duration-200"
                     >
                       View Details
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/10"
+                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green font-medium transition-all duration-200"
                     >
                       Update Status
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 font-medium transition-all duration-200"
                     >
                       Contact Crew
                     </Button>

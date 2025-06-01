@@ -229,13 +229,13 @@ export default function SolarFundingLevels() {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button 
-                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white hover:text-white font-medium transition-all duration-200"
                     >
                       View Details
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/10"
+                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green font-medium transition-all duration-200"
                     >
                       Manage Campaign
                     </Button>
