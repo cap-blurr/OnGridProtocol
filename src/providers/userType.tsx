@@ -19,7 +19,7 @@ const UserTypeContext = createContext<UserTypeContextProps | undefined>(undefine
 
 export function UserTypeProvider({ children }: { children: ReactNode }) {
   const [userTypeValue, setUserTypeValue] = useState<UserType>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isStorageLoading, setIsStorageLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -38,7 +38,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Error loading user type from localStorage:", error);
       } finally {
-        setIsLoading(false);
+        setIsStorageLoading(false);
       }
     };
 
@@ -50,7 +50,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
 
   // Handle authentication state changes and user type modal
   useEffect(() => {
-    if (!ready || isLoading) return;
+    if (!ready || isStorageLoading) return;
 
     // If user just authenticated and we haven't checked their auth state yet
     if (authenticated && !hasCheckedAuth) {
@@ -88,7 +88,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         console.error("Error removing user type from localStorage:", error);
       }
     }
-  }, [authenticated, ready, hasCheckedAuth, isLoading]);
+  }, [authenticated, ready, hasCheckedAuth, isStorageLoading]);
 
   // Function to handle user type selection
   const handleUserTypeSelection = (type: UserType) => {
@@ -133,7 +133,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       value={{
         userType: userTypeValue,
         setUserType: updateUserType,
-        isLoading: isLoading || !ready || isNavigating,
+        isLoading: isStorageLoading || !ready,
         showUserTypeModal: showModal,
       }}
     >
