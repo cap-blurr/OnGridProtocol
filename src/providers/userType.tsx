@@ -32,6 +32,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     const loadUserType = () => {
       try {
         const savedType = localStorage.getItem('userType') as UserType;
+        console.log('🏁 Initial load - saved type:', savedType);
         if (savedType) {
           setUserTypeValue(savedType);
         }
@@ -48,40 +49,56 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     }
   }, [ready]);
 
+  // Test function for manual modal testing
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).testUserTypeModal = () => {
+        console.log('🧪 MANUAL TEST: Showing UserTypeModal');
+        localStorage.removeItem('userType');
+        setUserTypeValue(null);
+        setShowModal(true);
+      };
+      
+      (window as any).resetUserType = () => {
+        console.log('🔄 RESET: Clearing all user type data');
+        localStorage.removeItem('userType');
+        setUserTypeValue(null);
+        setShowModal(false);
+        setHasCheckedAuth(false);
+      };
+    }
+  }, []);
+
   // Handle authentication state changes and user type modal
   useEffect(() => {
+    console.log('🔍 Auth State:', { ready, isStorageLoading, authenticated, hasCheckedAuth, userTypeValue });
+    
     if (!ready || isStorageLoading) return;
 
     // If user just authenticated and we haven't checked their auth state yet
     if (authenticated && !hasCheckedAuth) {
+      console.log('✅ User authenticated for first time - checking saved type...');
       setHasCheckedAuth(true);
       
       // Check if user has a saved user type
       const savedType = localStorage.getItem('userType') as UserType;
+      console.log('💾 Saved user type found:', savedType);
       
-      // If no saved type, show the modal with optimized timing for mobile
+      // If no saved type, show the modal IMMEDIATELY
       if (!savedType) {
-        setIsNavigating(true);
-        // Optimized delay for immediate appearance after wallet connection
-        const showModalTimer = setTimeout(() => {
-          setIsNavigating(false);
-          setShowModal(true);
-        }, 200); // Reduced from 600ms for immediate modal appearance
-        
-        return () => clearTimeout(showModalTimer);
+        console.log('🎭 No saved type - showing modal IMMEDIATELY!');
+        setShowModal(true);
+        // No delay - show immediately for best UX
       } else {
+        console.log('✅ Found saved type, using it:', savedType);
         setUserTypeValue(savedType);
-        // Minimal delay for smooth transition
-        const resetNavigationTimer = setTimeout(() => {
-          setIsNavigating(false);
-        }, 100); // Reduced from 200ms
-        
-        return () => clearTimeout(resetNavigationTimer);
+        setIsNavigating(false);
       }
     }
 
     // If user disconnected, reset everything
     if (!authenticated && hasCheckedAuth) {
+      console.log('❌ User disconnected - resetting everything');
       setHasCheckedAuth(false);
       setUserTypeValue(null);
       setShowModal(false);
@@ -94,29 +111,20 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     }
   }, [authenticated, ready, hasCheckedAuth, isStorageLoading]);
 
-  // Function to handle user type selection with optimized mobile navigation
+  // Function to handle user type selection with immediate navigation
   const handleUserTypeSelection = (type: UserType) => {
+    console.log('🎯 User selected type:', type);
     updateUserType(type);
     setShowModal(false);
-    setIsNavigating(true);
     
-    // Optimized navigation timing for immediate transition
-    const navigateTimer = setTimeout(() => {
-      if (type === 'developer') {
-        router.push('/developer-dashboard');
-      } else {
-        router.push('/dashboard');
-      }
-      
-      // Quick reset for immediate UI response
-      const resetTimer = setTimeout(() => {
-        setIsNavigating(false);
-      }, 50); // Reduced from 100ms for immediate response
-      
-      return () => clearTimeout(resetTimer);
-    }, 100); // Reduced from 150ms for faster navigation
-    
-    return () => clearTimeout(navigateTimer);
+    // Navigate immediately for best UX
+    if (type === 'developer') {
+      console.log('🚀 Navigating to developer dashboard...');
+      router.push('/developer-dashboard');
+    } else {
+      console.log('🚀 Navigating to standard dashboard...');
+      router.push('/dashboard');
+    }
   };
 
   // Function to update user type
@@ -142,7 +150,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       value={{
         userType: userTypeValue,
         setUserType: updateUserType,
-        isLoading: isStorageLoading || !ready || isNavigating,
+        isLoading: isStorageLoading || !ready,
         showUserTypeModal: showModal,
       }}
     >
@@ -153,6 +161,32 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         isOpen={showModal}
         onSelectUserType={handleUserTypeSelection}
       />
+      
+      {/* Debug Panel - TEMPORARY for testing */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 right-4 bg-black/90 text-white p-3 text-xs rounded-lg z-[9999] font-mono border border-green-500">
+          <div className="text-green-400 font-bold mb-2">🔍 UserType Debug</div>
+          <div>Ready: <span className={ready ? 'text-green-400' : 'text-red-400'}>{String(ready)}</span></div>
+          <div>Auth: <span className={authenticated ? 'text-green-400' : 'text-red-400'}>{String(authenticated)}</span></div>
+          <div>UserType: <span className="text-yellow-400">{userTypeValue || 'null'}</span></div>
+          <div>ShowModal: <span className={showModal ? 'text-green-400' : 'text-red-400'}>{String(showModal)}</span></div>
+          <div>HasChecked: <span className={hasCheckedAuth ? 'text-green-400' : 'text-red-400'}>{String(hasCheckedAuth)}</span></div>
+          <div className="mt-2 space-y-1">
+            <button 
+              onClick={() => (window as any).testUserTypeModal?.()}
+              className="block w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
+            >
+              Test Modal
+            </button>
+            <button 
+              onClick={() => (window as any).resetUserType?.()}
+              className="block w-full px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      )}
     </UserTypeContext.Provider>
   );
 }

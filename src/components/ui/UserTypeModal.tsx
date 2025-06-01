@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UserType } from '@/providers/userType';
@@ -15,13 +15,30 @@ export default function UserTypeModal({ isOpen, onSelectUserType }: UserTypeModa
   const [selectedType, setSelectedType] = useState<UserType>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug logging for modal state
+  useEffect(() => {
+    console.log('🎭 UserTypeModal: isOpen changed to:', isOpen);
+  }, [isOpen]);
+
+  // Reset selection when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedType(null);
+    }
+  }, [isOpen]);
+
   const handleConfirm = async () => {
     if (!selectedType) return;
     
+    console.log('🎯 UserTypeModal: User confirmed selection:', selectedType);
     setIsLoading(true);
+    
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Minimal delay for smooth UI transition
+      await new Promise(resolve => setTimeout(resolve, 100));
       onSelectUserType(selectedType);
+    } catch (error) {
+      console.error('Error in handleConfirm:', error);
     } finally {
       setIsLoading(false);
     }
