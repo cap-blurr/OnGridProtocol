@@ -62,11 +62,11 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       // If no saved type, show the modal with optimized timing for mobile
       if (!savedType) {
         setIsNavigating(true);
-        // Reduced delay for mobile responsiveness
+        // Optimized delay for immediate appearance after wallet connection
         const showModalTimer = setTimeout(() => {
           setIsNavigating(false);
           setShowModal(true);
-        }, 600); // Reduced from 1200ms
+        }, 200); // Reduced from 600ms for immediate modal appearance
         
         return () => clearTimeout(showModalTimer);
       } else {
@@ -74,7 +74,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         // Minimal delay for smooth transition
         const resetNavigationTimer = setTimeout(() => {
           setIsNavigating(false);
-        }, 200); // Reduced from 500ms
+        }, 100); // Reduced from 200ms
         
         return () => clearTimeout(resetNavigationTimer);
       }
@@ -100,7 +100,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     setShowModal(false);
     setIsNavigating(true);
     
-    // Optimized navigation timing for mobile
+    // Optimized navigation timing for immediate transition
     const navigateTimer = setTimeout(() => {
       if (type === 'developer') {
         router.push('/developer-dashboard');
@@ -108,13 +108,13 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         router.push('/dashboard');
       }
       
-      // Quick reset for mobile
+      // Quick reset for immediate UI response
       const resetTimer = setTimeout(() => {
         setIsNavigating(false);
-      }, 100); // Greatly reduced from 500ms
+      }, 50); // Reduced from 100ms for immediate response
       
       return () => clearTimeout(resetTimer);
-    }, 150); // Reduced from 300ms
+    }, 100); // Reduced from 150ms for faster navigation
     
     return () => clearTimeout(navigateTimer);
   };

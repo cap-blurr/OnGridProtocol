@@ -16,7 +16,7 @@ export function redirectBasedOnUserType(
   }
 
   // Connected but no user type selected - they need to select a type
-  // (AccountTypeModal will handle this case, no redirect needed)
+  // (UserTypeModal will handle this case, no redirect needed)
   if (isConnected && !userType) {
     return;
   }
