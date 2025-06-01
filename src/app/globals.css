@@ -86,6 +86,65 @@ body {
   animation: float 4s ease-in-out infinite;
 }
 
+/* Prevent layout shifts during wallet connection */
+.wallet-connect-button {
+  min-width: 120px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Smooth animations for mobile */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-top-2 {
+  animation: slideInFromTop 0.2s ease-out;
+}
+
+/* Improve mobile touch targets */
+@media (max-width: 768px) {
+  button {
+    min-height: 44px; /* Apple's recommended touch target size */
+  }
+  
+  /* Prevent text from being too small on mobile */
+  .dropdown-menu {
+    min-width: 280px;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Improve connection state visibility */
+.connecting-state {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Modal backdrop styling for better mobile experience */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
