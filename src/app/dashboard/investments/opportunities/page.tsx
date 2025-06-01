@@ -1,313 +1,260 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { useAccount } from "wagmi";
-import { useContractAddresses } from "@/hooks/contracts/useDeveloperRegistry";
-import { useContractRead, useWatchContractEvent } from "wagmi";
-import ProjectFactoryABI from "@/contracts/abis/ProjectFactory.json";
-import DirectProjectVaultABI from "@/contracts/abis/DirectProjectVault.json";
-import { formatEther, formatUnits } from "ethers";
-import { useRouter } from "next/navigation";
-import {
-  ArrowUpRight, 
-  Leaf,
-  Calendar, 
-  BarChart, 
-  Search,
-  Clock,
-  AlertCircle,
-  Sun,
-  Wind,
-  Loader2
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { USDC_DECIMALS } from "@/hooks/contracts/useUSDC";
-import { Log } from 'viem';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  ArrowLeft,
+  ArrowUpRight,
+  MapPin,
+  Calendar,
+  TrendingUp,
+  Shield,
+  Users,
+  Zap
+} from 'lucide-react';
+import Link from 'next/link';
 
-interface ProjectVault {
-  id: string;
-  vaultAddress: string;
-  developer: string;
-  loanAmount: bigint;
-  currentFunding: bigint;
-  fundingPercentage: number;
-  apr: number;
-  tenorDays: number;
-  isFundingClosed: boolean;
-  name: string; // From metadata
-}
-
-export default function InvestmentOpportunitiesPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [projects, setProjects] = useState<ProjectVault[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<ProjectVault[]>([]);
-  const { address } = useAccount();
-  const addresses = useContractAddresses();
-  const router = useRouter();
-
-  // Mock project names while real metadata loading is implemented
-  const projectTypes = ["Solar Farm", "Wind Turbines", "Hydro Power", "Biomass Plant", "Geothermal"];
-  const locations = ["California", "Texas", "New York", "Arizona", "Florida", "Colorado"];
-
-  // Listen for ProjectCreated events to find available vaults
-  useWatchContractEvent({
-    address: addresses.projectFactoryProxy as `0x${string}`,
-    abi: ProjectFactoryABI.abi,
-    eventName: 'ProjectCreated',
-    onLogs(logs: Log[]) {
-      if (logs.length > 0) {
-        logs.forEach(log => {
-          const { args } = log as any;
-          if (args) {
-            const projectId = args.projectId.toString();
-            const vaultAddress = args.vaultAddress as string;
-            const developer = args.developer as string;
-            const loanAmount = args.loanAmount as bigint;
-
-            // Check if we already have this project
-            if (!projects.some(p => p.id === projectId)) {
-              // Fetch additional vault details
-              fetchVaultDetails(vaultAddress, projectId, developer, loanAmount);
-            }
-          }
-        });
-      }
+export default function InvestmentOpportunities() {
+  const opportunities = [
+    {
+      id: 1,
+      name: 'Solar Energy Grid - Nigeria',
+      type: 'Solar',
+      location: 'Lagos, Nigeria',
+      targetAmount: 500000,
+      currentAmount: 320000,
+      roi: 12.5,
+      duration: '24 months',
+      riskLevel: 'Medium',
+      status: 'Active',
+      description: 'Large-scale solar energy grid to power residential and commercial areas in Lagos.',
+      minInvestment: 1000,
+      investors: 45
     },
-  });
-
-  // Mock function to simulate fetching vault details
-  // In a real implementation, you would use useContractRead for each vault
-  const fetchVaultDetails = async (vaultAddress: string, projectId: string, developer: string, loanAmount: bigint) => {
-    try {
-      // This would be replaced with actual contract reads
-      const mockTenor = Math.floor(Math.random() * 365) + 180; // 180-545 days
-      const mockAPR = 8 + Math.random() * 5; // 8-13%
-      const mockFunding = Math.floor(Math.random() * Number(loanAmount));
-      const mockFundingPercentage = (mockFunding / Number(loanAmount)) * 100;
-      const mockClosed = Math.random() > 0.7; // 30% chance of being closed
-      
-      // Generate a mock name
-      const type = projectTypes[Math.floor(Math.random() * projectTypes.length)];
-      const location = locations[Math.floor(Math.random() * locations.length)];
-      const mockName = `${location} ${type} Project`;
-
-      const newProject: ProjectVault = {
-        id: projectId,
-        vaultAddress,
-        developer,
-        loanAmount,
-        currentFunding: BigInt(mockFunding),
-        fundingPercentage: mockFundingPercentage,
-        apr: mockAPR,
-        tenorDays: mockTenor,
-        isFundingClosed: mockClosed,
-        name: mockName
-      };
-
-      setProjects(prev => [...prev, newProject]);
-    } catch (error) {
-      console.error("Error fetching vault details:", error);
+    {
+      id: 2,
+      name: 'Wind Farm Development - Kenya',
+      type: 'Wind',
+      location: 'Turkana, Kenya',
+      targetAmount: 1200000,
+      currentAmount: 850000,
+      roi: 15.2,
+      duration: '36 months',
+      riskLevel: 'High',
+      status: 'Active',
+      description: 'Wind farm installation in high-wind area with excellent energy generation potential.',
+      minInvestment: 5000,
+      investors: 32
+    },
+    {
+      id: 3,
+      name: 'Hydroelectric Plant - Ghana',
+      type: 'Hydro',
+      location: 'Volta Region, Ghana',
+      targetAmount: 800000,
+      currentAmount: 600000,
+      roi: 10.8,
+      duration: '30 months',
+      riskLevel: 'Low',
+      status: 'Active',
+      description: 'Small-scale hydroelectric plant utilizing natural water flow for sustainable energy.',
+      minInvestment: 2500,
+      investors: 28
+    },
+    {
+      id: 4,
+      name: 'Solar Microgrid - Tanzania',
+      type: 'Solar',
+      location: 'Arusha, Tanzania',
+      targetAmount: 350000,
+      currentAmount: 120000,
+      roi: 11.5,
+      duration: '18 months',
+      riskLevel: 'Medium',
+      status: 'Funding',
+      description: 'Microgrid solution for rural communities with limited grid access.',
+      minInvestment: 500,
+      investors: 15
     }
-  };
-
-  // Simulate loading projects on mount
-  useEffect(() => {
-    const loadMockProjects = async () => {
-      // In a real implementation, you would query past events or have a backend API
-      // that provides the list of active vaults
-      const mockProjects: ProjectVault[] = [];
-      
-      for (let i = 1; i <= 5; i++) {
-        const loanAmount = BigInt(Math.floor(Math.random() * 1000000) * 1e6); // Random amount up to 1M USDC
-        const currentFunding = BigInt(Math.floor(Math.random() * Number(loanAmount)));
-        const fundingPercentage = (Number(currentFunding) / Number(loanAmount)) * 100;
-        const type = projectTypes[Math.floor(Math.random() * projectTypes.length)];
-        const location = locations[Math.floor(Math.random() * locations.length)];
-        
-        mockProjects.push({
-          id: `${i}`,
-          vaultAddress: `0x${i}${'0'.repeat(39)}`,
-          developer: `0x${'d'.repeat(40)}`,
-          loanAmount,
-          currentFunding,
-          fundingPercentage,
-          apr: 8 + Math.random() * 5, // 8-13%
-          tenorDays: Math.floor(Math.random() * 365) + 180, // 180-545 days
-          isFundingClosed: Math.random() > 0.7, // 30% chance of being closed
-          name: `${location} ${type} Project`
-        });
-      }
-      
-      setProjects(mockProjects);
-      setFilteredProjects(mockProjects);
-      setIsLoading(false);
-    };
-    
-    loadMockProjects();
-  }, []);
-
-  // Filter projects based on search term
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = projects.filter(project => 
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredProjects(filtered);
-    } else {
-      setFilteredProjects(projects);
-    }
-  }, [searchTerm, projects]);
-
-  const handleProjectClick = (projectId: string, vaultAddress: string) => {
-    router.push(`/dashboard/investments/details/${projectId}?vault=${vaultAddress}`);
-  };
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
+        <Link href="/dashboard/investments" className="inline-flex items-center text-emerald-400 hover:text-emerald-300 mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Investment Dashboard
+        </Link>
         <h1 className="text-3xl font-bold text-white mb-2">Investment Opportunities</h1>
-          <p className="text-zinc-400">
-          Explore and fund high-impact renewable energy projects
-          </p>
-        </div>
-        
-      {/* Search and filter */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-zinc-500" />
-          <Input 
-            placeholder="Search projects by name or location" 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600"
-          />
-        </div>
+        <p className="text-zinc-400">
+          Discover clean energy projects seeking investment funding
+        </p>
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-gray-900/50 border-gray-700 mb-8">
+        <CardHeader>
+          <CardTitle className="text-white">Filter Opportunities</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Project Type</label>
+              <select className="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white">
+                <option>All Types</option>
+                <option>Solar</option>
+                <option>Wind</option>
+                <option>Hydro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Risk Level</label>
+              <select className="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white">
+                <option>All Levels</option>
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Min ROI (%)</label>
+              <Input 
+                type="number" 
+                placeholder="0" 
+                className="bg-gray-800 border-gray-600 text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Location</label>
+              <select className="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white">
+                <option>All Countries</option>
+                <option>Nigeria</option>
+                <option>Kenya</option>
+                <option>Ghana</option>
+                <option>Tanzania</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Opportunities Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {opportunities.map((opportunity) => (
+          <Card key={opportunity.id} className="bg-gray-900/50 border-gray-700">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-white text-xl mb-2">{opportunity.name}</CardTitle>
+                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {opportunity.location}
+                    </div>
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-1" />
+                      {opportunity.investors} investors
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end space-y-2">
+                  <Badge className="bg-emerald-600">{opportunity.type}</Badge>
+                  <Badge 
+                    className={
+                      opportunity.status === 'Active' ? 'bg-green-600' : 'bg-yellow-600'
+                    }
+                  >
+                    {opportunity.status}
+                  </Badge>
+                </div>
               </div>
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-          <span className="ml-3 text-zinc-400">Loading investment opportunities...</span>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-gray-300 text-sm">{opportunity.description}</p>
+              
+              {/* Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Funding Progress</span>
+                  <span className="text-white">
+                    ${opportunity.currentAmount.toLocaleString()} / ${opportunity.targetAmount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <div 
+                    className="bg-emerald-600 h-3 rounded-full" 
+                    style={{ width: `${(opportunity.currentAmount / opportunity.targetAmount) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="text-right text-sm text-gray-400">
+                  {Math.round((opportunity.currentAmount / opportunity.targetAmount) * 100)}% funded
+                </div>
               </div>
-      ) : filteredProjects.length === 0 ? (
-        <Card className="relative bg-black/40 backdrop-blur-sm border border-zinc-800/30 overflow-hidden">
-          <CardContent className="py-10">
-            <div className="text-center">
-              <AlertCircle className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-white mb-1">No projects found</h3>
-              <p className="text-zinc-400">Try adjusting your search criteria or check back later for new opportunities.</p>
+              
+              {/* Key Metrics */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-800/50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <TrendingUp className="w-4 h-4 text-green-500" />
+                    <span className="text-gray-400 text-sm">Expected ROI</span>
+                  </div>
+                  <p className="text-green-400 font-bold text-lg">{opportunity.roi}%</p>
+                </div>
+                
+                <div className="bg-gray-800/50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    <span className="text-gray-400 text-sm">Duration</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">{opportunity.duration}</p>
+                </div>
+                
+                <div className="bg-gray-800/50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Shield className="w-4 h-4 text-yellow-500" />
+                    <span className="text-gray-400 text-sm">Risk Level</span>
+                  </div>
+                  <Badge 
+                    className={
+                      opportunity.riskLevel === 'Low' ? 'bg-green-600' :
+                      opportunity.riskLevel === 'Medium' ? 'bg-yellow-600' : 'bg-red-600'
+                    }
+                  >
+                    {opportunity.riskLevel}
+                  </Badge>
+                </div>
+                
+                <div className="bg-gray-800/50 p-3 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Zap className="w-4 h-4 text-emerald-500" />
+                    <span className="text-gray-400 text-sm">Min Investment</span>
+                  </div>
+                  <p className="text-white font-bold text-lg">${opportunity.minInvestment.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="space-y-3">
+                <Link href={`/dashboard/investments/opportunities/${opportunity.id}`}>
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    <ArrowUpRight className="w-4 h-4 mr-2" />
+                    View Full Details
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Add to Watchlist
+                </Button>
               </div>
             </CardContent>
           </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <Card 
-              key={project.id} 
-              className={`relative bg-black/40 backdrop-blur-sm border ${
-                project.isFundingClosed 
-                  ? 'border-zinc-800/30 opacity-70' 
-                  : 'border-emerald-800/30 hover:border-emerald-600/50'
-              } transition-all cursor-pointer overflow-hidden`}
-              onClick={() => !project.isFundingClosed && handleProjectClick(project.id, project.vaultAddress)}
-            >
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
-            
-              {project.isFundingClosed && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
-                  <div className="px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-md">
-                    <span className="text-zinc-400 font-medium">Funding Closed</span>
-                  </div>
-                </div>
-              )}
-                
-                <CardHeader className="relative">
-                <div className="flex justify-between items-start mb-2">
-                  <Badge 
-                    variant="outline" 
-                    className="bg-emerald-900/30 text-emerald-300 border-emerald-800"
-                  >
-                    {project.name.includes("Solar") ? (
-                      <Sun className="h-3 w-3 mr-1 text-emerald-300" />
-                    ) : project.name.includes("Wind") ? (
-                      <Wind className="h-3 w-3 mr-1 text-emerald-300" />
-                    ) : (
-                      <Leaf className="h-3 w-3 mr-1 text-emerald-300" />
-                    )}
-                    Energy Project
-                  </Badge>
-                  <Badge 
-                    variant="outline" 
-                    className="bg-blue-900/30 text-blue-300 border-blue-800"
-                  >
-                    ID: {project.id}
-                    </Badge>
-                  </div>
-                <CardTitle className="text-white">{project.name}</CardTitle>
-                <CardDescription className="text-zinc-400">
-                  Developer: {project.developer.substring(0, 6)}...{project.developer.substring(38)}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="relative space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Target Funding</span>
-                    <span className="text-white">{formatUnits(project.loanAmount, USDC_DECIMALS)} USDC</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-400">Current Progress</span>
-                    <span className="text-white">{formatUnits(project.currentFunding, USDC_DECIMALS)} USDC</span>
-                      </div>
-                      <Progress 
-                    value={project.fundingPercentage} 
-                    className="h-2 mt-1 bg-zinc-800" 
-                        indicatorClassName="bg-emerald-500" 
-                      />
-                  <div className="flex justify-end text-xs text-emerald-400">
-                    {project.fundingPercentage.toFixed(1)}% funded
-                      </div>
-                    </div>
-                
-                <Separator className="bg-zinc-800/50" />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col items-center p-3 bg-zinc-900/50 rounded-md">
-                    <span className="text-zinc-400 text-xs mb-1">APR</span>
-                    <div className="flex items-center">
-                      <BarChart className="h-3 w-3 mr-1 text-emerald-500" />
-                      <span className="text-white font-medium">{project.apr.toFixed(1)}%</span>
-                    </div>
-                      </div>
-                  <div className="flex flex-col items-center p-3 bg-zinc-900/50 rounded-md">
-                    <span className="text-zinc-400 text-xs mb-1">Tenor</span>
-                      <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1 text-emerald-500" />
-                      <span className="text-white font-medium">{project.tenorDays} days</span>
-                    </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  
-              <CardFooter className="relative border-t border-zinc-800/50 pt-4">
-                <Button 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                  disabled={project.isFundingClosed}
-                >
-                      View Project Details
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 } 
