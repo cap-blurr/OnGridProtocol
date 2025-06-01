@@ -34,16 +34,13 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/" className="inline-block mb-6">
-            <Link href="/" className="inline-block mb-6">
-        <Image
-         src="/ongrid-logo.png"
-         alt="Ongrid-logo"
-         className="w-32 md:w-40"
-         width={160}
-        height={64}
-        />
-        </Link>
-
+            <Image
+             src="/ongrid-logo.png"
+             alt="Ongrid-logo"
+             width={160}
+             height={64}
+             className="w-32 md:w-40"
+            />
             </Link>
             <p className="text-zinc-400 mb-6 max-w-md">
             Empowering clean energy in emerging markets through blockchain-driven financing, transparent carbon credit solutions, and sustainable impact. 

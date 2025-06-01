@@ -38,7 +38,13 @@ export default function Header({ isHome = false }: NavBarProps) {
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
         <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
-        <Image src="/ongrid-logo.png" alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
+        <Image 
+          src="/ongrid-logo.png" 
+          alt="Ongrid-logo" 
+          width={144} 
+          height={58}
+          className="w-24 md:32 lg:w-36" 
+        />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
           {isHome ? (
