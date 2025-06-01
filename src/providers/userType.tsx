@@ -22,6 +22,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   
   const { authenticated, ready, user } = usePrivy();
   const router = useRouter();
@@ -41,12 +42,15 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    loadUserType();
-  }, []);
+    // Only load after component is ready
+    if (ready) {
+      loadUserType();
+    }
+  }, [ready]);
 
   // Handle authentication state changes and user type modal
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || isLoading) return;
 
     // If user just authenticated and we haven't checked their auth state yet
     if (authenticated && !hasCheckedAuth) {
@@ -55,13 +59,20 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       // Check if user has a saved user type
       const savedType = localStorage.getItem('userType') as UserType;
       
-      // If no saved type, show the modal after a short delay to prevent flashing
+      // If no saved type, show the modal after a longer delay to prevent flashing
       if (!savedType) {
+        // Prevent any navigation attempts during setup
+        setIsNavigating(true);
         setTimeout(() => {
+          setIsNavigating(false);
           setShowModal(true);
-        }, 800); // Small delay for smooth UX
+        }, 1200); // Longer delay for smoother UX
       } else {
         setUserTypeValue(savedType);
+        // Small delay before allowing navigation
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 500);
       }
     }
 
@@ -70,21 +81,33 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       setHasCheckedAuth(false);
       setUserTypeValue(null);
       setShowModal(false);
-      localStorage.removeItem('userType');
+      setIsNavigating(false);
+      try {
+        localStorage.removeItem('userType');
+      } catch (error) {
+        console.error("Error removing user type from localStorage:", error);
+      }
     }
-  }, [authenticated, ready, hasCheckedAuth]);
+  }, [authenticated, ready, hasCheckedAuth, isLoading]);
 
   // Function to handle user type selection
   const handleUserTypeSelection = (type: UserType) => {
     updateUserType(type);
     setShowModal(false);
+    setIsNavigating(true);
     
-    // Navigate to appropriate dashboard based on user type
-    if (type === 'developer') {
-      router.push('/developer-dashboard');
-    } else {
-      router.push('/dashboard');
-    }
+    // Navigate to appropriate dashboard with longer delay for smooth transition
+    setTimeout(() => {
+      if (type === 'developer') {
+        router.push('/developer-dashboard');
+      } else {
+        router.push('/dashboard');
+      }
+      // Reset navigation state after navigation completes
+      setTimeout(() => {
+        setIsNavigating(false);
+      }, 500);
+    }, 300);
   };
 
   // Function to update user type
@@ -110,7 +133,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       value={{
         userType: userTypeValue,
         setUserType: updateUserType,
-        isLoading: isLoading || !ready,
+        isLoading: isLoading || !ready || isNavigating,
         showUserTypeModal: showModal,
       }}
     >

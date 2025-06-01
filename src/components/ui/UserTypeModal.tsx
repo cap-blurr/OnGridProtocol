@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserType } from '@/providers/userType';
-import { Code, User, Zap, Building } from 'lucide-react';
+import { Zap, TrendingUp, Code2 } from 'lucide-react';
 
 interface UserTypeModalProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export default function UserTypeModal({ isOpen, onSelectUserType }: UserTypeModa
     setIsLoading(true);
     try {
       // Add a small delay to prevent UI flashing
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 800));
       onSelectUserType(selectedType);
     } finally {
       setIsLoading(false);
@@ -31,123 +31,102 @@ export default function UserTypeModal({ isOpen, onSelectUserType }: UserTypeModa
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-4xl mx-4 max-h-[90vh] overflow-y-auto modal-backdrop">
+      <DialogContent className="bg-gradient-to-b from-gray-900 to-black border-[#3D9970]/30 text-white max-w-2xl mx-4">
         <DialogHeader className="text-center space-y-4 pb-6">
-          <div className="mx-auto w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center">
-            <Zap className="w-8 h-8 text-white" />
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-r from-[#3D9970] to-[#4CAF50] flex items-center justify-center">
+            <Zap className="w-10 h-10 text-white" />
           </div>
-          <DialogTitle className="text-2xl md:text-3xl font-bold">Welcome to OnGrid Protocol!</DialogTitle>
-          <DialogDescription className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto">
-            Please select your account type to get started with the right dashboard and features for your needs
+          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-[#3D9970] to-[#FFDC00] bg-clip-text text-transparent">
+            Welcome to OnGrid
+          </DialogTitle>
+          <DialogDescription className="text-gray-300 text-lg">
+            Choose your path to clean energy
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-          {/* Normal User Option */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          {/* Investor Option */}
           <Card 
-            className={`cursor-pointer transition-all duration-300 ${
+            className={`cursor-pointer transition-all duration-300 border-2 ${
               selectedType === 'normal' 
-                ? 'bg-emerald-900/50 border-emerald-600 ring-2 ring-emerald-600 shadow-lg shadow-emerald-600/20' 
-                : 'bg-gray-800/50 border-gray-700 hover:border-gray-600 hover:bg-gray-800/70 hover:shadow-lg'
+                ? 'border-[#3D9970] bg-gradient-to-br from-[#3D9970]/20 to-[#4CAF50]/10 shadow-lg shadow-[#3D9970]/20' 
+                : 'border-gray-700 bg-gray-800/50 hover:border-[#3D9970]/50 hover:bg-gray-800/70'
             }`}
             onClick={() => setSelectedType('normal')}
           >
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto mb-4 p-4 rounded-full bg-blue-500/20 border border-blue-500/30">
-                <User className="w-10 h-10 text-blue-500" />
+              <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-r from-[#3D9970] to-[#4CAF50] flex items-center justify-center">
+                <TrendingUp className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-white text-xl">Investor/User</CardTitle>
-              <CardDescription className="text-gray-400 text-sm">
-                I want to invest in clean energy projects and track my portfolio
-              </CardDescription>
+              <CardTitle className="text-white text-xl font-bold">Investor</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <ul className="space-y-3 text-sm text-gray-300">
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Access investment opportunities</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Trade carbon credits</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Track portfolio performance</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Monitor environmental impact</span>
-                </li>
-              </ul>
+            <CardContent className="pt-0 text-center">
+              <p className="text-gray-300 text-sm mb-4">
+                Invest in renewable energy projects and earn returns
+              </p>
+              <div className="space-y-2 text-xs text-gray-400">
+                <div>✓ Investment opportunities</div>
+                <div>✓ Carbon credit trading</div>
+                <div>✓ Portfolio tracking</div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Developer Option */}
           <Card 
-            className={`cursor-pointer transition-all duration-300 ${
+            className={`cursor-pointer transition-all duration-300 border-2 ${
               selectedType === 'developer' 
-                ? 'bg-emerald-900/50 border-emerald-600 ring-2 ring-emerald-600 shadow-lg shadow-emerald-600/20' 
-                : 'bg-gray-800/50 border-gray-700 hover:border-gray-600 hover:bg-gray-800/70 hover:shadow-lg'
+                ? 'border-[#FFDC00] bg-gradient-to-br from-[#FFDC00]/20 to-[#FFEB3B]/10 shadow-lg shadow-[#FFDC00]/20' 
+                : 'border-gray-700 bg-gray-800/50 hover:border-[#FFDC00]/50 hover:bg-gray-800/70'
             }`}
             onClick={() => setSelectedType('developer')}
           >
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto mb-4 p-4 rounded-full bg-purple-500/20 border border-purple-500/30">
-                <Code className="w-10 h-10 text-purple-500" />
+              <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-gradient-to-r from-[#FFDC00] to-[#FFEB3B] flex items-center justify-center">
+                <Code2 className="w-8 h-8 text-black" />
               </div>
-              <CardTitle className="text-white text-xl">Developer</CardTitle>
-              <CardDescription className="text-gray-400 text-sm">
-                I want to create and manage renewable energy projects
-              </CardDescription>
+              <CardTitle className="text-white text-xl font-bold">Developer</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <ul className="space-y-3 text-sm text-gray-300">
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Create project proposals</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Manage funding campaigns</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Complete KYC verification</span>
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 flex-shrink-0"></div>
-                  <span>Access project analytics</span>
-                </li>
-              </ul>
+            <CardContent className="pt-0 text-center">
+              <p className="text-gray-300 text-sm mb-4">
+                Create and manage renewable energy projects
+              </p>
+              <div className="space-y-2 text-xs text-gray-400">
+                <div>✓ Project creation</div>
+                <div>✓ Funding management</div>
+                <div>✓ Analytics dashboard</div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex flex-col items-center space-y-4 mt-8 pt-6 border-t border-gray-700">
+        <div className="flex flex-col items-center space-y-4 mt-8">
           <Button
             onClick={handleConfirm}
             disabled={!selectedType || isLoading}
-            className="w-full max-w-sm bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-lg py-3 font-semibold transition-all duration-200"
+            className={`w-full max-w-sm py-4 text-lg font-semibold transition-all duration-200 ${
+              selectedType === 'normal' 
+                ? 'bg-gradient-to-r from-[#3D9970] to-[#4CAF50] hover:from-[#2d7355] hover:to-[#388e3c] text-white'
+                : selectedType === 'developer'
+                ? 'bg-gradient-to-r from-[#FFDC00] to-[#FFEB3B] hover:from-[#e6c500] hover:to-[#f9d71c] text-black'
+                : 'bg-gray-700 text-gray-400'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isLoading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
-                Setting up your account...
+                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-3" />
+                Setting up...
               </>
+            ) : selectedType ? (
+              `Enter ${selectedType === 'developer' ? 'Developer' : 'Investment'} Dashboard`
             ) : (
-              <>
-                Continue to {selectedType === 'developer' ? 'Developer' : 'Investment'} Dashboard
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </>
+              'Select Account Type'
             )}
           </Button>
           
-          {selectedType && (
-            <p className="text-gray-400 text-sm text-center max-w-md">
-              You can change your account type later in your profile settings
+          {selectedType && !isLoading && (
+            <p className="text-gray-400 text-sm text-center">
+              You can change this later in settings
             </p>
           )}
         </div>
