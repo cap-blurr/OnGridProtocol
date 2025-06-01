@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
-import logo from "../../../public/ongrid-logo.png";
 import { MobileNav } from "./MobileNav";
 import ConnectButton from "./ConnectButton";
 import { usePathname } from "next/navigation";
@@ -39,7 +38,7 @@ export default function Header({ isHome = false }: NavBarProps) {
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
         <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
-          <Image src={logo} alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
+        <Image src="/ongrid-logo.png" alt="Ongrid-logo" className="w-24 md:32 lg:w-36" />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
           {isHome ? (

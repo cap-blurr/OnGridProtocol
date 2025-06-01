@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "../../../public/ongrid-logo.png";
 import { ArrowRight } from "lucide-react";
 import { IconBrandTelegram, IconBrandX } from "@tabler/icons-react";
 
@@ -35,7 +34,16 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
           >
             <Link href="/" className="inline-block mb-6">
-              <Image src={logo} alt="Ongrid-logo" className="w-32 md:w-40" />
+            <Link href="/" className="inline-block mb-6">
+        <Image
+         src="/ongrid-logo.png"
+         alt="Ongrid-logo"
+         className="w-32 md:w-40"
+         width={160}
+        height={64}
+        />
+        </Link>
+
             </Link>
             <p className="text-zinc-400 mb-6 max-w-md">
             Empowering clean energy in emerging markets through blockchain-driven financing, transparent carbon credit solutions, and sustainable impact. 
