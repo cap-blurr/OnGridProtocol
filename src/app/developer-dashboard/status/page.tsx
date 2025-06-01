@@ -116,193 +116,181 @@ export default function InstallationStatus() {
   const delayedProjects = installations.filter(p => p.status === 'delayed').length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#3D9970] to-[#FFDC00] bg-clip-text text-transparent mb-2">
-          Installation Status
-        </h1>
-        <p className="text-zinc-400">
-          Track installation progress across all your solar projects
-        </p>
-      </div>
+    <div className="relative">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
+      }} />
+      
+      {/* Background accents */}
+      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
+      
+      <div className="relative max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8 relative pl-6">
+          {/* Thin accent line */}
+          <div className="absolute -left-4 top-0 h-full w-px bg-oga-green/30" />
+          
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-oga-green mb-2 relative">
+            Developer Dashboard
+            <div className="absolute -left-6 top-1/2 w-3 h-px bg-oga-green" />
+          </span>
+          
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-oga-green to-oga-yellow bg-clip-text text-transparent mb-2">
+            Installation Status
+          </h1>
+          <p className="text-zinc-400">
+            Track installation progress across all your solar projects
+          </p>
+        </div>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-[#3D9970]/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Projects</CardTitle>
-            <Package className="h-4 w-4 text-[#3D9970]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{totalProjects}</div>
-            <p className="text-xs text-gray-400">Active installations</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-[#3D9970]/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-400">{completedProjects}</div>
-            <p className="text-xs text-green-400">{((completedProjects / totalProjects) * 100).toFixed(0)}% completion rate</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-[#3D9970]/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">On Track</CardTitle>
-            <Clock className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-400">{onTrackProjects}</div>
-            <p className="text-xs text-gray-400">Projects on schedule</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-[#3D9970]/20">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Delayed</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-400">{delayedProjects}</div>
-            <p className="text-xs text-red-400">Requires attention</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Installation Projects */}
-      <div className="space-y-6">
-        {installations.map((installation) => (
-          <Card key={installation.id} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-[#3D9970]/20">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex items-center space-x-3">
-                  {getStageIcon(installation.stage)}
-                  <div>
-                    <CardTitle className="text-white text-lg">{installation.projectName}</CardTitle>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <p className="text-sm text-gray-400">{installation.location}</p>
-                    </div>
-                  </div>
-                </div>
-                <Badge className={`${getStatusColor(installation.status)} text-white`}>
-                  {installation.status.toUpperCase().replace('-', ' ')}
-                </Badge>
-              </div>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Total Projects</CardTitle>
+              <Package className="h-4 w-4 text-oga-green" />
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Progress Overview */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-white">Overall Progress</span>
-                    <span className="text-sm font-semibold text-white">{installation.progress}%</span>
-                  </div>
-                  <Progress value={installation.progress} className="h-3" />
-                  <div className="flex justify-between text-xs text-gray-400 mt-2">
-                    <span>Started: {installation.startDate}</span>
-                    <span>Expected: {installation.expectedCompletion}</span>
-                  </div>
-                </div>
-
-                {/* Component Status */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-800/30 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-400">Components Delivered</span>
-                      <span className="text-lg font-bold text-white">{installation.components.delivered}%</span>
-                    </div>
-                    <Progress value={installation.components.delivered} className="h-2" />
-                  </div>
-                  
-                  <div className="bg-gray-800/30 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-400">Installation Complete</span>
-                      <span className="text-lg font-bold text-white">{installation.components.installed}%</span>
-                    </div>
-                    <Progress value={installation.components.installed} className="h-2" />
-                  </div>
-                  
-                  <div className="bg-gray-800/30 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-400">Testing Complete</span>
-                      <span className="text-lg font-bold text-white">{installation.components.tested}%</span>
-                    </div>
-                    <Progress value={installation.components.tested} className="h-2" />
-                  </div>
-                </div>
-
-                {/* Project Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-2">Project Details</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Installation Crew:</span>
-                        <span className="text-white">{installation.crew}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Current Stage:</span>
-                        <span className="text-white capitalize">{installation.stage.replace('-', ' ')}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-2">Next Milestone</h4>
-                    <div className="bg-[#3D9970]/10 border border-[#3D9970]/30 rounded-lg p-3">
-                      <p className="text-[#3D9970] font-medium text-sm">{installation.nextMilestone}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-700/50">
-                  <Button className="bg-gradient-to-r from-[#3D9970] to-[#4CAF50] hover:from-[#2d7355] hover:to-[#388e3c] text-white">
-                    View Project Details
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-[#3D9970]/50 text-[#3D9970] hover:bg-[#3D9970]/10"
-                  >
-                    Contact Crew
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                  >
-                    Download Report
-                  </Button>
-                  {installation.status === 'delayed' && (
-                    <Button 
-                      variant="outline" 
-                      className="border-red-500/50 text-red-400 hover:bg-red-500/10"
-                    >
-                      Address Issues
-                    </Button>
-                  )}
-                </div>
-              </div>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold text-white">{totalProjects}</div>
+              <p className="text-xs text-oga-green">Active installations</p>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* Quick Actions */}
-      <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-        <Button className="bg-gradient-to-r from-[#3D9970] to-[#4CAF50] hover:from-[#2d7355] hover:to-[#388e3c] text-white px-8 py-3">
-          Schedule New Installation
-        </Button>
-        <Button 
-          variant="outline" 
-          className="border-[#FFDC00] text-[#FFDC00] hover:bg-[#FFDC00]/10 px-8 py-3"
-        >
-          Generate Status Report
-        </Button>
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Completed</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold text-green-400">{completedProjects}</div>
+              <p className="text-xs text-green-400">{((completedProjects / totalProjects) * 100).toFixed(0)}% completion rate</p>
+            </CardContent>
+          </Card>
+
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">On Track</CardTitle>
+              <Clock className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold text-blue-400">{onTrackProjects}</div>
+              <p className="text-xs text-oga-green">Projects on schedule</p>
+            </CardContent>
+          </Card>
+
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white">Delayed</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent className="relative">
+              <div className="text-2xl font-bold text-red-400">{delayedProjects}</div>
+              <p className="text-xs text-red-400">Requires attention</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Installation Projects */}
+        <div className="space-y-6">
+          {installations.map((installation) => (
+            <Card key={installation.id} className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+              <CardHeader className="relative">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-3">
+                    {getStageIcon(installation.stage)}
+                    <div>
+                      <CardTitle className="text-white text-lg">{installation.projectName}</CardTitle>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <MapPin className="w-4 h-4 text-oga-green" />
+                        <p className="text-sm text-oga-green">{installation.location}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className={`${getStatusColor(installation.status)} text-white`}>
+                    {installation.status.toUpperCase().replace('-', ' ')}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="relative">
+                <div className="space-y-6">
+                  {/* Progress Overview */}
+                  <div>
+                    <div className="flex justify-between text-sm text-oga-green mb-2">
+                      <span>Overall Progress</span>
+                      <span>{installation.progress}%</span>
+                    </div>
+                    <Progress value={installation.progress} className="h-3 mb-4" />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <Truck className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.delivered}%</p>
+                        <p className="text-xs text-oga-green">Delivered</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <Wrench className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.installed}%</p>
+                        <p className="text-xs text-oga-green">Installed</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.tested}%</p>
+                        <p className="text-xs text-oga-green">Tested</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-oga-green">Installation Crew</p>
+                      <p className="text-white font-semibold">{installation.crew}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-oga-green">Next Milestone</p>
+                      <p className="text-white font-semibold">{installation.nextMilestone}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-oga-green">Start Date</p>
+                      <p className="text-white font-semibold">{installation.startDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-oga-green">Expected Completion</p>
+                      <p className="text-white font-semibold">{installation.expectedCompletion}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/10"
+                    >
+                      Update Status
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    >
+                      Contact Crew
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -59,20 +59,24 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       // Check if user has a saved user type
       const savedType = localStorage.getItem('userType') as UserType;
       
-      // If no saved type, show the modal after a longer delay to prevent flashing
+      // If no saved type, show the modal with optimized timing for mobile
       if (!savedType) {
-        // Prevent any navigation attempts during setup
         setIsNavigating(true);
-        setTimeout(() => {
+        // Reduced delay for mobile responsiveness
+        const showModalTimer = setTimeout(() => {
           setIsNavigating(false);
           setShowModal(true);
-        }, 1200); // Longer delay for smoother UX
+        }, 600); // Reduced from 1200ms
+        
+        return () => clearTimeout(showModalTimer);
       } else {
         setUserTypeValue(savedType);
-        // Small delay before allowing navigation
-        setTimeout(() => {
+        // Minimal delay for smooth transition
+        const resetNavigationTimer = setTimeout(() => {
           setIsNavigating(false);
-        }, 500);
+        }, 200); // Reduced from 500ms
+        
+        return () => clearTimeout(resetNavigationTimer);
       }
     }
 
@@ -90,24 +94,29 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     }
   }, [authenticated, ready, hasCheckedAuth, isStorageLoading]);
 
-  // Function to handle user type selection
+  // Function to handle user type selection with optimized mobile navigation
   const handleUserTypeSelection = (type: UserType) => {
     updateUserType(type);
     setShowModal(false);
     setIsNavigating(true);
     
-    // Navigate to appropriate dashboard with longer delay for smooth transition
-    setTimeout(() => {
+    // Optimized navigation timing for mobile
+    const navigateTimer = setTimeout(() => {
       if (type === 'developer') {
         router.push('/developer-dashboard');
       } else {
         router.push('/dashboard');
       }
-      // Reset navigation state after navigation completes
-      setTimeout(() => {
+      
+      // Quick reset for mobile
+      const resetTimer = setTimeout(() => {
         setIsNavigating(false);
-      }, 500);
-    }, 300);
+      }, 100); // Greatly reduced from 500ms
+      
+      return () => clearTimeout(resetTimer);
+    }, 150); // Reduced from 300ms
+    
+    return () => clearTimeout(navigateTimer);
   };
 
   // Function to update user type
@@ -133,7 +142,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       value={{
         userType: userTypeValue,
         setUserType: updateUserType,
-        isLoading: isStorageLoading || !ready,
+        isLoading: isStorageLoading || !ready || isNavigating,
         showUserTypeModal: showModal,
       }}
     >
