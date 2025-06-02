@@ -33,11 +33,9 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateProjectModal } from "@/components/project/create-project";
 import Link from "next/link";
-import { useUserType } from "@/providers/userType";
 import { useAccount } from "wagmi";
 import LoadingScreen from "@/components/ui/loading-screen";
 import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
-import { useRouter } from "next/navigation";
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
@@ -122,11 +120,8 @@ const mockData = {
 };
 
 export default function DashboardPage() {
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [mounted, setMounted] = useState(false);
   const { isConnected } = useAccount();
-  const { userType, isLoading } = useUserType();
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState("investments");
 
   // Handle client-side mounting
@@ -134,35 +129,8 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
-  // Handle authentication and routing
-  useEffect(() => {
-    if (!mounted) return; // Wait for client-side hydration
-    
-    const handleAuth = async () => {
-      try {
-        if (isLoading) return; // Wait for auth state
-        
-        if (!userType) {
-          await router.replace('/');
-          return;
-        }
-        
-        if (userType === 'developer') {
-          await router.replace('/developer-dashboard');
-          return;
-        }
-        
-        // Only set loading to false if we're staying on this page
-        setIsLoadingAuth(false);
-      } catch (error) {
-        console.error('Error during auth check:', error);
-      }
-    };
-    
-    handleAuth();
-  }, [userType, isLoading, router]);
-
-  if (isLoadingAuth) {
+  // Don't render anything until mounted to prevent hydration mismatch
+  if (!mounted) {
     return <LoadingScreen />;
   }
 
