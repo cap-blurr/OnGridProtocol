@@ -49,25 +49,6 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     }
   }, [ready]);
 
-  // Test function for manual modal testing
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).testUserTypeModal = () => {
-        console.log('🧪 MANUAL TEST: Showing UserTypeModal');
-        localStorage.removeItem('userType');
-        setUserTypeValue(null);
-        setShowModal(true);
-      };
-      
-      (window as any).resetUserType = () => {
-        console.log('🔄 RESET: Clearing all user type data');
-        localStorage.removeItem('userType');
-        setUserTypeValue(null);
-        setShowModal(false);
-        setHasCheckedAuth(false);
-      };
-    }
-  }, []);
 
   // Handle authentication state changes and user type modal
   useEffect(() => {
