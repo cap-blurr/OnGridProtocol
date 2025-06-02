@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { usePrivy } from '@privy-io/react-auth';
 import UserTypeModal from '@/components/ui/UserTypeModal';
 import { useRouter } from 'next/navigation';
+import { type } from "os";
 // import toast from 'react-hot-toast'; // Optional: if you want to add toast notifications for errors
 
 export type UserType = 'normal' | 'developer' | null;
@@ -23,9 +24,15 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
   const [showModal, setShowModal] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const { authenticated, ready, user } = usePrivy();
   const router = useRouter();
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load user type from localStorage on mount
   useEffect(() => {
@@ -48,82 +55,116 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       loadUserType();
     }
   }, [ready]);
-
-
   // Handle authentication state changes and user type modal
   useEffect(() => {
-    console.log('🔍 Auth State:', { ready, isStorageLoading, authenticated, hasCheckedAuth, userTypeValue });
-    
-    if (!ready || isStorageLoading) return;
+    if (!mounted || !ready || isStorageLoading) return;
 
-    // If user just authenticated and we haven't checked their auth state yet
-    if (authenticated && !hasCheckedAuth) {
-      console.log('✅ User authenticated for first time - checking saved type...');
-      setHasCheckedAuth(true);
+    const handleAuth = async () => {
+      // If user just authenticated and we haven't checked their auth state yet
+      if (authenticated && !hasCheckedAuth) {
+        setHasCheckedAuth(true);
+        
+        try {
+          const savedType = localStorage.getItem('userType') as UserType;
+          
+          if (!savedType) {
+            if (!showModal) {
+              setShowModal(true);
+            }
+          } else {
+            setUserTypeValue(savedType);
+            // Use a promise chain instead of await
+            new Promise(resolve => setTimeout(resolve, 100))
+              .then(() => {
+                const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
+                router.replace(path);
+              });
+          }
+        } catch (error) {
+          console.error("Error checking user type:", error);
+        } finally {
+          setIsNavigating(false);
+        }
+      }
+    };
+
+    handleAuth();    // Handle disconnection
+    if (!authenticated && hasCheckedAuth) {
+      const cleanup = () => {
+        try {
+          // Reset all state
+          setHasCheckedAuth(false);
+          setUserTypeValue(null);
+          setShowModal(false);
+          setIsNavigating(false);
+          localStorage.removeItem('userType');
+          
+          // Redirect to home page
+          router.replace('/');
+        } catch (error) {
+          console.error("Error during cleanup:", error);
+        }
+      };
       
-      // Check if user has a saved user type
-      const savedType = localStorage.getItem('userType') as UserType;
-      console.log('💾 Saved user type found:', savedType);
-      
-      // If no saved type, show the modal IMMEDIATELY
-      if (!savedType) {
-        console.log('🎭 No saved type - showing modal IMMEDIATELY!');
-        setShowModal(true);
-        // No delay - show immediately for best UX
-      } else {
-        console.log('✅ Found saved type, using it:', savedType);
-        setUserTypeValue(savedType);
+      cleanup();
+    }
+
+    // Cleanup function for unmounting
+    return () => {
+      if (isNavigating) {
         setIsNavigating(false);
       }
-    }
-
-    // If user disconnected, reset everything
-    if (!authenticated && hasCheckedAuth) {
-      console.log('❌ User disconnected - resetting everything');
-      setHasCheckedAuth(false);
-      setUserTypeValue(null);
-      setShowModal(false);
-      setIsNavigating(false);
-      try {
-        localStorage.removeItem('userType');
-      } catch (error) {
-        console.error("Error removing user type from localStorage:", error);
-      }
-    }
-  }, [authenticated, ready, hasCheckedAuth, isStorageLoading]);
-
-  // Function to handle user type selection with immediate navigation
+    };
+  }, [authenticated, ready, mounted, hasCheckedAuth, isStorageLoading, router, isNavigating]);
   const handleUserTypeSelection = (type: UserType) => {
-    console.log('🎯 User selected type:', type);
-    updateUserType(type);
-    setShowModal(false);
+    setIsNavigating(true);
     
-    // Navigate immediately for best UX
-    if (type === 'developer') {
-      console.log('🚀 Navigating to developer dashboard...');
-      router.push('/developer-dashboard');
-    } else {
-      console.log('🚀 Navigating to standard dashboard...');
-      router.push('/dashboard');
-    }
-  };
-
-  // Function to update user type
-  const updateUserType = (type: UserType) => {
-    try {
-      if (type) {
-        localStorage.setItem('userType', type);
-      } else {
+    // Update type in state and storage
+    updateUserType(type)
+      .then(() => {
+        setShowModal(false);
+        // Add delay for state update
+        return new Promise(resolve => setTimeout(resolve, 200));
+      })
+      .then(() => {
+        // Navigate using replace
+        const path = type === 'developer' ? '/developer-dashboard' : '/dashboard';
+        return router.replace(path);
+      })
+      .catch((error) => {
+        console.error("Error handling user type selection:", error);
+        // Reset on critical error
+        setUserTypeValue(null);
         localStorage.removeItem('userType');
+      })
+      .finally(() => {
+        setIsNavigating(false);
+      });
+  };  // Function to update user type with proper state management
+  const updateUserType = (type: UserType) => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        // Update state
+        setUserTypeValue(type);
+        
+        // Persist to storage
+        if (type) {
+          localStorage.setItem('userType', type);
+        } else {
+          localStorage.removeItem('userType');
+        }
+
+        // Use requestAnimationFrame for state update confirmation
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resolve();
+          });
+        });
+      } catch (error) {
+        console.error("Error saving user type to localStorage:", error);
+        reject(error);
       }
-      setUserTypeValue(type);
-    } catch (error) {
-      console.error("Error saving user type to localStorage:", error);
-      // toast.error("Failed to save account type preference. Please try again."); // Optional
-      // If localStorage fails, userTypeValue (React state) does NOT get updated to the new 'type'.
-      // It will retain its value from the last successful set or load.
-      // This means the UI will reflect the persisted state, not an optimistic unpersisted one.
-    }
+    });
   };
 
   return (
@@ -147,6 +188,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
   );
 }
 
+
 export function useUserType() {
   const context = useContext(UserTypeContext);
   if (context === undefined) {
@@ -154,3 +196,5 @@ export function useUserType() {
   }
   return context;
 }
+
+

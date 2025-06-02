@@ -123,37 +123,48 @@ const mockData = {
 
 export default function DashboardPage() {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const { isConnected } = useAccount();
   const { userType, isLoading } = useUserType();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("investments");
 
-  // Add auth redirection - only normal users can access this page
+  // Handle client-side mounting
   useEffect(() => {
-    // First wait for auth state to be loaded
-    if (isLoading) return;
+    setMounted(true);
+  }, []);
+
+  // Handle authentication and routing
+  useEffect(() => {
+    if (!mounted) return; // Wait for client-side hydration
     
-    // Redirect unauthenticated users to home
-    if (!isConnected) {
-      router.push('/');
-      return;
-    }
+    const handleAuth = async () => {
+      try {
+        if (isLoading) return; // Wait for auth state
+        
+        if (!isConnected) {
+          await router.replace('/');
+          return;
+        }
+        
+        if (!userType) {
+          await router.replace('/');
+          return;
+        }
+        
+        if (userType === 'developer') {
+          await router.replace('/developer-dashboard');
+          return;
+        }
+        
+        // Only set loading to false if we're staying on this page
+        setIsLoadingAuth(false);
+      } catch (error) {
+        console.error('Error during auth check:', error);
+      }
+    };
     
-    // If connected but no user type is selected (and not loading), redirect to home
-    // where UserTypeModal can be displayed.
-    if (!userType) { 
-      router.push('/');
-      return;
-    }
-    
-    // Redirect developers to developer dashboard
-    if (userType === 'developer') {
-      router.push('/developer-dashboard');
-      return;
-    }
-    
-    // User is authenticated and a normal user, allow access
-    setIsLoadingAuth(false);
+    handleAuth();
   }, [isConnected, userType, isLoading, router]);
 
   if (isLoadingAuth) {

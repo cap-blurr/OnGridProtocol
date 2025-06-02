@@ -16,20 +16,27 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
   // Redirect logged-in users to the appropriate dashboard
   useEffect(() => {
-    // Don't do anything during SSR, while loading user type, or while Privy is not ready
-    if (!isMounted || isLoading || !ready) return;
-
-    // If authenticated and user type is selected, redirect to appropriate dashboard
-    if (authenticated && userType) {
-      if (userType === 'developer') {
-        router.push('/developer-dashboard');
-      } else if (userType === 'normal') {
-        router.push('/dashboard');
+    if (!isMounted) return; // Wait for client-side hydration
+    
+    const redirect = async () => {
+      if (!ready || isLoading) return; // Wait for auth and user type to be ready
+      
+      if (authenticated && userType) {
+        try {
+          if (userType === 'developer') {
+            await router.replace('/developer-dashboard');
+          } else if (userType === 'normal') {
+            await router.replace('/dashboard');
+          }
+        } catch (error) {
+          console.error('Navigation error:', error);
+        }
       }
-    }
+    };
+
+    redirect();
   }, [authenticated, userType, router, isMounted, isLoading, ready]);
 
   return (
