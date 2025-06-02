@@ -201,7 +201,6 @@ export default function DashboardPage() {
             <Wallet className="h-4 w-4" />
             <AlertDescription>
               Connect your wallet to access full investment features and make transactions.
-              <SwitchAccountButton className="ml-3" />
             </AlertDescription>
           </Alert>
         )}
