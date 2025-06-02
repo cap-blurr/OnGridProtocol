@@ -29,14 +29,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
           clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
           config={{
-            // Let Privy handle all wallet connections
+         
             appearance: {
               theme: 'dark',
               accentColor: '#10B981', // emerald-500 to match your theme
             },
             // Create embedded wallets for users who don't have a wallet
             embeddedWallets: {
-              createOnLogin: 'users-without-wallets'
+              ethereum: {
+                createOnLogin: 'users-without-wallets'
+              }
             },
             // Supported wallet connectors - all handled by Privy
             supportedChains: [baseSepolia],

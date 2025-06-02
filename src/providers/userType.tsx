@@ -161,32 +161,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         isOpen={showModal}
         onSelectUserType={handleUserTypeSelection}
       />
-      
-      {/* Debug Panel - TEMPORARY for testing */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-4 right-4 bg-black/90 text-white p-3 text-xs rounded-lg z-[9999] font-mono border border-green-500">
-          <div className="text-green-400 font-bold mb-2">🔍 UserType Debug</div>
-          <div>Ready: <span className={ready ? 'text-green-400' : 'text-red-400'}>{String(ready)}</span></div>
-          <div>Auth: <span className={authenticated ? 'text-green-400' : 'text-red-400'}>{String(authenticated)}</span></div>
-          <div>UserType: <span className="text-yellow-400">{userTypeValue || 'null'}</span></div>
-          <div>ShowModal: <span className={showModal ? 'text-green-400' : 'text-red-400'}>{String(showModal)}</span></div>
-          <div>HasChecked: <span className={hasCheckedAuth ? 'text-green-400' : 'text-red-400'}>{String(hasCheckedAuth)}</span></div>
-          <div className="mt-2 space-y-1">
-            <button 
-              onClick={() => (window as any).testUserTypeModal?.()}
-              className="block w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
-            >
-              Test Modal
-            </button>
-            <button 
-              onClick={() => (window as any).resetUserType?.()}
-              className="block w-full px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-      )}
+    
     </UserTypeContext.Provider>
   );
 }
