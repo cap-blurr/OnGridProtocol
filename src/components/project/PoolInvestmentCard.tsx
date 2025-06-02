@@ -120,7 +120,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   if (isLoadingPoolInfo) {
     return (
-      <div className="p-4 border rounded-lg bg-black/20 border-zinc-700 text-center text-zinc-400 backdrop-blur-sm">
+      <div className="p-4 border rounded-lg bg-black/20 border-oga-green/30 text-center text-zinc-400 backdrop-blur-sm">
         Loading Pool {poolId} info... <Loader2 className="inline animate-spin h-4 w-4 ml-2" />
       </div>
     );
@@ -132,7 +132,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   
   if (!name && poolId > 0) {
       return (
-        <div className="p-4 border rounded-lg bg-black/20 border-zinc-700 text-center text-zinc-500 backdrop-blur-sm">
+        <div className="p-4 border rounded-lg bg-black/20 border-oga-green/30 text-center text-zinc-500 backdrop-blur-sm">
             Pool {poolId} details not found.
         </div>
       );
@@ -148,21 +148,30 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
     }
   };
 
+  const getRiskLevelColor = (level: number | undefined) => {
+    switch (level) {
+      case 1: return 'bg-oga-green/30 text-oga-green border-oga-green/50';
+      case 2: return 'bg-oga-yellow/30 text-oga-yellow border-oga-yellow/50';
+      case 3: return 'bg-red-700/50 text-red-300 border-red-600/50';
+      default: return 'bg-zinc-700/50 text-zinc-300 border-zinc-600/50';
+    }
+  };
+
   return (
-    <Card className="bg-black/30 backdrop-blur-sm border border-emerald-800/40 hover:border-emerald-700/60 transition-colors duration-300">
+    <Card className="bg-black/30 backdrop-blur-sm border border-oga-green/40 hover:border-oga-green/60 transition-colors duration-300">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg text-emerald-400 flex items-center justify-between">
+        <CardTitle className="text-lg text-oga-green flex items-center justify-between">
           <span>{name} (Pool ID: {poolId})</span>
-          <span className={`text-xs px-2 py-1 rounded-full flex items-center ${riskLevel === 1 ? 'bg-green-700/50 text-green-300' : riskLevel === 2 ? 'bg-yellow-700/50 text-yellow-300' : riskLevel === 3 ? 'bg-red-700/50 text-red-300' : 'bg-zinc-700/50 text-zinc-300'}`}>
+          <span className={`text-xs px-2 py-1 rounded-full flex items-center ${getRiskLevelColor(riskLevel)}`}>
             <ShieldCheck size={14} className="mr-1.5" /> {getRiskLevelText(riskLevel)}
           </span>
         </CardTitle>
         <CardDescription className="text-sm text-zinc-400 pt-1">
-          Total Assets: <span className="text-emerald-300">{formattedTotalAssets} USDC</span> | APR: <span className="text-emerald-300">{aprPercentage.toFixed(2)}%</span>
+          Total Assets: <span className="text-oga-green">{formattedTotalAssets} USDC</span> | APR: <span className="text-oga-green">{aprPercentage.toFixed(2)}%</span>
         </CardDescription>
         <CardDescription className="text-sm text-zinc-400 pt-1 flex items-center">
-            <Coins size={14} className="mr-1.5 text-emerald-500"/> Your Shares: 
-            {isLoadingUserShares ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <span className="text-emerald-300 ml-1">{formattedUserShares}</span>}
+            <Coins size={14} className="mr-1.5 text-oga-green"/> Your Shares: 
+            {isLoadingUserShares ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <span className="text-oga-green ml-1">{formattedUserShares}</span>}
             {userShares && <span className="text-xs text-red-400 ml-2">(Error loading shares)</span>}
         </CardDescription>
       </CardHeader>
@@ -173,14 +182,14 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="USDC Amount to Deposit" 
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600 placeholder-zinc-500 mb-2"
+            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2"
           />
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             {needsApproval && (
               <Button 
                 onClick={handleApprove} 
                 disabled={isApproving || isLoadingAllowance || !depositAmount || parseFloat(depositAmount) <= 0}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+                className="flex-1 bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold"
               >
                 {isApproving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
                 Approve USDC
@@ -189,7 +198,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             <Button 
               onClick={handleDeposit} 
               disabled={isDepositing || (needsApproval && parseFloat(depositAmount) > 0) || !depositAmount || parseFloat(depositAmount) <= 0}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+              className="flex-1 bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold"
             >
               {isDepositing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
               Deposit to Pool
@@ -197,10 +206,10 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           </div>
           {approveError && <p className="text-xs text-red-400 mt-1">Approval Error: {approveError.message}</p>}
           {depositError && <p className="text-xs text-red-400 mt-1">Deposit Error: {depositError.message}</p>}
-          {isDepositSuccess && <p className="text-xs text-green-400 mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Deposit Confirmed!</p>}
+          {isDepositSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Deposit Confirmed!</p>}
         </div>
 
-        <hr className="my-4 border-zinc-700/50" />
+        <hr className="my-4 border-oga-green/20" />
 
         <div>
           <Input 
@@ -208,23 +217,23 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="Shares to Redeem" 
             value={redeemSharesAmount}
             onChange={(e) => setRedeemSharesAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600 placeholder-zinc-500 mb-2"
+            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2"
           />
           {redeemSharesAmount && BigInt(redeemSharesAmount) > 0 && poolTotalShares > BigInt(0) && (
             <p className="text-xs text-zinc-400 mb-2">
-              You will receive approx. <span className="text-emerald-300">{previewAssetsOnRedeem()} USDC</span>
+              You will receive approx. <span className="text-oga-green">{previewAssetsOnRedeem()} USDC</span>
             </p>
           )}
           <Button 
             onClick={handleRedeem}
             disabled={isRedeeming || !redeemSharesAmount || BigInt(redeemSharesAmount) <= 0 || (userShares != undefined && BigInt(redeemSharesAmount) > userShares)}
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+            className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold"
           >
             {isRedeeming ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
             Redeem Shares
           </Button>
           {redeemError && <p className="text-xs text-red-400 mt-1">Redeem Error: {redeemError.message}</p>}
-          {isRedeemSuccess && <p className="text-xs text-green-400 mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Redemption Confirmed!</p>}
+          {isRedeemSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Redemption Confirmed!</p>}
         </div>
       </CardContent>
     </Card>
@@ -249,10 +258,10 @@ export default function PoolInvestmentCard() {
 
   if (isLoadingCount) {
     return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-emerald-800/30">
+      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
         <CardHeader><CardTitle className="text-white">Loading Liquidity Pools...</CardTitle></CardHeader>
         <CardContent className="flex justify-center items-center py-10">
-          <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
+          <Loader2 className="h-10 w-10 animate-spin text-oga-green" />
         </CardContent>
       </Card>
     );
@@ -263,11 +272,11 @@ export default function PoolInvestmentCard() {
   }
 
   if (!liquidityPoolManagerProxy) {
-    return <Alert variant="default" className="bg-yellow-900/30 border-yellow-700 text-yellow-300"><Info className="h-4 w-4" /><AlertTitle>Configuration Error</AlertTitle><AlertDescription>Liquidity Pool Manager address is not configured. Please contact support.</AlertDescription></Alert>;
+    return <Alert variant="default" className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow"><Info className="h-4 w-4" /><AlertTitle>Configuration Error</AlertTitle><AlertDescription>Liquidity Pool Manager address is not configured. Please contact support.</AlertDescription></Alert>;
   }
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-emerald-800/30">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-white">Invest in Liquidity Pools</CardTitle>
         <CardDescription className="text-zinc-400 pt-1">

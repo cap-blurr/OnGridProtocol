@@ -59,6 +59,15 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mounted || !ready || isStorageLoading) return;
 
+    console.log('🔍 Auth effect running:', {
+      authenticated,
+      hasCheckedAuth,
+      userTypeValue,
+      showModal,
+      isStorageLoading,
+      ready
+    });
+
     const handleAuth = async () => {
       // If user just authenticated and we haven't checked their auth state yet
       if (authenticated && !hasCheckedAuth) {
@@ -66,17 +75,21 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         
         try {
           const savedType = localStorage.getItem('userType') as UserType;
+          console.log('🎯 Auth check - savedType:', savedType);
           
           if (!savedType) {
             if (!showModal) {
+              console.log('🎭 No saved type, showing modal');
               setShowModal(true);
             }
           } else {
+            console.log('✅ Found saved type, setting and navigating:', savedType);
             setUserTypeValue(savedType);
             // Use a promise chain instead of await
             new Promise(resolve => setTimeout(resolve, 100))
               .then(() => {
                 const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
+                console.log('🚀 Navigating to:', path);
                 router.replace(path);
               });
           }
@@ -92,6 +105,7 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     if (!authenticated && hasCheckedAuth) {
       const cleanup = () => {
         try {
+          console.log('🧹 Cleaning up - user disconnected');
           // Reset all state
           setHasCheckedAuth(false);
           setUserTypeValue(null);
@@ -176,6 +190,13 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         showUserTypeModal: showModal,
       }}
     >
+      {console.log('🎪 UserTypeProvider context:', {
+        userType: userTypeValue,
+        isLoading: isStorageLoading || !ready,
+        isStorageLoading,
+        ready,
+        showModal
+      })}
       {children}
       
       {/* User Type Selection Modal */}
@@ -183,7 +204,6 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         isOpen={showModal}
         onSelectUserType={handleUserTypeSelection}
       />
-    
     </UserTypeContext.Provider>
   );
 }

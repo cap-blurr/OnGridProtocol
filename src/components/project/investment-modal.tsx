@@ -74,7 +74,7 @@ export function InvestmentModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="dark sm:max-w-md md:max-w-xl w-[95%] sm:w-auto text-zinc-100 shadow-2xl shadow-black/40 bg-gradient-to-b from-black to-zinc-900/95 border border-emerald-900/30">
+      <DialogContent className="dark sm:max-w-md md:max-w-xl w-[95%] sm:w-auto text-zinc-100 shadow-2xl shadow-black/40 bg-gradient-to-b from-black to-zinc-900/95 border border-oga-green/30">
         {!success ? (
           <>
             <DialogHeader>
@@ -89,10 +89,10 @@ export function InvestmentModal({
             </DialogHeader>
 
             <div className="space-y-6 my-2">
-              <div className="flex flex-col md:flex-row justify-between gap-6 p-4 bg-zinc-900/50 rounded-lg">
+              <div className="flex flex-col md:flex-row justify-between gap-6 p-4 bg-zinc-900/50 rounded-lg border border-oga-green/20">
                 <div className="space-y-1">
                   <span className="text-zinc-400 text-sm">Expected APR</span>
-                  <div className="font-medium text-emerald-500 text-xl">{apr}%</div>
+                  <div className="font-medium text-oga-green text-xl">{apr}%</div>
                 </div>
                 
                 <div className="space-y-1">
@@ -104,11 +104,11 @@ export function InvestmentModal({
                   <span className="text-zinc-400 text-sm">Type</span>
                   <div className="font-medium text-white text-xl">
                     {type === "project" ? (
-                      <Badge variant="outline" className="bg-blue-900/20 border-blue-700 text-blue-500">
+                      <Badge variant="outline" className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                         Direct Project
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="bg-emerald-900/20 border-emerald-700 text-emerald-500">
+                      <Badge variant="outline" className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                         Investment Pool
                       </Badge>
                     )}
@@ -128,7 +128,7 @@ export function InvestmentModal({
                     min={minInvestment}
                     max={maxInvestment}
                     step={100}
-                    className="pl-10 bg-zinc-900 border-zinc-700 focus:border-emerald-600"
+                    className="pl-10 bg-zinc-900 border-oga-green/30 focus:border-oga-green"
                   />
                 </div>
                 <Slider
@@ -145,20 +145,20 @@ export function InvestmentModal({
                 </div>
               </div>
 
-              <div className="p-4 rounded-lg bg-zinc-900/50 space-y-3">
+              <div className="p-4 rounded-lg bg-zinc-900/50 space-y-3 border border-oga-green/20">
                 <h3 className="font-medium text-white">Estimated Returns</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <span className="text-zinc-400 text-sm">Annual Return</span>
-                    <div className="font-medium text-emerald-500">${annualReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                    <div className="font-medium text-oga-green">${annualReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
                   </div>
                   <div className="space-y-1">
                     <span className="text-zinc-400 text-sm">Monthly Return</span>
-                    <div className="font-medium text-emerald-500">${monthlyReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                    <div className="font-medium text-oga-green">${monthlyReturn.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
                   </div>
                 </div>
                 
-                <Alert className="bg-yellow-900/20 border border-yellow-900/50 text-yellow-500 flex items-start p-3">
+                <Alert className="bg-oga-yellow/20 border border-oga-yellow/50 text-oga-yellow flex items-start p-3">
                   <InfoIcon className="h-4 w-4 mr-2 mt-0.5" />
                   <AlertDescription className="text-xs">
                     Returns are estimates based on projected performance and may vary depending on actual generation results.
@@ -174,8 +174,8 @@ export function InvestmentModal({
                     variant="outline"
                     className={`justify-start gap-3 py-6 ${
                       paymentMethod === "wallet"
-                        ? "border-emerald-600 bg-emerald-900/20"
-                        : "border-zinc-700 hover:border-emerald-700/50 hover:bg-emerald-900/10"
+                        ? "border-oga-green bg-oga-green/20"
+                        : "border-zinc-700 hover:border-oga-green/50 hover:bg-oga-green/10"
                     }`}
                     onClick={() => setPaymentMethod("wallet")}
                   >
@@ -190,8 +190,8 @@ export function InvestmentModal({
                     variant="outline"
                     className={`justify-start gap-3 py-6 ${
                       paymentMethod === "card"
-                        ? "border-emerald-600 bg-emerald-900/20"
-                        : "border-zinc-700 hover:border-emerald-700/50 hover:bg-emerald-900/10"
+                        ? "border-oga-green bg-oga-green/20"
+                        : "border-zinc-700 hover:border-oga-green/50 hover:bg-oga-green/10"
                     }`}
                     onClick={() => setPaymentMethod("card")}
                   >
@@ -225,7 +225,7 @@ export function InvestmentModal({
               <Button
                 onClick={handleInvest}
                 disabled={loading || amount < minInvestment}
-                className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 flex-1 sm:flex-none"
+                className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white px-8 flex-1 sm:flex-none"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -240,16 +240,16 @@ export function InvestmentModal({
           </>
         ) : (
           <div className="py-8 flex flex-col items-center text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-900/30 flex items-center justify-center mb-2">
-              <Check className="w-8 h-8 text-emerald-500" />
+            <div className="w-16 h-16 rounded-full bg-oga-green/30 flex items-center justify-center mb-2">
+              <Check className="w-8 h-8 text-oga-green" />
             </div>
             <h2 className="text-2xl font-bold text-white">Investment Successful!</h2>
             <p className="text-zinc-400 max-w-md">
               Your investment of ${amount.toLocaleString()} in {data?.name} has been processed successfully.
             </p>
             <div className="flex items-center pt-4 gap-2">
-              <Leaf className="text-emerald-500 h-5 w-5" />
-              <span className="text-emerald-400 text-sm">
+              <Leaf className="text-oga-green h-5 w-5" />
+              <span className="text-oga-green text-sm">
                 You're helping build a sustainable future
               </span>
             </div>

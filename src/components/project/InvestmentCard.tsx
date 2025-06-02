@@ -111,13 +111,13 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
   const isDisabled = !isConnected || isApproving || isInvesting || isFundingClosed;
   
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-emerald-800/30">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-colors duration-300">
       <CardHeader>
         <CardTitle className="text-white flex justify-between items-center">
           <span>Invest in Project #{id}</span>
           <Badge variant="outline" className={isFundingClosed 
-            ? "bg-amber-900/30 text-amber-300 border-amber-700" 
-            : "bg-emerald-900/30 text-emerald-300 border-emerald-700"
+            ? "bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50" 
+            : "bg-oga-green/20 text-oga-green border-oga-green/50"
           }>
             {isFundingClosed ? 'Funding Closed' : 'Funding Open'}
           </Badge>
@@ -131,18 +131,18 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
             <span className="text-sm text-zinc-400">Funding Progress</span>
             <span className="text-sm text-white">{fundingPercentage.toFixed(1)}%</span>
           </div>
-          <Progress value={fundingPercentage} className="h-2 bg-emerald-950" />
+          <Progress value={fundingPercentage} className="h-2 bg-zinc-800" />
         </div>
         
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-black/20 p-3 rounded-md">
+          <div className="bg-black/20 border border-oga-green/20 p-3 rounded-md">
             <div className="text-xs text-zinc-400 mb-1">Target</div>
             <div className="text-white font-medium">${formattedLoanAmount} USDC</div>
           </div>
-          <div className="bg-black/20 p-3 rounded-md">
+          <div className="bg-black/20 border border-oga-green/20 p-3 rounded-md">
             <div className="text-xs text-zinc-400 mb-1">Raised</div>
-            <div className="text-white font-medium">${formattedTotalAssetsInvested} USDC</div>
+            <div className="text-oga-green font-medium">${formattedTotalAssetsInvested} USDC</div>
           </div>
         </div>
         
@@ -155,7 +155,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
               value={investAmount}
               onChange={(e) => setInvestAmount(e.target.value)}
               placeholder="Enter amount to invest"
-              className="w-full bg-black/30 border-emerald-900/50 text-white"
+              className="w-full bg-black/30 border-oga-green/30 text-white focus:border-oga-green"
               min="0"
               step="0.01"
               disabled={isDisabled}
@@ -173,7 +173,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
             <Button 
               onClick={handleApprove} 
               disabled={isDisabled || !investAmount || Number(investAmount) <= 0}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="w-full bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold"
             >
               {isApproving ? 'Approving...' : 'Approve USDC'}
             </Button>
@@ -181,7 +181,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
             <Button 
               onClick={handleInvest}
               disabled={isDisabled || !investAmount || Number(investAmount) <= 0}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="w-full bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold"
             >
               {isInvesting ? 'Investing...' : 'Confirm Investment'}
               <ArrowUpRight className="ml-2 h-4 w-4" />
@@ -190,7 +190,7 @@ export function InvestmentCard({ id, vaultAddress, developerAddress }: Investmen
         )}
         
         {isFundingClosed && (
-          <p className="text-amber-400 text-center">
+          <p className="text-oga-yellow text-center">
             Funding is closed for this project. Check other available projects.
           </p>
         )}

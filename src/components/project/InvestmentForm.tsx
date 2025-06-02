@@ -144,12 +144,12 @@ export default function InvestmentForm({
   // Disable the form if funding is closed
   if (isFundingClosed) {
     return (
-      <Card className="bg-gradient-to-br from-zinc-950 via-zinc-900/80 to-black backdrop-blur-sm border-zinc-800/50">
+      <Card className="bg-gradient-to-br from-zinc-950 via-zinc-900/80 to-black backdrop-blur-sm border-oga-green/30">
         <CardHeader>
           <CardTitle className="text-zinc-300">Investment Closed</CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
+          <Alert className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow">
             <AlertCircle className="h-4 w-4 mr-2" />
             <AlertTitle>Funding Closed</AlertTitle>
             <AlertDescription>
@@ -180,7 +180,7 @@ export default function InvestmentForm({
                     step="0.000001"
                     min="0"
                     placeholder="Enter amount to invest" 
-                    className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                    className="h-10 pl-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green" 
                   />
                 </div>
               </div>
@@ -192,10 +192,10 @@ export default function InvestmentForm({
               
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Remaining Funding Needed:</span>
-                <span className="text-white">{(parseFloat(totalFunding) - parseFloat(currentFunding)).toFixed(2)} USDC</span>
+                <span className="text-oga-green">{(parseFloat(totalFunding) - parseFloat(currentFunding)).toFixed(2)} USDC</span>
               </div>
               
-              <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>
                   Enter the amount of USDC you wish to invest in this project. Your investment will be locked until the project repays the loan.
@@ -206,7 +206,7 @@ export default function InvestmentForm({
             <CardFooter className="flex justify-end pt-4">
               <Button 
                 onClick={handleAmountSubmit} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
               >
                 Continue
                 <ArrowRight size={16} className="ml-2" />
@@ -219,7 +219,7 @@ export default function InvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
+              <Alert className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertTitle>USDC Approval Required</AlertTitle>
                 <AlertDescription>
@@ -227,7 +227,7 @@ export default function InvestmentForm({
                 </AlertDescription>
               </Alert>
               
-              <div className="p-4 border border-zinc-800 rounded-lg space-y-2">
+              <div className="p-4 border border-oga-green/30 rounded-lg space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Amount to Approve:</span>
                   <span className="text-white">{investmentAmount} USDC</span>
@@ -239,7 +239,7 @@ export default function InvestmentForm({
               </div>
               
               <Button 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold"
                 onClick={handleApprove}
                 disabled={isApproving}
               >
@@ -262,7 +262,7 @@ export default function InvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <Check className="h-4 w-4 mr-2" />
                 <AlertTitle>Ready to Invest</AlertTitle>
                 <AlertDescription>
@@ -270,19 +270,19 @@ export default function InvestmentForm({
                 </AlertDescription>
               </Alert>
               
-              <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
+              <div className="p-4 border border-oga-green/30 rounded-lg space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Project:</span>
                   <span className="text-white">{projectName}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Investment Amount:</span>
-                  <span className="text-white">{investmentAmount} USDC</span>
+                  <span className="text-oga-green">{investmentAmount} USDC</span>
                 </div>
               </div>
               
               <Button 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold"
                 onClick={handleInvest}
                 disabled={isInvesting}
               >
@@ -305,7 +305,7 @@ export default function InvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <Check className="h-4 w-4 mr-2" />
                 <AlertTitle>Investment Successful!</AlertTitle>
                 <AlertDescription>
@@ -319,7 +319,7 @@ export default function InvestmentForm({
                 </p>
                 <Button 
                   onClick={handleReset}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
                 >
                   Make Another Investment
                 </Button>
@@ -331,7 +331,7 @@ export default function InvestmentForm({
   };
 
   return (
-    <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
+    <Card className="bg-gradient-to-br from-zinc-950 via-oga-green/10 to-black backdrop-blur-sm border-oga-green/30">
       <CardHeader>
         <CardTitle className="text-white">Invest in this Project</CardTitle>
       </CardHeader>

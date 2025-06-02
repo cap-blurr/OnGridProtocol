@@ -54,7 +54,7 @@ export default function DirectProjectInvestmentList() {
   }, []);
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-emerald-800/30">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-white">Invest Directly in High-Value Projects</CardTitle>
         <CardDescription className="text-zinc-400 pt-1">
@@ -64,7 +64,7 @@ export default function DirectProjectInvestmentList() {
       <CardContent className="space-y-6">
         {isLoading && (
           <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-10 w-10 animate-spin text-emerald-500" />
+            <Loader2 className="h-10 w-10 animate-spin text-oga-green" />
           </div>
         )}
         {error && (
