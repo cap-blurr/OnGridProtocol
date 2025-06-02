@@ -28,22 +28,20 @@ export default function Header({ isHome = false }: NavBarProps) {
   // Check if we're on a dashboard page
   const isDashboard = pathname.includes('/dashboard') || pathname.includes('/developer-dashboard');
 
-  return (
-    <header
+  return (    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled || isDashboard
-          ? "bg-gray-950 bg-opacity-30 backdrop-blur-lg backdrop-filter"
-          : "bg-transparent backdrop-blur-lg backdrop-filter pt-5"
+          ? "bg-gray-950 bg-opacity-30 backdrop-blur-lg backdrop-filter h-16"
+          : "bg-transparent backdrop-blur-lg backdrop-filter h-16"
       }`}
     >
-      <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between py-4 px-5 md:p-5">
-        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
+      <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between h-full px-5">        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
         <Image 
           src="/ongrid-logo.png" 
           alt="Ongrid-logo" 
-          width={144} 
-          height={58}
-          className="w-24 md:32 lg:w-36" 
+          width={120} 
+          height={48}
+          className="w-20 md:w-28 lg:w-32" 
         />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">

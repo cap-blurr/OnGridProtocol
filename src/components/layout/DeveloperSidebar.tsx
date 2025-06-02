@@ -63,7 +63,7 @@ export default function DeveloperSidebar() {
   const pathname = usePathname();
   
   return (
-    <div className="w-64 h-screen fixed left-0 top-0 pt-24 pb-6 px-3 border-r border-emerald-900/20 bg-black/60 backdrop-blur-md flex flex-col">
+    <div className="w-64 h-screen fixed left-0 top-16 pb-6 px-3 border-r border-emerald-900/20 bg-black/60 backdrop-blur-md flex flex-col">
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 pr-2">
         <SidebarSection title="Solar Projects">
           <SidebarNavItem
