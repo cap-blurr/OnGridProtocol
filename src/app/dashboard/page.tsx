@@ -142,11 +142,6 @@ export default function DashboardPage() {
       try {
         if (isLoading) return; // Wait for auth state
         
-        if (!isConnected) {
-          await router.replace('/');
-          return;
-        }
-        
         if (!userType) {
           await router.replace('/');
           return;
@@ -165,7 +160,7 @@ export default function DashboardPage() {
     };
     
     handleAuth();
-  }, [isConnected, userType, isLoading, router]);
+  }, [userType, isLoading, router]);
 
   if (isLoadingAuth) {
     return <LoadingScreen />;
@@ -199,6 +194,17 @@ export default function DashboardPage() {
             Monitor your investments and carbon credits
           </p>
         </div>
+        
+        {/* Wallet Connection Notice */}
+        {!isConnected && (
+          <Alert className="mb-6 bg-emerald-900/20 border-emerald-800/50 text-emerald-100">
+            <Wallet className="h-4 w-4" />
+            <AlertDescription>
+              Connect your wallet to access full investment features and make transactions.
+              <SwitchAccountButton className="ml-3" />
+            </AlertDescription>
+          </Alert>
+        )}
         
         <DashboardTabs
           tabs={[
