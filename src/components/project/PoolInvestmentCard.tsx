@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertCircle, Info, ShieldCheck, Coins } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, Info, ShieldCheck, Coins, Sun } from 'lucide-react';
 import { formatUnits, parseUnits } from 'ethers';
 import toast from 'react-hot-toast';
 
@@ -55,14 +55,14 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   useEffect(() => {
     if (isApproveSuccess) {
-      toast.success(`Approval for Pool ${poolId} successful!`);
+      toast.success(`Approval for Solar Pool ${poolId} successful!`);
       refetchAllowance();
     }
   }, [isApproveSuccess, poolId, refetchAllowance]);
 
   useEffect(() => {
     if (isDepositSuccess) {
-      toast.success(`Successfully deposited to Pool ${poolId}!`);
+      toast.success(`Successfully deposited to Solar Pool ${poolId}!`);
       setDepositAmount('');
       refetchAllowance();
       refetchUserShares();
@@ -71,7 +71,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   useEffect(() => {
     if (isRedeemSuccess) {
-      toast.success(`Successfully redeemed shares from Pool ${poolId}!`);
+      toast.success(`Successfully redeemed shares from Solar Pool ${poolId}!`);
       setRedeemSharesAmount('');
       refetchUserShares();
     }
@@ -121,19 +121,22 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   if (isLoadingPoolInfo) {
     return (
       <div className="p-4 border rounded-lg bg-black/20 border-oga-green/30 text-center text-zinc-400 backdrop-blur-sm">
-        Loading Pool {poolId} info... <Loader2 className="inline animate-spin h-4 w-4 ml-2" />
+        <div className="flex items-center justify-center space-x-2">
+          <Loader2 className="animate-spin h-4 w-4" />
+          <span className="text-sm">Loading Solar Pool {poolId} info...</span>
+        </div>
       </div>
     );
   }
 
   if (poolInfoError) {
-    return <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300"><AlertCircle className="h-4 w-4" /><AlertTitle>Error Loading Pool {poolId}</AlertTitle><AlertDescription>{poolInfoError.message}</AlertDescription></Alert>;
+    return <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300"><AlertCircle className="h-4 w-4" /><AlertTitle>Error Loading Solar Pool {poolId}</AlertTitle><AlertDescription>{poolInfoError.message}</AlertDescription></Alert>;
   }
   
   if (!name && poolId > 0) {
       return (
         <div className="p-4 border rounded-lg bg-black/20 border-oga-green/30 text-center text-zinc-500 backdrop-blur-sm">
-            Pool {poolId} details not found.
+            Solar Pool {poolId} details not found.
         </div>
       );
   }
@@ -160,19 +163,28 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   return (
     <Card className="bg-black/30 backdrop-blur-sm border border-oga-green/40 hover:border-oga-green/60 transition-colors duration-300">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg text-oga-green flex items-center justify-between">
-          <span>{name} (Pool ID: {poolId})</span>
-          <span className={`text-xs px-2 py-1 rounded-full flex items-center ${getRiskLevelColor(riskLevel)}`}>
-            <ShieldCheck size={14} className="mr-1.5" /> {getRiskLevelText(riskLevel)}
+        <CardTitle className="text-base lg:text-lg text-oga-green flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center space-x-2">
+            <Sun className="h-4 w-4 text-oga-yellow flex-shrink-0" />
+            <span className="leading-tight">{name} (Pool ID: {poolId})</span>
+          </div>
+          <span className={`text-xs px-2 py-1 rounded-full flex items-center w-fit ${getRiskLevelColor(riskLevel)}`}>
+            <ShieldCheck size={12} className="mr-1" /> {getRiskLevelText(riskLevel)}
           </span>
         </CardTitle>
-        <CardDescription className="text-sm text-zinc-400 pt-1">
-          Total Assets: <span className="text-oga-green">{formattedTotalAssets} USDC</span> | APR: <span className="text-oga-green">{aprPercentage.toFixed(2)}%</span>
+        <CardDescription className="text-xs sm:text-sm text-zinc-400 pt-1 space-y-1">
+          <div>Total Solar Assets: <span className="text-oga-green">{formattedTotalAssets} USDC</span> | APR: <span className="text-oga-green">{aprPercentage.toFixed(2)}%</span></div>
         </CardDescription>
-        <CardDescription className="text-sm text-zinc-400 pt-1 flex items-center">
-            <Coins size={14} className="mr-1.5 text-oga-green"/> Your Shares: 
-            {isLoadingUserShares ? <Loader2 className="h-3 w-3 animate-spin ml-1" /> : <span className="text-oga-green ml-1">{formattedUserShares}</span>}
-            {userShares && <span className="text-xs text-red-400 ml-2">(Error loading shares)</span>}
+        <CardDescription className="text-xs sm:text-sm text-zinc-400 pt-1 flex flex-wrap items-center gap-2">
+            <div className="flex items-center">
+              <Coins size={12} className="mr-1 text-oga-green"/> 
+              <span>Your Shares:</span>
+            </div>
+            {isLoadingUserShares ? 
+              <Loader2 className="h-3 w-3 animate-spin" /> : 
+              <span className="text-oga-green font-medium">{formattedUserShares}</span>
+            }
+            {userShares && <span className="text-xs text-red-400">(Error loading shares)</span>}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
@@ -182,14 +194,14 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="USDC Amount to Deposit" 
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2"
+            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2 text-sm"
           />
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             {needsApproval && (
               <Button 
                 onClick={handleApprove} 
                 disabled={isApproving || isLoadingAllowance || !depositAmount || parseFloat(depositAmount) <= 0}
-                className="flex-1 bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold"
+                className="flex-1 bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold text-xs sm:text-sm"
               >
                 {isApproving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
                 Approve USDC
@@ -198,15 +210,15 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             <Button 
               onClick={handleDeposit} 
               disabled={isDepositing || (needsApproval && parseFloat(depositAmount) > 0) || !depositAmount || parseFloat(depositAmount) <= 0}
-              className="flex-1 bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold"
+              className="flex-1 bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold text-xs sm:text-sm"
             >
               {isDepositing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
-              Deposit to Pool
+              Deposit to Solar Pool
             </Button>
           </div>
           {approveError && <p className="text-xs text-red-400 mt-1">Approval Error: {approveError.message}</p>}
           {depositError && <p className="text-xs text-red-400 mt-1">Deposit Error: {depositError.message}</p>}
-          {isDepositSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Deposit Confirmed!</p>}
+          {isDepositSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Deposit Confirmed!</p>}
         </div>
 
         <hr className="my-4 border-oga-green/20" />
@@ -217,7 +229,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="Shares to Redeem" 
             value={redeemSharesAmount}
             onChange={(e) => setRedeemSharesAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2"
+            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2 text-sm"
           />
           {redeemSharesAmount && BigInt(redeemSharesAmount) > 0 && poolTotalShares > BigInt(0) && (
             <p className="text-xs text-zinc-400 mb-2">
@@ -227,13 +239,13 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           <Button 
             onClick={handleRedeem}
             disabled={isRedeeming || !redeemSharesAmount || BigInt(redeemSharesAmount) <= 0 || (userShares != undefined && BigInt(redeemSharesAmount) > userShares)}
-            className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold"
+            className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold text-xs sm:text-sm"
           >
             {isRedeeming ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
-            Redeem Shares
+            Redeem Solar Pool Shares
           </Button>
           {redeemError && <p className="text-xs text-red-400 mt-1">Redeem Error: {redeemError.message}</p>}
-          {isRedeemSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Redemption Confirmed!</p>}
+          {isRedeemSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Redemption Confirmed!</p>}
         </div>
       </CardContent>
     </Card>
@@ -259,35 +271,48 @@ export default function PoolInvestmentCard() {
   if (isLoadingCount) {
     return (
       <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-        <CardHeader><CardTitle className="text-white">Loading Liquidity Pools...</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
+            <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />
+            Loading Solar Liquidity Pools...
+          </CardTitle>
+        </CardHeader>
         <CardContent className="flex justify-center items-center py-10">
-          <Loader2 className="h-10 w-10 animate-spin text-oga-green" />
+          <div className="flex flex-col items-center space-y-3">
+            <Loader2 className="h-10 w-10 animate-spin text-oga-green" />
+            <p className="text-zinc-400 text-sm">Loading solar energy pools...</p>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   if (countError) {
-    return <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300"><AlertCircle className="h-4 w-4" /><AlertTitle>Error Loading Pool Count</AlertTitle><AlertDescription>{countError.message}</AlertDescription></Alert>;
+    return <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300"><AlertCircle className="h-4 w-4" /><AlertTitle>Error Loading Solar Pool Count</AlertTitle><AlertDescription>{countError.message}</AlertDescription></Alert>;
   }
 
   if (!liquidityPoolManagerProxy) {
-    return <Alert variant="default" className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow"><Info className="h-4 w-4" /><AlertTitle>Configuration Error</AlertTitle><AlertDescription>Liquidity Pool Manager address is not configured. Please contact support.</AlertDescription></Alert>;
+    return <Alert variant="default" className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow"><Info className="h-4 w-4" /><AlertTitle>Configuration Error</AlertTitle><AlertDescription>Solar Pool Manager address is not configured. Please contact support.</AlertDescription></Alert>;
   }
 
   return (
     <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-white">Invest in Liquidity Pools</CardTitle>
-        <CardDescription className="text-zinc-400 pt-1">
-          Provide liquidity to various project funding pools and earn yield. Select a pool and enter the amount of USDC you wish to deposit.
+        <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
+          <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />
+          Invest in Solar Liquidity Pools
+        </CardTitle>
+        <CardDescription className="text-zinc-400 pt-1 text-sm lg:text-base">
+          Provide liquidity to solar energy project funding pools and earn yield. Select a pool and enter the amount of USDC you wish to deposit.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 lg:space-y-6">
         {poolIds.length === 0 && !isLoadingCount && (
           <div className="text-center text-zinc-400 py-6">
-            <Info size={32} className="mx-auto mb-2 text-zinc-500" />
-            No liquidity pools available at the moment.
+            <Sun size={48} className="mx-auto mb-4 text-oga-yellow opacity-50" />
+            <h3 className="text-lg font-medium text-white mb-2">No Solar Pools Available</h3>
+            <p className="text-sm">No solar energy liquidity pools are available at the moment.</p>
+            <p className="text-xs mt-2 text-zinc-500">Check back soon for new solar investment opportunities!</p>
           </div>
         )}
         {poolIds.map((id) => (

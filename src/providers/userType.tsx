@@ -181,22 +181,23 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const contextValue = {
+    userType: userTypeValue,
+    setUserType: updateUserType,
+    isLoading: isStorageLoading || !ready,
+    showUserTypeModal: showModal,
+  };
+
+  console.log('🎪 UserTypeProvider context:', {
+    userType: userTypeValue,
+    isLoading: isStorageLoading || !ready,
+    isStorageLoading,
+    ready,
+    showModal
+  });
+
   return (
-    <UserTypeContext.Provider
-      value={{
-        userType: userTypeValue,
-        setUserType: updateUserType,
-        isLoading: isStorageLoading || !ready,
-        showUserTypeModal: showModal,
-      }}
-    >
-      {console.log('🎪 UserTypeProvider context:', {
-        userType: userTypeValue,
-        isLoading: isStorageLoading || !ready,
-        isStorageLoading,
-        ready,
-        showModal
-      })}
+    <UserTypeContext.Provider value={contextValue}>
       {children}
       
       {/* User Type Selection Modal */}
