@@ -31,15 +31,13 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CreateProjectModal } from "@/components/project/create-project";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import LoadingScreen from "@/components/ui/loading-screen";
-import SwitchAccountButton from "@/components/wallet/SwitchAccountButton";
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
-import CarbonCreditsDashboardCard from "@/components/project/CarbonCreditsDashboardCard";
+
 
 const mockData = {
   investments: {
@@ -136,38 +134,36 @@ export default function DashboardPage() {
 
   return (
     <div className="relative">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` 
-      }} />
+      {/* Enhanced subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:24px_24px]" />
       
-      {/* Background accents */}
-      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+      {/* Enhanced background accents using the primary gradient */}
+      <div className="absolute top-1/4 -left-64 w-[500px] h-[500px] bg-[#4CAF50]/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-1/4 -right-64 w-[500px] h-[500px] bg-[#4CAF50]/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
       
-      <div className="relative">
-        <div className="mb-8 relative pl-6">
-          {/* Thin accent line */}
-          <div className="absolute -left-4 top-0 h-full w-px bg-emerald-700/30" />
+      <div className="relative space-y-8 pb-12">
+        <div className="mb-12 relative pl-8">
+          {/* Enhanced accent line with gradient */}
+          <div className="absolute -left-4 top-0 h-full w-[2px] bg-gradient-to-b from-[#4CAF50]/60 to-[#4CAF50]/0" />
           
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-emerald-500 mb-2 relative">
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-[#4CAF50] mb-3 relative group">
             Investor Dashboard
-            <div className="absolute -left-6 top-1/2 w-3 h-px bg-emerald-500" />
+            <div className="absolute -left-8 top-1/2 w-4 h-[2px] bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/0 group-hover:w-6 transition-all duration-300" />
           </span>
           
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Dashboard
+          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
+            Dashboard Overview
           </h1>
-          <p className="text-zinc-400">
-            Monitor your investments and carbon credits
+          <p className="text-zinc-400 text-lg max-w-2xl">
+            Monitor your investments and carbon credits in real-time
           </p>
         </div>
         
-        {/* Wallet Connection Notice */}
+        {/* Wallet Connection Notice with enhanced styling */}
         {!isConnected && (
-          <Alert className="mb-6 bg-emerald-900/20 border-emerald-800/50 text-emerald-100">
+          <Alert className="mb-8 bg-[#4CAF50]/5 border border-[#4CAF50]/20 text-[#4CAF50] backdrop-blur-sm">
             <Wallet className="h-4 w-4" />
-            <AlertDescription>
+            <AlertDescription className="text-[#4CAF50]/90">
               Connect your wallet to access full investment features and make transactions.
             </AlertDescription>
           </Alert>
@@ -176,44 +172,43 @@ export default function DashboardPage() {
         <DashboardTabs
           tabs={[
             { value: "investments", label: "Investments" },
-            { value: "carbonCredits", label: "Carbon Credits" }
           ]}
           activeTab={activeTab}
           onValueChange={setActiveTab}
         >
-          <TabsContent value="investments">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Investment Overview Card */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+          <TabsContent value="investments" className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Enhanced Investment Overview Card */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-all duration-300 cursor-pointer overflow-hidden group">
+                {/* Enhanced gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
                   <CardTitle className="text-sm font-medium text-white">
                     Total Investments
                   </CardTitle>
-                  <Wallet className="h-4 w-4 text-emerald-500" />
+                  <Wallet className="h-4 w-4 text-[#4CAF50] group-hover:text-[#4CAF50]/80 transition-colors" />
                 </CardHeader>
                 <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
+                  <div className="text-2xl font-bold text-white group-hover:text-[#4CAF50]/90 transition-colors">
                     ${mockData.investments.totalValue.toLocaleString()}
                   </div>
-                  <div className="flex items-center">
-                    <ArrowUpRight className="h-3 w-3 text-emerald-500 mr-1" />
-                    <span className="text-xs text-emerald-400">{mockData.investments.change}% monthly growth</span>
+                  <div className="flex items-center mt-2">
+                    <ArrowUpRight className="h-3 w-3 text-[#4CAF50] mr-1" />
+                    <span className="text-xs text-[#4CAF50]">{mockData.investments.change}% monthly growth</span>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-colors cursor-pointer overflow-hidden">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
                 
                 <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-white">
                     Average ROI
                   </CardTitle>
-                  <LineChart className="h-4 w-4 text-emerald-500" />
+                  <LineChart className="h-4 w-4 text-[#4CAF50]" />
                 </CardHeader>
                 <CardContent className="relative">
                   <div className="text-2xl font-bold text-white">
@@ -225,15 +220,15 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-colors cursor-pointer overflow-hidden">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
                 
                 <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-white">
                     Active Pools
                   </CardTitle>
-                  <Network className="h-4 w-4 text-emerald-500" />
+                  <Network className="h-4 w-4 text-[#4CAF50]" />
                 </CardHeader>
                 <CardContent className="relative">
                   <div className="text-2xl font-bold text-white">
@@ -245,9 +240,9 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 hover:border-emerald-500/50 transition-colors cursor-pointer overflow-hidden">
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-colors cursor-pointer overflow-hidden">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
                 
                 <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-white">
@@ -266,52 +261,52 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Transactions */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Enhanced Recent Transactions Card */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 overflow-hidden group hover:border-[#4CAF50]/30 transition-all duration-300">
+                {/* Enhanced gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <History className="h-5 w-5 text-emerald-500" />
+                  <CardTitle className="flex items-center gap-3 text-white text-xl">
+                    <History className="h-5 w-5 text-[#4CAF50]" />
                     Recent Transactions
                   </CardTitle>
-                  <CardDescription className="text-zinc-400">
+                  <CardDescription className="text-zinc-400 mt-2">
                     Your latest investment activities
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="relative">
-                  <div className="space-y-4">
+                <CardContent className="relative space-y-6">
+                  <div className="space-y-5">
                     {mockData.investments.recentTransactions.map((tx) => (
-                      <div key={tx.id} className="flex items-center justify-between border-b border-zinc-800/50 pb-3">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-white">{tx.project}</span>
-                          <span className="text-sm text-zinc-400">{new Date(tx.timestamp).toLocaleDateString()}</span>
+                      <div key={tx.id} className="flex items-center justify-between border-b border-[#4CAF50]/10 pb-4 group/item hover:border-[#4CAF50]/20 transition-colors">
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium text-white group-hover/item:text-[#4CAF50]/90 transition-colors">{tx.project}</span>
+                          <span className="text-sm text-zinc-500">{new Date(tx.timestamp).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex flex-col items-end">
-                          <span className="font-medium text-emerald-500">${tx.amount.toLocaleString()}</span>
-                          <Badge variant="outline" className="text-xs border-emerald-800 bg-emerald-900/20 text-emerald-300">{tx.type}</Badge>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="font-medium text-[#4CAF50]">${tx.amount.toLocaleString()}</span>
+                          <Badge variant="outline" className="text-xs border-[#4CAF50]/20 bg-[#4CAF50]/5 text-[#4CAF50] px-2">{tx.type}</Badge>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <Button variant="ghost" className="w-auto mx-auto mt-4 px-4 text-zinc-400 hover:text-emerald-400 hover:bg-emerald-900/20 group" asChild>
-                    <Link href="/dashboard/investments/current">
-                      View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <Button variant="ghost" className="w-full justify-center text-zinc-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/5 group" asChild>
+                    <Link href="/dashboard/investments/current" className="flex items-center">
+                      View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Investment Distribution */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-emerald-800/30 overflow-hidden">
+              {/* Enhanced Investment Distribution Card */}
+              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 overflow-hidden">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
                 
                 <CardHeader className="relative">
                   <CardTitle className="flex items-center gap-2 text-white">
-                    <CreditCard className="h-5 w-5 text-emerald-500" />
+                    <CreditCard className="h-5 w-5 text-[#4CAF50]" />
                     Investment Distribution
                   </CardTitle>
                   <CardDescription className="text-zinc-400">
@@ -326,7 +321,7 @@ export default function DashboardPage() {
                           <span className="text-zinc-300">{project.name}</span>
                           <span className="text-zinc-300">{project.percentage}%</span>
                         </div>
-                        <Progress value={project.percentage} className="h-1.5 bg-zinc-800/70" indicatorClassName="bg-emerald-500" />
+                        <Progress value={project.percentage} className="h-1.5 bg-zinc-800/70" indicatorClassName="bg-[#4CAF50]" />
                       </div>
                     ))}
                   </div>
@@ -334,15 +329,26 @@ export default function DashboardPage() {
               </Card>
             </div>
             
-            <div className="mt-8 space-y-4">
-              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button variant="outline" className="border-emerald-800 hover:bg-emerald-900/20 hover:text-emerald-300" asChild>
+            <div className="mt-12 space-y-6">
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Globe2 className="h-5 w-5 text-[#4CAF50]" />
+                Quick Actions
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <Button 
+                  variant="outline" 
+                  className="border-zinc-800 bg-zinc-900/50 text-zinc-100 hover:bg-gradient-to-r hover:from-[#3D9970] hover:to-[#4CAF50] hover:text-white hover:border-transparent transition-all duration-300 h-12 text-base" 
+                  asChild
+                >
                   <Link href="/dashboard/investments/opportunities">
                     Browse Investment Opportunities
                   </Link>
                 </Button>
-                <Button variant="outline" className="border-emerald-800 hover:bg-emerald-900/20 hover:text-emerald-300" asChild>
+                <Button 
+                  variant="outline" 
+                  className="border-zinc-800 bg-zinc-900/50 text-zinc-100 hover:bg-gradient-to-r hover:from-[#3D9970] hover:to-[#4CAF50] hover:text-white hover:border-transparent transition-all duration-300 h-12 text-base" 
+                  asChild
+                >
                   <Link href="/dashboard/investments/pools">
                     Explore Investment Pools
                   </Link>
@@ -350,22 +356,28 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Divider */}
-            <hr className="my-8 border-zinc-800/50" />
+            {/* Enhanced dividers with new color scheme */}
+            <div className="relative my-12">
+              <hr className="border-[#4CAF50]/10" />
+              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-background">
+                <Trees className="h-6 w-6 text-[#4CAF50]" />
+              </div>
+            </div>
 
             {/* Pool Investment Section */}
             <PoolInvestmentCard />
 
-            {/* Divider */}
-            <hr className="my-8 border-zinc-800/50" />
+            {/* Enhanced divider */}
+            <div className="relative my-12">
+              <hr className="border-[#4CAF50]/10" />
+              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-background">
+                <Network className="h-6 w-6 text-[#4CAF50]" />
+              </div>
+            </div>
 
             {/* Direct Project Investment Section */}
             <DirectProjectInvestmentList />
 
-          </TabsContent>
-          
-          <TabsContent value="carbonCredits">
-            <CarbonCreditsDashboardCard />
           </TabsContent>
         </DashboardTabs>
       </div>
