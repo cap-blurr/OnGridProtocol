@@ -156,20 +156,17 @@ export default function InvestmentDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="opportunities" className="space-y-4 lg:space-y-6">
+        <Tabs defaultValue="overview" className="space-y-4 lg:space-y-6">
           <TabsList className="grid w-full grid-cols-3 bg-black/40 backdrop-blur-sm border border-oga-green/30">
-            <TabsTrigger value="opportunities" className="data-[state=active]:bg-oga-green text-xs sm:text-sm">
-              Solar Opportunities
+            <TabsTrigger value="overview" className="data-[state=active]:bg-oga-green text-xs sm:text-sm">
+              Overview
             </TabsTrigger>
-            <TabsTrigger value="current" className="data-[state=active]:bg-oga-green text-xs sm:text-sm">
-              My Investments
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-oga-green text-xs sm:text-sm">
-              Analytics
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-oga-green text-xs sm:text-sm">
+              Transactions
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="opportunities" className="space-y-4 lg:space-y-6">
+          <TabsContent value="overview" className="space-y-4 lg:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
               {investmentOpportunities.map((opportunity) => (
                 <Card key={opportunity.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-colors duration-300">
@@ -243,7 +240,7 @@ export default function InvestmentDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="current" className="space-y-4 lg:space-y-6">
+          <TabsContent value="transactions" className="space-y-4 lg:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {myInvestments.map((investment) => (
                 <Card key={investment.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
@@ -284,75 +281,6 @@ export default function InvestmentDashboard() {
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-4 lg:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <PieChart className="w-5 h-5 mr-2 text-oga-green" />
-                    Solar Portfolio Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-r from-oga-green to-oga-green-light flex items-center justify-center mx-auto mb-4">
-                      <Sun className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-                    </div>
-                    <p className="text-2xl font-bold text-oga-green">+11.2%</p>
-                    <p className="text-zinc-400 text-sm">Total Solar Portfolio ROI</p>
-                  </div>
-                  
-                  <div className="space-y-3 pt-4 border-t border-oga-green/20">
-                    <div className="flex justify-between items-center">
-                      <span className="text-zinc-400 text-sm">Solar Grid Nigeria</span>
-                      <span className="text-oga-green font-semibold">+10.0%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-zinc-400 text-sm">Solar Microgrid Kenya</span>
-                      <span className="text-oga-green font-semibold">+12.0%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-zinc-400 text-sm">Total Energy Generated</span>
-                      <span className="text-oga-yellow font-semibold">214 MWh</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Clock className="w-5 h-5 mr-2 text-oga-green" />
-                    Solar Investment Timeline
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-4">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-3 h-3 bg-oga-green rounded-full mt-2 flex-shrink-0"></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-semibold text-sm sm:text-base">Solar Grid Investment</p>
-                        <p className="text-zinc-400 text-xs sm:text-sm">6 months ago • $25,000</p>
-                        <p className="text-zinc-500 text-xs">Generating 125 MWh of clean energy</p>
-                      </div>
-                      <div className="text-oga-green font-semibold text-sm">+10.0%</div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-4">
-                      <div className="w-3 h-3 bg-oga-green rounded-full mt-2 flex-shrink-0"></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-semibold text-sm sm:text-base">Solar Microgrid Investment</p>
-                        <p className="text-zinc-400 text-xs sm:text-sm">3 months ago • $35,000</p>
-                        <p className="text-zinc-500 text-xs">Generating 89 MWh of clean energy</p>
-                      </div>
-                      <div className="text-oga-green font-semibold text-sm">+12.0%</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
         </Tabs>

@@ -30,7 +30,7 @@ function SidebarNavItem({ href, label, icon, isActive }: SidebarNavItemProps) {
         variant="ghost"
         className={cn(
           "w-full justify-start gap-3 font-normal pl-3 mb-1 text-zinc-300 hover:text-white hover:bg-zinc-800/50",
-          isActive && "bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/40 hover:text-emerald-300"
+          isActive && "bg-[#4CAF50]/10 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50]"
         )}
       >
         {icon}
@@ -60,7 +60,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   
   return (
-    <div className="w-64 h-screen fixed left-0 top-16 pb-6 px-3 border-r border-emerald-900/20 bg-black/60 backdrop-blur-md flex flex-col">
+    <div className="w-64 h-screen fixed left-0 top-16 pb-6 px-3 border-r border-[#4CAF50]/20 bg-black/60 backdrop-blur-md flex flex-col">
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 pr-2">
         <SidebarSection title="Investments">
           <SidebarNavItem
@@ -86,12 +86,6 @@ export default function Sidebar() {
             label="Investment Pools"
             icon={<CreditCard size={18} />}
             isActive={pathname === "/dashboard/investments/pools"}
-          />
-          <SidebarNavItem
-            href="/dashboard/investments/analytics"
-            label="ROI Analytics"
-            icon={<LineChart size={18} />}
-            isActive={pathname === "/dashboard/investments/analytics"}
           />
         </SidebarSection>
 
