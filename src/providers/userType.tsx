@@ -188,14 +188,6 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     showUserTypeModal: showModal,
   };
 
-  console.log('🎪 UserTypeProvider context:', {
-    userType: userTypeValue,
-    isLoading: isStorageLoading || !ready,
-    isStorageLoading,
-    ready,
-    showModal
-  });
-
   return (
     <UserTypeContext.Provider value={contextValue}>
       {children}

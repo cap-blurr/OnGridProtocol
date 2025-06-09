@@ -1,23 +1,125 @@
-import { useContractRead, useContractWrite, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { formatUnits, parseUnits } from 'ethers';
+import { formatUnits, parseUnits } from 'viem';
 import LiquidityPoolManagerABI from '@/contracts/abis/LiquidityPoolManager.json';
-import { USDC_DECIMALS } from './useUSDC';
+
+// Constants
+const USDC_DECIMALS = 6;
+
+// Hook to get all pools
+export function useGetAllPools() {
+  const addresses = useContractAddresses();
+  
+  const { data, isLoading, error, refetch } = useReadContract({
+    address: addresses.liquidityPoolManagerProxy as `0x${string}`,
+    abi: LiquidityPoolManagerABI.abi,
+    functionName: 'getAllPools',
+    chainId: 84532,
+  });
+  
+  return {
+    pools: data as Array<{
+      exists: boolean;
+      name: string;
+      totalAssets: bigint;
+      totalShares: bigint;
+    }> || [],
+    isLoading,
+    error,
+    refetch
+  };
+}
+
+// Hook to get user's pool investments
+export function useUserPoolInvestments(userAddress?: `0x${string}`) {
+  const addresses = useContractAddresses();
+  
+  const { data, isLoading, error, refetch } = useReadContract({
+    address: addresses.liquidityPoolManagerProxy as `0x${string}`,
+    abi: LiquidityPoolManagerABI.abi,
+    functionName: 'getUserPoolInvestments',
+    args: userAddress ? [userAddress] : undefined,
+    chainId: 84532,
+    query: {
+      enabled: !!userAddress,
+    },
+  });
+  
+  const poolInvestments = data as {
+    poolIds: bigint[];
+    shares: bigint[];
+    values: bigint[];
+  } | undefined;
+  
+  // Ensure arrays are properly defined before mapping
+  const poolIds = poolInvestments?.poolIds || [];
+  const shares = poolInvestments?.shares || [];
+  const values = poolInvestments?.values || [];
+
+  return {
+    poolIds,
+    shares,
+    values,
+    formattedValues: Array.isArray(values) ? values.map(value => formatUnits(value, USDC_DECIMALS)) : [],
+    totalValue: Array.isArray(values) ? values.reduce((sum, value) => sum + value, BigInt(0)) : BigInt(0),
+    formattedTotalValue: Array.isArray(values) && values.length > 0 ? 
+      formatUnits(values.reduce((sum, value) => sum + value, BigInt(0)), USDC_DECIMALS) : '0',
+    isLoading,
+    error,
+    refetch
+  };
+}
+
+// Hook to get pool loans
+export function usePoolLoans(poolId: number) {
+  const addresses = useContractAddresses();
+  
+  const { data, isLoading, error } = useReadContract({
+    address: addresses.liquidityPoolManagerProxy as `0x${string}`,
+    abi: LiquidityPoolManagerABI.abi,
+    functionName: 'getPoolLoans',
+    args: [BigInt(poolId)],
+    chainId: 84532,
+    query: {
+      enabled: poolId > 0,
+    },
+  });
+  
+  const poolLoans = data as {
+    projectIds: bigint[];
+    loanAmounts: bigint[];
+    outstandingAmounts: bigint[];
+    states: number[];
+  } | undefined;
+  
+  return {
+    projectIds: poolLoans?.projectIds || [],
+    loanAmounts: poolLoans?.loanAmounts || [],
+    outstandingAmounts: poolLoans?.outstandingAmounts || [],
+    states: poolLoans?.states || [],
+    formattedLoanAmounts: poolLoans?.loanAmounts?.map(amount => formatUnits(amount, USDC_DECIMALS)) || [],
+    formattedOutstandingAmounts: poolLoans?.outstandingAmounts?.map(amount => formatUnits(amount, USDC_DECIMALS)) || [],
+    isLoading,
+    error
+  };
+}
 
 // Hook to get the number of pools
 export function usePoolCount() {
   const addresses = useContractAddresses();
   
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'poolCount',
+    chainId: 84532,
   });
   
   return {
     poolCount: data as bigint,
+    formattedPoolCount: data ? Number(data) : 0,
     isLoading,
     error
   };
@@ -27,7 +129,7 @@ export function usePoolCount() {
 export function usePoolInfo(poolId: number) {
   const addresses = useContractAddresses();
   
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'getPoolInfo',
@@ -38,7 +140,7 @@ export function usePoolInfo(poolId: number) {
   });
   
   // Get pool risk levels
-  const { data: riskLevel } = useContractRead({
+  const { data: riskLevel } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'poolRiskLevels',
@@ -49,7 +151,7 @@ export function usePoolInfo(poolId: number) {
   });
   
   // Get pool APR rates
-  const { data: aprRate } = useContractRead({
+  const { data: aprRate } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'poolAprRates',
@@ -79,7 +181,7 @@ export function usePoolInfo(poolId: number) {
 export function useUserShares(poolId: number, userAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'getUserShares',
@@ -97,10 +199,10 @@ export function useUserShares(poolId: number, userAddress?: `0x${string}`) {
 }
 
 // Hook to deposit to a pool
-export function useDepositToPool(poolId: number) {
+export function useDepositToPool(poolId?: number) {
   const addresses = useContractAddresses();
   
-  const { writeContract, data: hash, isPending, error, status } = useContractWrite();
+  const { writeContract, data: hash, isPending, error, status } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -119,14 +221,19 @@ export function useDepositToPool(poolId: number) {
   }, [isPending, isConfirming, isSuccess, error]);
   
   return {
-    deposit: (amount: string) => {
+    deposit: (depositPoolId: number, amount: string) => {
       try {
+        const targetPoolId = depositPoolId || poolId;
+        if (!targetPoolId) {
+          toast.error('Pool ID is required');
+          return;
+        }
         const parsedAmount = parseUnits(amount, USDC_DECIMALS);
         writeContract({
           address: addresses.liquidityPoolManagerProxy as `0x${string}`,
           abi: LiquidityPoolManagerABI.abi,
           functionName: 'depositToPool',
-          args: [BigInt(poolId), parsedAmount]
+          args: [BigInt(targetPoolId), parsedAmount]
         });
       } catch (err) {
         console.error('Error parsing deposit amount:', err);
@@ -140,10 +247,10 @@ export function useDepositToPool(poolId: number) {
 }
 
 // Hook to redeem from a pool
-export function useRedeemFromPool(poolId: number) {
+export function useRedeemFromPool() {
   const addresses = useContractAddresses();
   
-  const { writeContract, data: hash, isPending, error, status } = useContractWrite();
+  const { writeContract, data: hash, isPending, error, status } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -162,7 +269,7 @@ export function useRedeemFromPool(poolId: number) {
   }, [isPending, isConfirming, isSuccess, error]);
   
   return {
-    redeem: (shares: string) => {
+    redeem: (poolId: number, shares: string) => {
       try {
         const parsedShares = BigInt(shares);
         writeContract({
@@ -186,7 +293,7 @@ export function useRedeemFromPool(poolId: number) {
 export function usePoolLoanRecord(poolId: number, projectId: number) {
   const addresses = useContractAddresses();
   
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: addresses.liquidityPoolManagerProxy as `0x${string}`,
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'getPoolLoanRecord',

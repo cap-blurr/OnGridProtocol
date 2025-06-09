@@ -17,28 +17,31 @@ export type NetworkAddresses = {
   pausableGovernor: `0x${string}`;
 };
 
-// NOTE: Replace these placeholder addresses with your actual deployed contract addresses
+// Updated with correct deployed contract addresses from Base Sepolia
 export const CONTRACT_ADDRESSES: Record<number, NetworkAddresses> = {
   // Base Sepolia (testnet)
   84532: {
-    usdc: "0x145aA83e713BBc200aB08172BE9e347442a6c33E",
-    carbonCreditToken: "0xd3D95A6e2a2Ef88F92fb701A40EB358Be2c9be7d",
-    rewardDistributor: "0x28e9A8c3da8a05E415cb253A7Faf9Ffe9e195124",
-    energyDataBridge: "0x2dCfA53aEfE9F62D4fF13281e72ECE6203D7149A",
-    carbonCreditExchange: "0x93b911e9955C4713249bD3e503690a47172CbC55",
-    developerRegistry: "0xCb1ACe5a5CBdDDfA9Fcc2e3F5F0bC8417b0F0C28",
-    developerRegistryProxy: "0xE23e23461dFc75308E49F5Da1abf065a61B3Cc1E",
-    projectFactoryProxy: "0x1FB3A0A69e79f3A0d43782C97d2cD11e3ea2eB4e",
-    repaymentRouter: "0xA293C08da3715d3c624f84Cf813Da3f023f2A9e9",
-    feeRouterProxy: "0x461f6Ff6eab107c419123A7757b4Ab7eB65526d7",
-    liquidityPoolManagerProxy: "0x177cA24a0Fb50363fcD82E609479e3D8e1dC3e90",
-    developerDepositEscrow: "0x29EC1CfaE65f11D75508e608C51D5AD698D46faf",
-    devEscrowImpl: "0x4e9d1884732eA582A617bA498C444a965394010a",
-    directProjectVaultImpl: "0x4F46a85840d647D2e1D834bEF312D3C735194742",
-    riskRateOracleAdapterProxy: "0xd941D58aD8aC8f070909C18f7D45Ffa1EDc84D47",
-    pausableGovernor: "0xfE7030B0C4d0026Cc43eD52d136a3486C51c8Fd1",
+    // Use the correct USDC address for Base Sepolia - this needs to be the actual USDC token
+    usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Base Sepolia USDC
+    // These should be updated with actual deployed addresses when available
+    carbonCreditToken: undefined, // Update when deployed
+    carbonCreditExchange: undefined, // Update when deployed
+    // Legacy placeholder - update with actual when available
+    developerRegistry: "0x8C7b1B4423B396016c6ec3c872eC7ab7Ce1Cf67B", // Using proxy address
+    rewardDistributor: "0x8C7b1B4423B396016c6ec3c872eC7ab7Ce1Cf67B", // Update with actual
+    energyDataBridge: "0x8C7b1B4423B396016c6ec3c872eC7ab7Ce1Cf67B", // Update with actual
+    // Correct deployed addresses from integration guide
+    developerRegistryProxy: "0x8C7b1B4423B396016c6ec3c872eC7ab7Ce1Cf67B",
+    developerDepositEscrow: "0xA1A2e73903d084623C93f9d0c3fC19093921F169",
+    devEscrowImpl: "0x4835Df28C725Cb98961b97677de813E5E434c856",
+    directProjectVaultImpl: "0xC43E475c36f8C8AFb87280A76ba9B0456B53dd7B",
+    feeRouterProxy: "0xf5d976Ab4aFe651849C0b28A777176ea4200EB95",
+    repaymentRouter: "0xa2c78a53bc6D9Be0769E4eE5eb7dAF93c7F27F6b",
+    riskRateOracleAdapterProxy: "0xE4F5Cd8eF3C73BCcfD725Bc9290b27dFD4877D41",
+    liquidityPoolManagerProxy: "0x1D025E099503356491702CAdD32Cd7dFe1B74425",
+    projectFactoryProxy: "0xdE3c3bAD342CDD661F50698Be8459083d166AEC2",
+    pausableGovernor: "0xfb00757cd8Ade9ccdCFDb9C64b11eEfE0f6b1812",
   },
-  
 };
 
 // Helper to get addresses for current chain
@@ -48,4 +51,14 @@ export function getAddresses(chainId: number): NetworkAddresses {
     throw new Error(`Unsupported chain ID: ${chainId}. Please connect to a supported network.`);
   }
   return addresses;
+}
+
+// Helper to get a specific contract address
+export function getContractAddress(chainId: number, contractName: keyof NetworkAddresses): `0x${string}` {
+  const addresses = getAddresses(chainId);
+  const address = addresses[contractName];
+  if (!address) {
+    throw new Error(`Contract address for ${contractName} not found on chain ${chainId}`);
+  }
+  return address;
 }

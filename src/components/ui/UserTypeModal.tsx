@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UserType } from '@/providers/userType';
 import { TrendingUp, LayoutGrid } from 'lucide-react';
@@ -47,6 +47,10 @@ export default function UserTypeModal({ isOpen, onSelectUserType }: UserTypeModa
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="bg-black/95 backdrop-blur-md border border-oga-green/30 text-white max-w-sm w-full mx-4 p-6 rounded-xl">
+        <DialogTitle className="text-xl font-semibold mb-4 text-center">
+          Select User Type
+        </DialogTitle>
+        
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r from-oga-green to-oga-yellow flex items-center justify-center">

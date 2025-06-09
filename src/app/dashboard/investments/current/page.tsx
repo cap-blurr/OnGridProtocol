@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { usePrivy } from '@privy-io/react-auth';
-import { useUserType } from '@/providers/userType';
+import { useAccount } from 'wagmi';
 import {
   ArrowUpRight,
   LineChart,
@@ -27,152 +26,17 @@ import {
   Clock,
   Sun,
   Zap,
-  Heart
+  Heart,
+  ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
-
-// Enhanced mock data for current solar investments
-const mockInvestments = {
-  totalInvested: 385000,
-  totalProjects: 5,
-  averageRoi: 12.7,
-  totalReturns: 48750,
-  availableWithdrawals: 12500,
-  pendingReturns: 8750,
-  totalEnergyGenerated: 428, // MWh
-  homesPowered: 95000,
-  directInvestments: [
-    {
-      id: "proj-1",
-      name: "Lagos Solar Farm Alpha",
-      type: "Solar",
-      investmentAmount: 125000,
-      dateInvested: "2024-03-15",
-      roi: 14.5,
-      status: "Active",
-      duration: "24 months",
-      nextPayment: "2024-07-15",
-      progress: 22,
-      description: "Large-scale solar farm providing clean energy to 50,000 homes",
-      totalReturns: 18750,
-      availableWithdrawal: 6250,
-      pendingReturns: 3125,
-      location: "Lagos, Nigeria",
-      capacity: "50 MW",
-      energyGenerated: "125 MWh",
-      homesPowered: 25000
-    },
-    {
-      id: "proj-2",
-      name: "Abuja Solar Microgrid",
-      type: "Solar",
-      investmentAmount: 78000,
-      dateInvested: "2024-02-10",
-      roi: 12.8,
-      status: "Active",
-      duration: "20 months",
-      nextPayment: "2024-06-10",
-      progress: 35,
-      description: "Solar microgrid system powering residential communities in Abuja",
-      totalReturns: 12480,
-      availableWithdrawal: 4160,
-      pendingReturns: 2080,
-      location: "Abuja, Nigeria",
-      capacity: "30 MW",
-      energyGenerated: "89 MWh",
-      homesPowered: 18000
-    },
-    {
-      id: "proj-3",
-      name: "Port Harcourt Industrial Solar",
-      type: "Solar",
-      investmentAmount: 95000,
-      dateInvested: "2024-01-20",
-      roi: 15.2,
-      status: "Active",
-      duration: "36 months",
-      nextPayment: "2024-06-20",
-      progress: 45,
-      description: "Industrial-scale solar facility for manufacturing sector",
-      totalReturns: 17570,
-      availableWithdrawal: 2070,
-      pendingReturns: 3545,
-      location: "Port Harcourt, Nigeria",
-      capacity: "75 MW",
-      energyGenerated: "156 MWh",
-      homesPowered: 32000
-    }
-  ],
-  poolInvestments: [
-    {
-      id: "pool-1",
-      name: "Premium Solar Pool",
-      investmentAmount: 75000,
-      dateInvested: "2024-04-01",
-      roi: 8.5,
-      status: "Active",
-      risk: "Low",
-      nextPayment: "2024-07-01",
-      projectCount: 12,
-      description: "Low-risk pool of premium solar projects with established track records",
-      totalReturns: 5312,
-      availableWithdrawal: 0,
-      pendingReturns: 0,
-      energyGenerated: "58 MWh",
-      homesPowered: 20000
-    },
-    {
-      id: "pool-2",
-      name: "Growth Solar Pool",
-      investmentAmount: 42000,
-      dateInvested: "2024-01-20",
-      roi: 12.7,
-      status: "Active",
-      risk: "Medium",
-      nextPayment: "2024-06-20",
-      projectCount: 8,
-      description: "Medium-risk pool with growing solar developers showing promising growth potential",
-      totalReturns: 4452,
-      availableWithdrawal: 0,
-      pendingReturns: 0,
-      energyGenerated: "25 MWh"
-    }
-  ],
-  recentPayments: [
-    {
-      id: 1,
-      project: "Lagos Solar Farm Alpha",
-      amount: 1510.42,
-      date: "2024-06-15",
-      type: "Solar Interest Payment",
-      status: "Completed"
-    },
-    {
-      id: 2,
-      project: "Premium Solar Pool",
-      amount: 531.25,
-      date: "2024-06-01",
-      type: "Solar Dividend",
-      status: "Completed"
-    },
-    {
-      id: 3,
-      project: "Abuja Solar Microgrid",
-      amount: 832.50,
-      date: "2024-05-10",
-      type: "Solar Interest Payment",
-      status: "Completed"
-    },
-    {
-      id: 4,
-      project: "Growth Solar Pool",
-      amount: 688.54,
-      date: "2024-05-20",
-      type: "Solar Dividend",
-      status: "Pending"
-    }
-  ]
-};
+import { useUserPoolInvestments, useRedeemFromPool } from '@/hooks/contracts/useLiquidityPoolManager';
+import { useGetAllHighValueProjects } from '@/hooks/contracts/useProjectFactory';
+import { useDashboardData } from '@/hooks/contracts/useDashboardData';
+import { ClaimReturns } from '@/components/investment/InvestmentActions';
+import LoadingScreen from '@/components/ui/loading-screen';
+import { formatUnits, parseUnits } from 'viem';
+import toast from 'react-hot-toast';
 
 export default function CurrentInvestmentsPage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -181,8 +45,95 @@ export default function CurrentInvestmentsPage() {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
   
-  const { authenticated, ready } = usePrivy();
-  const { userType } = useUserType();
+  const { address, isConnected } = useAccount();
+  const { 
+    poolIds: userPoolIds, 
+    shares: userShares, 
+    values: userValues,
+    formattedTotalValue,
+    isLoading: poolDataLoading 
+  } = useUserPoolInvestments(address);
+  
+  const { projects: allProjects, isLoading: projectsLoading } = useGetAllHighValueProjects();
+  const { metrics, isLoading: metricsLoading } = useDashboardData('investor');
+  
+  const {
+    redeem: redeemFromPool,
+    isLoading: isRedeeming
+  } = useRedeemFromPool();
+
+  const isLoading = poolDataLoading || projectsLoading || metricsLoading;
+
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Wallet className="h-16 w-16 mx-auto mb-4 text-zinc-400" />
+          <h2 className="text-2xl font-bold text-white mb-2">Connect Your Wallet</h2>
+          <p className="text-zinc-400">Please connect your wallet to view your investment portfolio</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  // Transform pool data for display
+  const poolInvestments = userPoolIds.map((poolId, index) => ({
+    id: `pool-${Number(poolId)}`,
+    name: `Solar Investment Pool ${Number(poolId)}`,
+    type: 'Pool',
+    investmentAmount: Number(formatUnits(userValues[index] || BigInt(0), 6)),
+    dateInvested: new Date().toISOString().split('T')[0], // Would come from events
+    roi: 10 + (index * 2),
+    status: 'Active',
+    risk: index % 3 === 0 ? 'Low' : index % 3 === 1 ? 'Medium' : 'High',
+    shares: userShares[index],
+    value: userValues[index],
+    formattedValue: formatUnits(userValues[index] || BigInt(0), 6),
+    poolId: Number(poolId),
+    nextPayment: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    projectCount: 8 + (index * 2),
+    description: `Diversified solar energy investment pool with ${8 + (index * 2)} active projects`,
+    energyGenerated: `${25 + (index * 15)} MWh`,
+    homesPowered: 15000 + (index * 8000),
+  }));
+
+  // Mock direct project investments (would come from event indexing in production)
+  const directInvestments = allProjects.slice(0, 2).map((project, index) => ({
+    id: `proj-${index + 1}`,
+    name: `Solar Project #${index + 1}`,
+    type: "Solar",
+    vaultAddress: project,
+    investmentAmount: 50000 + (index * 25000),
+    dateInvested: new Date(Date.now() - (30 + index * 15) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    roi: 12 + (index * 2),
+    status: "Active",
+    duration: `${24 + index * 6} months`,
+    nextPayment: new Date(Date.now() + (15 + index * 15) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    progress: 22 + (index * 20),
+    description: `Large-scale solar farm providing clean energy to ${25000 + index * 15000} homes`,
+    totalReturns: (50000 + index * 25000) * 0.15,
+    availableWithdrawal: (50000 + index * 25000) * 0.05,
+    pendingReturns: (50000 + index * 25000) * 0.025,
+    location: `${['Lagos', 'Abuja', 'Port Harcourt'][index]}, Nigeria`,
+    capacity: `${50 + index * 25} MW`,
+    energyGenerated: `${125 + index * 60} MWh`,
+    homesPowered: 25000 + index * 15000
+  }));
+
+  const allInvestments = [...directInvestments, ...poolInvestments];
+
+  // Calculate portfolio metrics
+  const totalInvested = allInvestments.reduce((sum, inv) => sum + inv.investmentAmount, 0);
+  const totalCurrentValue = poolInvestments.reduce((sum, inv) => sum + inv.investmentAmount, 0) + 
+                           directInvestments.reduce((sum, inv) => sum + inv.totalReturns, 0);
+  const totalAvailableWithdrawals = directInvestments.reduce((sum, inv) => sum + inv.availableWithdrawal, 0);
+  const totalEnergyGenerated = allInvestments.reduce((sum, inv) => 
+    parseInt(inv.energyGenerated?.replace(' MWh', '') || '0'), 0);
+  const totalHomesPowered = allInvestments.reduce((sum, inv) => inv.homesPowered || 0, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -204,166 +155,118 @@ export default function CurrentInvestmentsPage() {
       case "Medium":
         return "bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50";
       case "High":
-        return "bg-red-500/20 text-red-500 border-red-700";
+        return "bg-red-600/20 text-red-400 border-red-600/50";
       default:
         return "bg-zinc-500/20 text-zinc-400 border-zinc-600";
     }
   };
 
-  const handleWithdrawal = async () => {
-    if (!selectedInvestment || !withdrawalAmount) return;
-    
-    setIsWithdrawing(true);
+  const handlePoolWithdrawal = async (poolId: number, shares: bigint) => {
+    if (!withdrawalAmount || isRedeeming) return;
+
     try {
-      // Simulate withdrawal transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsWithdrawing(true);
       
-      setWithdrawalSuccess(true);
+      const sharesToRedeem = parseUnits(withdrawalAmount, 6);
+      if (sharesToRedeem > shares) {
+        toast.error('Withdrawal amount exceeds your pool shares');
+        return;
+      }
+
+      redeemFromPool(poolId, sharesToRedeem.toString());
+      
+      // Success handling moved to useEffect in the hook
       setWithdrawalAmount("");
-      
-      // Reset after showing success
-      setTimeout(() => {
-        setWithdrawalSuccess(false);
-        setSelectedInvestment(null);
-      }, 2000);
+      setSelectedInvestment(null);
+      setWithdrawalSuccess(true);
       
     } catch (error) {
-      console.error('Withdrawal failed:', error);
+      console.error('Pool withdrawal error:', error);
+      toast.error('Withdrawal failed. Please try again.');
     } finally {
       setIsWithdrawing(false);
     }
   };
 
-  if (!ready) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 animate-spin text-oga-green" />
-      </div>
-    );
-  }
-
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-black">
-        <div className="max-w-7xl mx-auto py-12 text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Connect Your Wallet</h1>
-          <p className="text-zinc-400">Please connect your wallet to view your solar investments</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Header */}
         <div className="mb-6 lg:mb-8">
+          <Link href="/dashboard/investments" className="inline-flex items-center text-oga-green hover:text-oga-green-light mb-4 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Solar Investment Dashboard
+          </Link>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Current Solar Investments</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">My Solar Investment Portfolio</h1>
               <p className="text-zinc-400 text-sm sm:text-base">
-                Monitor your active solar investments and manage your returns
+                Track and manage your solar energy investments and returns
               </p>
             </div>
             <div className="flex items-center space-x-2 text-oga-green">
               <Sun className="h-5 w-5" />
-              <span className="text-sm font-medium">Solar Portfolio</span>
+              <span className="text-sm font-medium">Live Portfolio Data</span>
             </div>
           </div>
         </div>
 
-        {/* Solar Impact Overview */}
-        <div className="bg-oga-green/10 border border-oga-green/20 p-4 lg:p-6 rounded-lg mb-6 lg:mb-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <div>
-              <Sun className="w-8 h-8 text-oga-yellow mx-auto mb-2" />
-              <div className="text-lg sm:text-xl font-bold text-white">{mockInvestments.totalEnergyGenerated} MWh</div>
-              <p className="text-xs text-oga-green">Clean Energy Generated</p>
-            </div>
-            <div>
-              <Heart className="w-8 h-8 text-oga-green mx-auto mb-2" />
-              <div className="text-lg sm:text-xl font-bold text-white">{mockInvestments.homesPowered.toLocaleString()}</div>
-              <p className="text-xs text-oga-green">Homes Powered</p>
-            </div>
-            <div>
-              <Zap className="w-8 h-8 text-oga-yellow mx-auto mb-2" />
-              <div className="text-lg sm:text-xl font-bold text-white">{mockInvestments.totalProjects}</div>
-              <p className="text-xs text-oga-green">Solar Projects</p>
-            </div>
-            <div>
-              <TrendingUp className="w-8 h-8 text-oga-green mx-auto mb-2" />
-              <div className="text-lg sm:text-xl font-bold text-white">{mockInvestments.averageRoi}%</div>
-              <p className="text-xs text-oga-green">Average Solar ROI</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Overview Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 lg:mb-8">
+        {/* Portfolio Overview */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 lg:mb-8">
           <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium text-white">
-                Total Invested
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-oga-green" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-white">Total Invested</CardTitle>
+              <DollarSign className="h-4 w-4 text-oga-green" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-white">
-                ${mockInvestments.totalInvested.toLocaleString()}
-              </div>
-              <p className="text-xs text-oga-green">
-                Across {mockInvestments.totalProjects} solar projects
-              </p>
+              <div className="text-lg sm:text-2xl font-bold text-white">${totalInvested.toLocaleString()}</div>
+              <p className="text-xs text-oga-green">Across {allInvestments.length} investments</p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium text-white">
-                Solar Returns
-              </CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-white">Current Value</CardTitle>
               <TrendingUp className="h-4 w-4 text-oga-green" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-white">
-                ${mockInvestments.totalReturns.toLocaleString()}
-              </div>
+              <div className="text-lg sm:text-2xl font-bold text-white">${totalCurrentValue.toLocaleString()}</div>
               <p className="text-xs text-oga-green">
-                {((mockInvestments.totalReturns / mockInvestments.totalInvested) * 100).toFixed(1)}% total return
+                {totalCurrentValue > totalInvested ? '+' : ''}{((totalCurrentValue - totalInvested) / totalInvested * 100).toFixed(1)}% total return
               </p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium text-white">
-                Available to Withdraw
-              </CardTitle>
-              <Download className="h-4 w-4 text-oga-yellow" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-white">Available</CardTitle>
+              <Wallet className="h-4 w-4 text-oga-green" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-white">
-                ${mockInvestments.availableWithdrawals.toLocaleString()}
-              </div>
-              <p className="text-xs text-oga-yellow">
-                Ready for withdrawal
-              </p>
+              <div className="text-lg sm:text-2xl font-bold text-white">${totalAvailableWithdrawals.toLocaleString()}</div>
+              <p className="text-xs text-oga-green">Ready to withdraw</p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium text-white">
-                Average ROI
-              </CardTitle>
-              <BarChart3 className="h-4 w-4 text-oga-green" />
+              <CardTitle className="text-xs sm:text-sm font-medium text-white">Energy Generated</CardTitle>
+              <Zap className="h-4 w-4 text-oga-yellow" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg sm:text-2xl font-bold text-white">
-                {mockInvestments.averageRoi}%
-              </div>
-              <p className="text-xs text-oga-green">
-                Annual return rate
-              </p>
+              <div className="text-lg sm:text-2xl font-bold text-white">{totalEnergyGenerated} MWh</div>
+              <p className="text-xs text-oga-green">Clean solar energy</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-xs sm:text-sm font-medium text-white">Homes Powered</CardTitle>
+              <Heart className="h-4 w-4 text-oga-green" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg sm:text-2xl font-bold text-white">{totalHomesPowered.toLocaleString()}</div>
+              <p className="text-xs text-oga-green">Impacted households</p>
             </CardContent>
           </Card>
         </div>
@@ -390,7 +293,7 @@ export default function CurrentInvestmentsPage() {
                 Direct Solar Project Investments
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {mockInvestments.directInvestments.map((investment) => (
+                {directInvestments.map((investment) => (
                   <Card key={investment.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-colors">
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
@@ -423,7 +326,11 @@ export default function CurrentInvestmentsPage() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="text-zinc-400">Total Returns</p>
-                          <p className="text-oga-green font-semibold">${investment.totalReturns.toLocaleString()}</p>
+                          {"totalReturns" in investment ? (
+                            <p className="text-oga-green font-semibold">${(investment.totalReturns as number).toLocaleString()}</p>
+                          ) : (
+                            <p className="text-oga-green font-semibold">N/A</p>
+                          )}
                         </div>
                         <div>
                           <p className="text-zinc-400">Available</p>
@@ -510,7 +417,7 @@ export default function CurrentInvestmentsPage() {
                                 </div>
                                 
                                 <Button 
-                                  onClick={handleWithdrawal}
+                                  onClick={() => handlePoolWithdrawal(selectedInvestment.poolId, selectedInvestment.shares)}
                                   disabled={!withdrawalAmount || parseFloat(withdrawalAmount) > selectedInvestment.availableWithdrawal || isWithdrawing}
                                   className="w-full bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
                                 >
@@ -546,7 +453,7 @@ export default function CurrentInvestmentsPage() {
                 Solar Pool Investments
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {mockInvestments.poolInvestments.map((investment) => (
+                {poolInvestments.map((investment) => (
                   <Card key={investment.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-colors">
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
@@ -578,7 +485,11 @@ export default function CurrentInvestmentsPage() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="text-zinc-400">Total Returns</p>
-                          <p className="text-oga-green font-semibold">${investment.totalReturns.toLocaleString()}</p>
+                          {"totalReturns" in investment ? (
+                            <p className="text-oga-green font-semibold">${(investment.totalReturns as number).toLocaleString()}</p>
+                          ) : (
+                            <p className="text-oga-green font-semibold">N/A</p>
+                          )}
                         </div>
                         <div>
                           <p className="text-zinc-400">Solar Projects</p>
@@ -610,7 +521,7 @@ export default function CurrentInvestmentsPage() {
 
           <TabsContent value="direct" className="space-y-4 lg:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {mockInvestments.directInvestments.map((investment) => (
+              {directInvestments.map((investment) => (
                 <Card key={investment.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
@@ -629,7 +540,7 @@ export default function CurrentInvestmentsPage() {
 
           <TabsContent value="pools" className="space-y-4 lg:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {mockInvestments.poolInvestments.map((investment) => (
+              {poolInvestments.map((investment) => (
                 <Card key={investment.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">

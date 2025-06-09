@@ -13,34 +13,22 @@ const fetchSolarProjects = async (): Promise<SolarProjectData[]> => {
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1000)); 
   
-  // Return mock data for solar projects
-  return [
-    {
-      id: 'solar1',
-      name: 'Project Helios - Solar Farm Alpha',
-      description: 'A large-scale solar energy generation project aiming to power 10,000 homes across rural communities in northern Nigeria.',
-      vaultAddress: '0xVaultAddressHelios123', // Replace with actual deployed vault address for testing
-      location: 'Nigeria',
-      capacity: '50 MW'
-    },
-    {
-      id: 'solar2',
-      name: 'Solar Microgrid Kenya',
-      description: 'Distributed solar microgrid system providing clean energy access to off-grid communities in rural Kenya.',
-      vaultAddress: '0xVaultAddressSolarKenya456', // Replace with actual deployed vault address for testing
-      location: 'Kenya',
-      capacity: '25 MW'
-    },
-    {
-      id: 'solar3',
-      name: 'Rooftop Solar Ghana',
-      description: 'Commercial and residential rooftop solar installations across major cities in Ghana, reducing grid dependency.',
-      vaultAddress: '0xVaultAddressSolarGhana789', // Replace with actual deployed vault address for testing
-      location: 'Ghana',
-      capacity: '15 MW'
-    },
-    // Add more mock solar projects if needed, each with a unique, valid vaultAddress for on-chain interaction
-  ];
+  // For demo purposes, return empty array since we don't have actual deployed vault addresses
+  // In production, this would fetch real vault addresses from ProjectCreated events
+  return [];
+  
+  // When you have actual vault addresses from deployed contracts, replace them here:
+  // return [
+  //   {
+  //     id: 'solar1',
+  //     name: 'Project Helios - Solar Farm Alpha',
+  //     description: 'A large-scale solar energy generation project aiming to power 10,000 homes across rural communities in northern Nigeria.',
+  //     vaultAddress: '0x...' as `0x${string}`, // Replace with actual deployed vault address
+  //     location: 'Nigeria',
+  //     capacity: '50 MW'
+  //   },
+  //   // ... more projects with real addresses
+  // ];
 };
 
 export default function DirectProjectInvestmentList() {

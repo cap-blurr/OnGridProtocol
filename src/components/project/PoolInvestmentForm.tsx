@@ -128,7 +128,7 @@ export default function PoolInvestmentForm({
       return;
     }
     
-    deposit(investmentAmount);
+    deposit(poolId, investmentAmount);
   };
 
   // Reset the form to start over

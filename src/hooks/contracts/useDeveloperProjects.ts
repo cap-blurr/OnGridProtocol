@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient, useReadContract } from 'wagmi';
 import { Abi, Log, formatUnits, parseAbiItem, GetLogsReturnType } from 'viem';
 import { getAddresses, NetworkAddresses } from '@/contracts/addresses';
 import ProjectFactoryABIFile from '@/contracts/abis/ProjectFactory.json';
 import DirectProjectVaultABIFile from '@/contracts/abis/DirectProjectVault.json';
 import { USDC_DECIMALS } from './useUSDC'; // Assuming USDC_DECIMALS is exported or accessible
+import { useContractAddresses } from './useDeveloperRegistry';
+import { useUserProjects, useProjectStates } from './useProjectFactory';
+import { useGetProjectPaymentSummary } from './useRepaymentRouter';
+import { useGetNextPaymentInfo } from './useFeeRouter';
+import { useGetDeveloperInfo } from './useDeveloperRegistry';
 
 const projectFactoryAbi = ProjectFactoryABIFile.abi as Abi;
 const directProjectVaultAbi = DirectProjectVaultABIFile.abi as Abi;
@@ -239,4 +244,158 @@ export function useDeveloperProjects() {
   }, [developerAddress, publicClient, currentAddresses, fetchProjects]); 
 
   return { projects, isLoading, error, refetchProjects: fetchProjects };
+} 
+
+// Hook to get all developer's projects with comprehensive data
+export function useGetDeveloperProjects(developerAddress?: `0x${string}`) {
+  const { data: developerInfo } = useGetDeveloperInfo(developerAddress);
+  const [projects, setProjects] = useState<Array<{
+    projectId: number;
+    state: number;
+    paymentSummary: any;
+    nextPayment: any;
+  }>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!developerInfo || !developerAddress) return;
+
+    const fetchAllProjects = async () => {
+      setIsLoading(true);
+      // Note: Developer info structure may vary based on actual contract
+      // For now, using a fallback approach
+      const projectCount = Number((developerInfo as any)?.timesFunded) || 0;
+      const projectPromises = [];
+
+      for (let i = 0; i < projectCount; i++) {
+        projectPromises.push(fetchProjectData(developerAddress, i));
+      }
+
+      try {
+        const projectsData = await Promise.all(projectPromises);
+        setProjects(projectsData.filter(p => p !== null));
+      } catch (error) {
+        console.error('Error fetching developer projects:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllProjects();
+  }, [developerInfo, developerAddress]);
+
+  return {
+    projects,
+    totalProjects: projects.length,
+    activeProjects: projects.filter(p => p.state === 1).length, // Assuming state 1 is active
+    completedProjects: projects.filter(p => p.state === 2).length, // Assuming state 2 is completed
+    isLoading,
+  };
+}
+
+// Helper function to fetch individual project data
+async function fetchProjectData(developerAddress: `0x${string}`, index: number) {
+  try {
+    // This would need to be implemented with proper async contract calls
+    // For now, returning a placeholder structure
+    return {
+      projectId: index,
+      state: 1, // Placeholder
+      paymentSummary: null,
+      nextPayment: null,
+    };
+  } catch (error) {
+    console.error(`Error fetching project ${index}:`, error);
+    return null;
+  }
+}
+
+// Hook to get developer's project statistics
+export function useDeveloperProjectStats(developerAddress?: `0x${string}`) {
+  const { projects, isLoading } = useGetDeveloperProjects(developerAddress);
+
+  const stats = {
+    totalProjects: projects.length,
+    activeProjects: projects.filter(p => p.state === 1).length,
+    completedProjects: projects.filter(p => p.state === 2).length,
+    pendingProjects: projects.filter(p => p.state === 0).length,
+    totalRepayments: projects.reduce((sum, p) => {
+      return sum + (Number(p.paymentSummary?.formattedTotalRepaid) || 0);
+    }, 0),
+    averageProjectSize: projects.length > 0 ? 
+      projects.reduce((sum, p) => sum + (p.paymentSummary?.loanAmount || 0), 0) / projects.length : 0,
+  };
+
+  return {
+    ...stats,
+    isLoading,
+  };
+}
+
+// Hook to get developer's upcoming payments
+export function useDeveloperUpcomingPayments(developerAddress?: `0x${string}`) {
+  const { projects, isLoading } = useGetDeveloperProjects(developerAddress);
+
+  const upcomingPayments = projects
+    .filter(p => p.nextPayment && p.nextPayment.amount > 0)
+    .map(p => ({
+      projectId: p.projectId,
+      dueDate: p.nextPayment.dueDateTimestamp,
+      amount: p.nextPayment.formattedAmount,
+      isDue: p.nextPayment.isDue,
+      daysUntilDue: p.nextPayment.daysUntilDue,
+    }))
+    .sort((a, b) => a.dueDate - b.dueDate);
+
+  const totalUpcoming = upcomingPayments.reduce((sum, payment) => 
+    sum + parseFloat(payment.amount), 0
+  );
+
+  const overdue = upcomingPayments.filter(p => p.isDue);
+
+  return {
+    upcomingPayments,
+    totalUpcoming: totalUpcoming.toFixed(6),
+    overduePayments: overdue,
+    totalOverdue: overdue.reduce((sum, p) => sum + parseFloat(p.amount), 0).toFixed(6),
+    nextPaymentDue: upcomingPayments[0] || null,
+    isLoading,
+  };
+}
+
+// Hook to get developer's repayment history
+export function useDeveloperRepaymentHistory(developerAddress?: `0x${string}`) {
+  const { projects, isLoading } = useGetDeveloperProjects(developerAddress);
+
+  const repaymentHistory = projects
+    .filter(p => p.paymentSummary && p.paymentSummary.paymentCount > 0)
+    .map(p => ({
+      projectId: p.projectId,
+      totalRepaid: p.paymentSummary.formattedTotalRepaid,
+      lastPayment: p.paymentSummary.lastPaymentTimestamp,
+      paymentCount: p.paymentSummary.formattedPaymentCount,
+    }))
+    .sort((a, b) => b.lastPayment - a.lastPayment);
+
+  const totalRepaid = repaymentHistory.reduce((sum, history) => 
+    sum + parseFloat(history.totalRepaid), 0
+  );
+
+  return {
+    repaymentHistory,
+    totalRepaid: totalRepaid.toFixed(6),
+    totalPayments: repaymentHistory.reduce((sum, h) => sum + h.paymentCount, 0),
+    lastPaymentDate: repaymentHistory[0]?.lastPayment || 0,
+    isLoading,
+  };
+}
+
+// Comprehensive hook collection for developer project management
+export function useDeveloperProjectsCollection() {
+  return {
+    useGetDeveloperProjects,
+    useDeveloperProjectStats,
+    useDeveloperUpcomingPayments,
+    useDeveloperRepaymentHistory,
+  };
 } 

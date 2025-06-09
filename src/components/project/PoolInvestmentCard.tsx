@@ -39,7 +39,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   const { shares: userShares, isLoading: isLoadingUserShares,}
     = useUserShares(poolId, userAddress);
   const { redeem, isLoading: isRedeeming, isSuccess: isRedeemSuccess, error: redeemError }
-    = useRedeemFromPool(poolId);
+    = useRedeemFromPool();
   
   const [depositAmount, setDepositAmount] = useState('');
   const [redeemSharesAmount, setRedeemSharesAmount] = useState('');
@@ -90,7 +90,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
       toast.error('Please enter a valid deposit amount.');
       return;
     }
-    deposit(depositAmount);
+    deposit(poolId, depositAmount);
   };
 
   const handleRedeem = () => {
@@ -102,7 +102,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
       toast.error('You do not have enough shares to redeem this amount.');
       return;
     }
-    redeem(redeemSharesAmount);
+    redeem(poolId, redeemSharesAmount);
   };
   
   const previewAssetsOnRedeem = () => {

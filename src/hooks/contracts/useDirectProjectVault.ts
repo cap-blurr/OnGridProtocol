@@ -1,14 +1,14 @@
-import { useContractRead, useContractWrite, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect } from 'react';
-import { formatUnits, parseUnits } from 'ethers';
+import { formatUnits, parseUnits } from 'viem';
 import toast from 'react-hot-toast';
 import DirectProjectVaultABI from '@/contracts/abis/DirectProjectVault.json';
 import { USDC_DECIMALS } from './useUSDC';
 
 // Hook to get vault details
 export function useVaultDetails(vaultAddress?: `0x${string}`) {
-  const { data: loanAmount, isLoading: isLoadingLoanAmount, error: loanAmountError } = useContractRead({
+  const { data: loanAmount, isLoading: isLoadingLoanAmount, error: loanAmountError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getLoanAmount',
@@ -17,7 +17,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: totalAssetsInvested, isLoading: isLoadingTotalAssets, error: totalAssetsError } = useContractRead({
+  const { data: totalAssetsInvested, isLoading: isLoadingTotalAssets, error: totalAssetsError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getTotalAssetsInvested',
@@ -26,7 +26,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: isFundingClosed, isLoading: isLoadingFundingClosed, error: fundingClosedError } = useContractRead({
+  const { data: isFundingClosed, isLoading: isLoadingFundingClosed, error: fundingClosedError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'isFundingClosed',
@@ -35,7 +35,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: currentAprBps, isLoading: isLoadingApr, error: aprError } = useContractRead({
+  const { data: currentAprBps, isLoading: isLoadingApr, error: aprError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'getCurrentAprBps',
@@ -44,7 +44,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: developer, isLoading: isLoadingDeveloper, error: developerError } = useContractRead({
+  const { data: developer, isLoading: isLoadingDeveloper, error: developerError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'developer',
@@ -53,7 +53,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: projectId, isLoading: isLoadingProjectId, error: projectIdError } = useContractRead({
+  const { data: projectId, isLoading: isLoadingProjectId, error: projectIdError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'projectId',
@@ -62,7 +62,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: loanTenor, isLoading: isLoadingLoanTenor, error: loanTenorError } = useContractRead({
+  const { data: loanTenor, isLoading: isLoadingLoanTenor, error: loanTenorError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'loanTenor',
@@ -71,7 +71,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
     },
   });
   
-  const { data: loanStartTime, isLoading: isLoadingLoanStart, error: loanStartError } = useContractRead({
+  const { data: loanStartTime, isLoading: isLoadingLoanStart, error: loanStartError } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'loanStartTime',
@@ -114,7 +114,7 @@ export function useVaultDetails(vaultAddress?: `0x${string}`) {
 
 // Hook to get investor's shares in the vault
 export function useInvestorShares(vaultAddress?: `0x${string}`, investorAddress?: `0x${string}`) {
-  const { data, isLoading, error } = useContractRead({
+  const { data, isLoading, error } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'investorShares',
@@ -133,7 +133,7 @@ export function useInvestorShares(vaultAddress?: `0x${string}`, investorAddress?
 
 // Hook to get investor's claimable amounts
 export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddress?: `0x${string}`) {
-  const { data: claimablePrincipal, isLoading: isLoadingPrincipal, refetch: refetchPrincipal } = useContractRead({
+  const { data: claimablePrincipal, isLoading: isLoadingPrincipal, refetch: refetchPrincipal } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'claimablePrincipal',
@@ -143,7 +143,7 @@ export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddres
     },
   });
   
-  const { data: claimableYield, isLoading: isLoadingYield, refetch: refetchYield } = useContractRead({
+  const { data: claimableYield, isLoading: isLoadingYield, refetch: refetchYield } = useReadContract({
     address: vaultAddress,
     abi: DirectProjectVaultABI.abi,
     functionName: 'claimableYield',
@@ -170,7 +170,7 @@ export function useClaimableAmounts(vaultAddress?: `0x${string}`, investorAddres
 
 // Hook to invest in a vault
 export function useInvestInVault(vaultAddress?: `0x${string}`) {
-  const { writeContract, data: hash, isPending, error } = useContractWrite();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -216,7 +216,7 @@ export function useInvestInVault(vaultAddress?: `0x${string}`) {
 
 // Hook to claim principal from a vault
 export function useClaimPrincipal(vaultAddress?: `0x${string}`) {
-  const { writeContract, data: hash, isPending, error } = useContractWrite();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -255,7 +255,7 @@ export function useClaimPrincipal(vaultAddress?: `0x${string}`) {
 
 // Hook to claim yield from a vault
 export function useClaimYield(vaultAddress?: `0x${string}`) {
-  const { writeContract, data: hash, isPending, error } = useContractWrite();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -294,7 +294,7 @@ export function useClaimYield(vaultAddress?: `0x${string}`) {
 
 // Hook to redeem (claim both principal and yield) from a vault
 export function useRedeem(vaultAddress?: `0x${string}`) {
-  const { writeContract, data: hash, isPending, error } = useContractWrite();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -327,6 +327,77 @@ export function useRedeem(vaultAddress?: `0x${string}`) {
     },
     isLoading: isPending || isConfirming,
     isSuccess,
+    error
+  };
+}
+
+// Hook to get project summary
+export function useProjectSummary(vaultAddress?: `0x${string}`) {
+  const { data, isLoading, error } = useReadContract({
+    address: vaultAddress,
+    abi: DirectProjectVaultABI.abi,
+    functionName: 'getProjectSummary',
+    chainId: 84532,
+    query: {
+      enabled: !!vaultAddress,
+    },
+  });
+  
+  const summary = data as {
+    state: number;
+    fundingProgress: number;
+    timeRemaining: bigint;
+    totalReturn: bigint;
+  } | undefined;
+  
+  return {
+    state: summary?.state || 0,
+    fundingProgress: summary?.fundingProgress || 0,
+    fundingProgressPercentage: summary?.fundingProgress ? Number(summary.fundingProgress) / 100 : 0,
+    timeRemaining: summary?.timeRemaining || BigInt(0),
+    timeRemainingSeconds: summary?.timeRemaining ? Number(summary.timeRemaining) : 0,
+    totalReturn: summary?.totalReturn || BigInt(0),
+    formattedTotalReturn: summary?.totalReturn ? formatUnits(summary.totalReturn, USDC_DECIMALS) : '0',
+    isLoading,
+    error
+  };
+}
+
+// Hook to get investor details
+export function useInvestorDetails(vaultAddress?: `0x${string}`, investorAddress?: `0x${string}`) {
+  const { data, isLoading, error } = useReadContract({
+    address: vaultAddress,
+    abi: DirectProjectVaultABI.abi,
+    functionName: 'getInvestorDetails',
+    args: investorAddress ? [investorAddress] : undefined,
+    chainId: 84532,
+    query: {
+      enabled: !!vaultAddress && !!investorAddress,
+    },
+  });
+  
+  const details = data as {
+    shares: bigint;
+    principalClaimed: bigint;
+    interestClaimed: bigint;
+    claimablePrincipalAmount: bigint;
+    claimableInterestAmount: bigint;
+  } | undefined;
+  
+  return {
+    shares: details?.shares || BigInt(0),
+    principalClaimed: details?.principalClaimed || BigInt(0),
+    interestClaimed: details?.interestClaimed || BigInt(0),
+    claimablePrincipalAmount: details?.claimablePrincipalAmount || BigInt(0),
+    claimableInterestAmount: details?.claimableInterestAmount || BigInt(0),
+    formattedShares: details?.shares ? formatUnits(details.shares, USDC_DECIMALS) : '0',
+    formattedPrincipalClaimed: details?.principalClaimed ? formatUnits(details.principalClaimed, USDC_DECIMALS) : '0',
+    formattedInterestClaimed: details?.interestClaimed ? formatUnits(details.interestClaimed, USDC_DECIMALS) : '0',
+    formattedClaimablePrincipal: details?.claimablePrincipalAmount ? formatUnits(details.claimablePrincipalAmount, USDC_DECIMALS) : '0',
+    formattedClaimableInterest: details?.claimableInterestAmount ? formatUnits(details.claimableInterestAmount, USDC_DECIMALS) : '0',
+    totalClaimed: details ? details.principalClaimed + details.interestClaimed : BigInt(0),
+    totalClaimable: details ? details.claimablePrincipalAmount + details.claimableInterestAmount : BigInt(0),
+    isLoading,
     error
   };
 } 
