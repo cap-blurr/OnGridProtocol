@@ -6,7 +6,7 @@ import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 import { MobileNav } from "./MobileNav";
 import ConnectButton from "./ConnectButton";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface NavBarProps {
   isHome?: boolean;
@@ -15,6 +15,7 @@ interface NavBarProps {
 export default function Header({ isHome = false }: NavBarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,81 +29,108 @@ export default function Header({ isHome = false }: NavBarProps) {
   // Check if we're on a dashboard page
   const isDashboard = pathname.includes('/dashboard') || pathname.includes('/developer-dashboard');
 
-  return (    <header
+  // Handle navigation to homepage sections
+  const handleSectionNavigation = (section: string) => {
+    // If we're already on the homepage, just scroll
+    if (pathname === '/') {
+      const element = document.getElementById(section);
+      element?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If we're on another page, navigate to homepage then scroll
+      router.push('/?section=' + section);
+    }
+  };
+
+  // Effect to handle scrolling after navigation
+  useEffect(() => {
+    if (pathname === '/' && window.location.search.includes('section=')) {
+      const section = new URLSearchParams(window.location.search).get('section');
+      if (section) {
+        setTimeout(() => {
+          const element = document.getElementById(section);
+          element?.scrollIntoView({ behavior: 'smooth' });
+          // Clean up the URL
+          window.history.replaceState({}, '', '/');
+        }, 100);
+      }
+    }
+  }, [pathname]);
+
+  return (
+    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled || isDashboard
           ? "bg-gray-950 bg-opacity-30 backdrop-blur-lg backdrop-filter h-16"
           : "bg-transparent backdrop-blur-lg backdrop-filter h-16"
       }`}
     >
-      <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between h-full px-5">        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
-        <Image 
-          src="/ongrid-logo.png" 
-          alt="Ongrid-logo" 
-          width={120} 
-          height={48}
-          className="w-20 md:w-28 lg:w-32" 
-        />
+      <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between h-full px-5">
+        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
+          <Image 
+            src="/ongrid-logo.png" 
+            alt="Ongrid-logo" 
+            width={120} 
+            height={48}
+            className="w-20 md:w-28 lg:w-32" 
+          />
         </Link>
         <div className="hidden md:flex space-x-12 text-white md:text-lg">
           {isHome ? (
             <>
               <ScrollLink
-                to={"about"}
+                to="about"
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 About
               </ScrollLink>
               <ScrollLink
-                to={"how-it-works"}
+                to="how-it-works"
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 How It Works
               </ScrollLink>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 Projects
               </Link>
-             
             </>
           ) : (
             <>
-              <Link
-                href="/?#about"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+              <button
+                onClick={() => handleSectionNavigation('about')}
+                className="font-medium cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 About
-              </Link>
-              <Link
-                href="/?#how-it-works"
-                className="hidden md:block font-medium cursor-pointer hover:text-oga-yellow-dark"
+              </button>
+              <button
+                onClick={() => handleSectionNavigation('how-it-works')}
+                className="font-medium cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 How It Works
-              </Link>
+              </button>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-oga-yellow-dark"
+                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
               >
                 Projects
               </Link>
             </>
           )}
         </div>
-      <div className="flex items-center">
-      <ConnectButton />
-        <div className="block md:hidden">
-          <MobileNav isHome={isHome}/>
+        <div className="flex items-center">
+          <ConnectButton />
+          <div className="block md:hidden">
+            <MobileNav isHome={isHome} />
+          </div>
         </div>
-      </div>
-        
       </nav>
     </header>
   );
