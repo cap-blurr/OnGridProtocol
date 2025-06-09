@@ -102,12 +102,7 @@ export default function Sidebar() {
             icon={<BarChart3 size={18} />}
             isActive={pathname === "/dashboard/carbon-credits/device-stats"}
           />
-          <SidebarNavItem
-            href="/dashboard/carbon-credits/emissions"
-            label="CO₂ Emissions Reduced"
-            icon={<Leaf size={18} />}
-            isActive={pathname === "/dashboard/carbon-credits/emissions"}
-          />
+          
         </SidebarSection>
       </div>
       
