@@ -235,7 +235,7 @@ export default function InvestmentOpportunities() {
                       <Badge 
                         className={
                           opportunity.status === 'Active' ? 'bg-oga-green/20 text-oga-green border-oga-green/50' : 
-                          opportunity.status === 'Completed' ? 'bg-blue-500/20 text-blue-400 border-blue-500/50' :
+                          opportunity.status === 'Completed' ? 'bg-zinc-700 text-zinc-300 border-zinc-600' :
                           'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50'
                         }
                       >
@@ -284,7 +284,7 @@ export default function InvestmentOpportunities() {
                       <div className={`font-semibold ${
                         opportunity.riskLevel === 'Low' ? 'text-oga-green' : 
                         opportunity.riskLevel === 'Medium' ? 'text-oga-yellow' : 
-                        'text-red-400'
+                        'text-red-500'
                       }`}>
                         {opportunity.riskLevel}
                       </div>
@@ -316,7 +316,7 @@ export default function InvestmentOpportunities() {
                   </div>
 
                   {/* Investment Action */}
-                  <div className="border-t border-zinc-800 pt-4">
+                  <div className="border-t border-oga-green/20 pt-4">
                     {!opportunity.isFundingClosed ? (
                       <DirectProjectInvestment
                         vaultAddress={opportunity.vaultAddress as `0x${string}`}
@@ -331,7 +331,7 @@ export default function InvestmentOpportunities() {
                       />
                     ) : (
                       <div className="text-center py-4">
-                        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50">
+                        <Badge className="bg-zinc-700 text-zinc-300 border-zinc-600">
                           Funding Completed
                         </Badge>
                         <p className="text-sm text-zinc-400 mt-2">This project has reached its funding goal</p>
