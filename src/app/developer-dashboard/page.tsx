@@ -136,6 +136,8 @@ export default function SolarDeveloperDashboard() {
     refetchProjects 
   } = useDeveloperProjects();
 
+
+
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
@@ -265,7 +267,7 @@ export default function SolarDeveloperDashboard() {
               onClick={refetchProjects}
               variant="outline"
               size="sm"
-              className="border-oga-green/30 text-oga-green hover:bg-oga-green/10"
+              className="border-[#4CAF50]/30 text-[#4CAF50] hover:bg-[#4CAF50]/10"
               disabled={isLoadingProjects}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingProjects ? 'animate-spin' : ''}`} />
@@ -273,7 +275,7 @@ export default function SolarDeveloperDashboard() {
             </Button>
             <Button
               onClick={handleCreateProject}
-              className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+              className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white"
               disabled={isLoadingKyc}
             >
               <ArrowUpRight className="w-4 h-4 mr-2" />
@@ -283,12 +285,12 @@ export default function SolarDeveloperDashboard() {
         </div>
 
         {/* Verification Status */}
-        <Alert className="mb-6 bg-black/40 backdrop-blur-sm border border-oga-green/30">
-          <ShieldCheck className="h-5 w-5 text-oga-green" />
+        <Alert className="mb-6 bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+          <ShieldCheck className="h-5 w-5 text-[#4CAF50]" />
           <AlertTitle className="text-white">
             Developer Verification Status:
             {isLoadingKyc ? <Loader2 className="inline-block w-4 h-4 ml-2 animate-spin" /> :
-              kycStatus ? <span className="text-oga-green font-bold ml-2">Verified</span> :
+              kycStatus ? <span className="text-[#4CAF50] font-bold ml-2">Verified</span> :
               <span className="text-red-400 font-bold ml-2">Not Verified</span>
             }
           </AlertTitle>
@@ -302,7 +304,7 @@ export default function SolarDeveloperDashboard() {
             <div className="mt-3">
               <Button
                 size="sm"
-                className="bg-oga-green/80 hover:bg-oga-green text-white"
+                className="bg-[#4CAF50]/80 hover:bg-[#4CAF50] text-white"
                 onClick={() => router.push('/developer-dashboard/kyc')}
               >
                 Complete KYC Verification
@@ -326,7 +328,7 @@ export default function SolarDeveloperDashboard() {
             <div className="mt-6">
               {isLoadingProjects ? (
                 <div className="w-full text-center py-10">
-                  <Loader2 className="w-8 h-8 mx-auto animate-spin text-oga-green" />
+                  <Loader2 className="w-8 h-8 mx-auto animate-spin text-[#4CAF50]" />
                   <p className="text-zinc-400 mt-2">Loading your solar projects...</p>
                 </div>
               ) : projectsError ? (
@@ -342,7 +344,7 @@ export default function SolarDeveloperDashboard() {
                   <p className="text-zinc-400 mb-4">Get started by creating your first solar energy project.</p>
                   <Button
                     onClick={handleCreateProject}
-                    className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+                    className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white"
                     disabled={isLoadingKyc}
                   >
                     Create Your First Project
@@ -351,7 +353,7 @@ export default function SolarDeveloperDashboard() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {developerProjects.map((project: OnChainProject) => (
-                    <Card key={project.id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-colors duration-300 flex flex-col">
+                    <Card key={project.id} className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 hover:border-[#4CAF50]/50 transition-colors duration-300 flex flex-col">
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-lg text-white font-semibold flex items-center gap-2">
@@ -359,7 +361,7 @@ export default function SolarDeveloperDashboard() {
                             {project.metadata?.name || `Project #${project.id}`}
                           </CardTitle>
                           <Badge className={`capitalize ${
-                            project.status === "Metadata Loaded" ? 'bg-oga-green/20 text-oga-green border-oga-green/50' : 
+                            project.status === "Metadata Loaded" ? 'bg-[#4CAF50]/20 text-[#4CAF50] border-[#4CAF50]/50' : 
                             project.status === "Fetching Metadata" ? 'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50' :
                             project.status === "Metadata Error" ? 'bg-red-500/20 text-red-400 border-red-500/50' :
                             'bg-zinc-700/20 text-zinc-400 border-zinc-600/50'
@@ -380,20 +382,20 @@ export default function SolarDeveloperDashboard() {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-zinc-400">Type:</span>
-                            <span className="text-oga-green font-medium">{project.isLowValue ? 'Low Value' : 'High Value'}</span>
+                            <span className="text-[#4CAF50] font-medium">{project.isLowValue ? 'Low Value' : 'High Value'}</span>
                           </div>
                           {project.poolId && (
                             <div className="flex justify-between">
                               <span className="text-zinc-400">Pool ID:</span>
-                              <span className="text-oga-green font-medium">{project.poolId}</span>
+                              <span className="text-[#4CAF50] font-medium">{project.poolId}</span>
                             </div>
                           )}
                         </div>
                       </CardContent>
-                      <CardFooter className="border-t border-oga-green/20 pt-4">
+                      <CardFooter className="border-t border-[#4CAF50]/20 pt-4">
                         <Button 
                           variant="outline" 
-                          className="w-full border-oga-green/30 text-oga-green hover:bg-oga-green/10"
+                          className="w-full border-[#4CAF50]/30 text-[#4CAF50] hover:bg-[#4CAF50]/10"
                           onClick={() => router.push(`/developer-dashboard/projects/${project.id}`)}
                         >
                           Manage Project <ArrowRight className="w-4 h-4 ml-2" />
@@ -406,10 +408,12 @@ export default function SolarDeveloperDashboard() {
             </div>
           )}
 
+          
+
           {/* KYC Tab */}
           {activeTab === 'kyc' && (
             <div className="mt-6">
-              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+              <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
                 <CardHeader>
                   <CardTitle className="text-white">KYC Verification</CardTitle>
                 </CardHeader>
