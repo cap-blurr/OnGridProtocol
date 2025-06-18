@@ -7,48 +7,50 @@ import { baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { UserTypeProvider } from './userType';
+import { injected } from 'wagmi/connectors';
 
-// Minimal Wagmi configuration without external connectors
-// This is only for contract interactions, not wallet connections
+// Wagmi configuration for contract interactions - Privy v2 handles wallet connections directly
 const config = createConfig({
   chains: [baseSepolia],
-  connectors: [], // Empty connectors - Privy will handle wallet connections
-  ssr: true,
+  connectors: [
+    injected({
+      // This allows wagmi to work with Privy's injected wallet
+      target: 'privy',
+    }),
+  ],
   transports: {
     [baseSepolia.id]: http('https://base-sepolia.g.alchemy.com/v2/1gJpy5A2EiQrD8o1RIjPOo0-xXf_CFLA'),
   },
+  ssr: true,
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <PrivyProvider
-          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
-          clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
-          config={{
-         
-            appearance: {
-              theme: 'dark',
-              accentColor: '#10B981', // emerald-500 to match your theme
-            },
-            // Create embedded wallets for users who don't have a wallet
-            embeddedWallets: {
-              ethereum: {
-                createOnLogin: 'users-without-wallets'
-              }
-            },
-            // Supported wallet connectors - all handled by Privy
-            supportedChains: [baseSepolia],
-          }}
-        >
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
+      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
+      config={{
+        appearance: {
+          theme: 'dark',
+          accentColor: '#4CAF50',
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
+        supportedChains: [baseSepolia],
+        loginMethods: ['wallet', 'email', 'sms'],
+        defaultChain: baseSepolia,
+      }}
+    >
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
-        </PrivyProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </PrivyProvider>
   );
 }
