@@ -161,13 +161,13 @@ export default function DeveloperProjectsPage() {
         </div>
         <div className="flex gap-2">
           <Link href="/developer-dashboard/projects/create-low">
-            <Button variant="outline" className="border-emerald-600 text-emerald-400 hover:bg-emerald-900/20">
+            <Button variant="outline" className="border-[#4CAF50] text-[#4CAF50] hover:bg-[#4CAF50]/20">
               <Plus className="w-4 h-4 mr-2" />
               Create Project
             </Button>
           </Link>
           <Link href="/developer-dashboard/projects/create-high">
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-[#4CAF50] hover:bg-[#4CAF50]/90">
               <Plus className="w-4 h-4 mr-2" />
               High-Value Project
             </Button>

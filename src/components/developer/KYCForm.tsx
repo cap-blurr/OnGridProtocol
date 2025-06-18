@@ -92,7 +92,7 @@ export function KYCForm() {
   };
   
   return (
-    <Card className="w-full bg-black/40 backdrop-blur-sm border border-emerald-800/30">
+    <Card className="w-full bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
       <CardHeader>
         <CardTitle className="text-white">Developer KYC Information</CardTitle>
         <CardDescription className="text-zinc-400">
@@ -104,22 +104,22 @@ export function KYCForm() {
         <form id="kyc-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <label className="block text-zinc-300">Full Name</label>
-            <Input {...register('name', { required: 'Name is required' })} placeholder="John Doe" className="w-full bg-black/30 border-emerald-900/50 text-white" />
+            <Input {...register('name', { required: 'Name is required' })} placeholder="John Doe" className="w-full bg-black/30 border-[#4CAF50]/50 text-white focus:border-[#4CAF50] focus:ring-[#4CAF50] focus:ring-1" />
             {errors.name && <p className="text-red-500 text-sm">{errors.name.message as string}</p>}
           </div>
           <div className="space-y-2">
             <label className="block text-zinc-300">Company Name (Optional)</label>
-            <Input {...register('companyName')} placeholder="Your Company" className="w-full bg-black/30 border-emerald-900/50 text-white" />
+            <Input {...register('companyName')} placeholder="Your Company" className="w-full bg-black/30 border-[#4CAF50]/50 text-white focus:border-[#4CAF50] focus:ring-[#4CAF50] focus:ring-1" />
             {/* No error display for optional companyName needed unless you add specific validation */}
           </div>
           <div className="space-y-2">
             <label className="block text-zinc-300">Email Address</label>
-            <Input {...register('email', {  required: 'Email is required', pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' }})} placeholder="you@example.com" className="w-full bg-black/30 border-emerald-900/50 text-white" />
+            <Input {...register('email', {  required: 'Email is required', pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email address' }})} placeholder="you@example.com" className="w-full bg-black/30 border-[#4CAF50]/50 text-white focus:border-[#4CAF50] focus:ring-[#4CAF50] focus:ring-1" />
             {errors.email && <p className="text-red-500 text-sm">{errors.email.message as string}</p>}
           </div>
           <div className="space-y-2">
             <label className="block text-zinc-300">Brief Project/Company Description (Optional)</label>
-            <Textarea {...register('description')} placeholder="Tell us about your clean energy project or company focus" className="w-full min-h-[100px] bg-black/30 border-emerald-900/50 text-white" />
+            <Textarea {...register('description')} placeholder="Tell us about your clean energy project or company focus" className="w-full min-h-[100px] bg-black/30 border-[#4CAF50]/50 text-white focus:border-[#4CAF50] focus:ring-[#4CAF50] focus:ring-1" />
           </div>
           <p className="text-xs text-zinc-500">
             This information will be submitted to our database for review.
@@ -132,7 +132,7 @@ export function KYCForm() {
           type="submit"
           form="kyc-form"
           disabled={!isConnected || isSavingToDb}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="w-full bg-[#4CAF50] hover:bg-[#4CAF50]/90 text-white"
         >
           {isSavingToDb ? 'Submitting to Database...' : 'Submit KYC Information'}
         </Button>
@@ -141,7 +141,7 @@ export function KYCForm() {
           <p className="text-red-500 text-sm text-center">Error: {submissionError}</p>
         )}
         {submissionSuccess && (
-          <p className="text-emerald-500 text-sm text-center">
+          <p className="text-[#4CAF50] text-sm text-center">
             KYC information submitted successfully! Application pending review.
           </p>
         )}

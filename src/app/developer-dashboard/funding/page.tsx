@@ -96,20 +96,20 @@ export default function SolarFundingLevels() {
       }} />
       
       {/* Background accents */}
-      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-[#4CAF50]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-[#4CAF50]/5 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="relative max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8 relative pl-6">
           {/* Thin accent line */}
-          <div className="absolute -left-4 top-0 h-full w-px bg-oga-green/30" />
+          <div className="absolute -left-4 top-0 h-full w-px bg-[#4CAF50]/30" />
           
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-oga-green mb-2 relative">
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-[#4CAF50] mb-2 relative">
             Developer Dashboard
-            <div className="absolute -left-6 top-1/2 w-3 h-px bg-oga-green" />
+            <div className="absolute -left-6 top-1/2 w-3 h-px bg-[#4CAF50]" />
           </span>
           
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-oga-green to-oga-yellow bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold text-[#4CAF50] mb-2">
             Solar Funding Levels
           </h1>
           <p className="text-zinc-400">
@@ -119,20 +119,20 @@ export default function SolarFundingLevels() {
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Target</CardTitle>
-              <Target className="h-4 w-4 text-oga-green" />
+              <Target className="h-4 w-4 text-[#4CAF50]" />
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-white">${totalTarget.toLocaleString()}</div>
-              <p className="text-xs text-oga-green">Funding goal</p>
+              <p className="text-xs text-[#4CAF50]">Funding goal</p>
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Raised</CardTitle>
               <DollarSign className="h-4 w-4 text-green-500" />
@@ -143,27 +143,27 @@ export default function SolarFundingLevels() {
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Investors</CardTitle>
               <Users className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-blue-400">{totalInvestors.toLocaleString()}</div>
-              <p className="text-xs text-oga-green">Across all projects</p>
+              <p className="text-xs text-[#4CAF50]">Across all projects</p>
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Active Projects</CardTitle>
-              <TrendingUp className="h-4 w-4 text-oga-yellow" />
+              <TrendingUp className="h-4 w-4 text-[#4CAF50]" />
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-2xl font-bold text-oga-yellow">{activeProjects}</div>
-              <p className="text-xs text-oga-green">Currently funding</p>
+              <div className="text-2xl font-bold text-[#4CAF50]">{activeProjects}</div>
+              <p className="text-xs text-[#4CAF50]">Currently funding</p>
             </CardContent>
           </Card>
         </div>
@@ -171,13 +171,13 @@ export default function SolarFundingLevels() {
         {/* Funding Projects */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {fundingProjects.map((project) => (
-            <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+            <Card key={project.id} className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
               <CardHeader className="relative">
                 <div className="flex justify-between items-start">
                   <div>
                     <CardTitle className="text-white text-lg mb-1">{project.name}</CardTitle>
-                    <p className="text-sm text-oga-green">{project.location}</p>
+                    <p className="text-sm text-[#4CAF50]">{project.location}</p>
                     <Badge className="mt-2 bg-gray-700 text-gray-200 text-xs">
                       {project.category}
                     </Badge>
@@ -193,7 +193,7 @@ export default function SolarFundingLevels() {
                   {/* Funding Progress */}
                   <div>
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-oga-green">Funding Progress</span>
+                      <span className="text-[#4CAF50]">Funding Progress</span>
                       <span className="text-white font-semibold">
                         {((project.raised / project.target) * 100).toFixed(1)}%
                       </span>
@@ -206,7 +206,7 @@ export default function SolarFundingLevels() {
                       <span className="text-green-400 font-semibold">
                         ${project.raised.toLocaleString()}
                       </span>
-                      <span className="text-oga-green">
+                      <span className="text-[#4CAF50]">
                         of ${project.target.toLocaleString()}
                       </span>
                     </div>
@@ -217,25 +217,25 @@ export default function SolarFundingLevels() {
                     <div className="text-center p-3 bg-gray-800/50 rounded-lg">
                       <Users className="w-5 h-5 text-blue-400 mx-auto mb-1" />
                       <p className="text-xl font-bold text-white">{project.investors}</p>
-                      <p className="text-xs text-oga-green">Investors</p>
+                      <p className="text-xs text-[#4CAF50]">Investors</p>
                     </div>
                     <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-                      <Calendar className="w-5 h-5 text-oga-yellow mx-auto mb-1" />
+                      <Calendar className="w-5 h-5 text-[#4CAF50] mx-auto mb-1" />
                       <p className="text-xl font-bold text-white">{project.daysLeft}</p>
-                      <p className="text-xs text-oga-green">Days Left</p>
+                      <p className="text-xs text-[#4CAF50]">Days Left</p>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button 
-                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white hover:text-white font-medium transition-all duration-200"
+                      className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50] hover:from-[#4CAF50]/90 hover:to-[#4CAF50]/90 text-white font-medium transition-all duration-200"
                     >
                       View Details
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green font-medium transition-all duration-200"
+                      className="border-[#4CAF50]/50 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50] font-medium transition-all duration-200"
                     >
                       Manage Campaign
                     </Button>

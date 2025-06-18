@@ -15,7 +15,7 @@ const config = createConfig({
   connectors: [
     injected({
       // This allows wagmi to work with Privy's injected wallet
-      target: 'privy',
+      // No specific target needed - will detect Privy's injected wallet automatically
     }),
   ],
   transports: {
@@ -28,29 +28,29 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
-      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
-      config={{
-        appearance: {
-          theme: 'dark',
+        <PrivyProvider
+          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
+          clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
+          config={{
+            appearance: {
+              theme: 'dark',
           accentColor: '#4CAF50',
-        },
-        embeddedWallets: {
+            },
+            embeddedWallets: {
           createOnLogin: 'users-without-wallets',
-        },
-        supportedChains: [baseSepolia],
+            },
+            supportedChains: [baseSepolia],
         loginMethods: ['wallet', 'email', 'sms'],
         defaultChain: baseSepolia,
-      }}
-    >
+          }}
+        >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
     </PrivyProvider>
   );
 }

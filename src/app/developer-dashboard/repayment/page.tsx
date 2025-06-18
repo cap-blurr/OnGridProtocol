@@ -70,20 +70,20 @@ export default function RepaymentTracking() {
       }} />
       
       {/* Background accents */}
-      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-oga-green/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 -left-64 w-96 h-96 bg-[#4CAF50]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-[#4CAF50]/5 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="relative max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8 relative pl-6">
           {/* Thin accent line */}
-          <div className="absolute -left-4 top-0 h-full w-px bg-oga-green/30" />
+          <div className="absolute -left-4 top-0 h-full w-px bg-[#4CAF50]/30" />
           
-          <span className="inline-block font-mono text-xs uppercase tracking-widest text-oga-green mb-2 relative">
+          <span className="inline-block font-mono text-xs uppercase tracking-widest text-[#4CAF50] mb-2 relative">
             Developer Dashboard
-            <div className="absolute -left-6 top-1/2 w-3 h-px bg-oga-green" />
+            <div className="absolute -left-6 top-1/2 w-3 h-px bg-[#4CAF50]" />
           </span>
           
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-oga-green to-oga-yellow bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold text-[#4CAF50] mb-2">
             Repayment Tracking
           </h1>
           <p className="text-zinc-400">
@@ -93,20 +93,20 @@ export default function RepaymentTracking() {
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Total Loan Amount</CardTitle>
-              <DollarSign className="h-4 w-4 text-oga-green" />
+              <DollarSign className="h-4 w-4 text-[#4CAF50]" />
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-white">${totalLoanAmount.toLocaleString()}</div>
-              <p className="text-xs text-oga-green">Across all projects</p>
+              <p className="text-xs text-[#4CAF50]">Across all projects</p>
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Amount Paid</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-500" />
@@ -117,44 +117,44 @@ export default function RepaymentTracking() {
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Remaining</CardTitle>
-              <TrendingUp className="h-4 w-4 text-oga-yellow" />
+              <TrendingUp className="h-4 w-4 text-[#4CAF50]" />
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-2xl font-bold text-oga-yellow">${totalRemaining.toLocaleString()}</div>
-              <p className="text-xs text-oga-green">Outstanding balance</p>
+              <div className="text-2xl font-bold text-[#4CAF50]">${totalRemaining.toLocaleString()}</div>
+              <p className="text-xs text-[#4CAF50]">Outstanding balance</p>
             </CardContent>
           </Card>
 
-          <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+          <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Active Projects</CardTitle>
               <BarChart3 className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent className="relative">
               <div className="text-2xl font-bold text-white">{repaymentData.length}</div>
-              <p className="text-xs text-oga-green">Projects with loans</p>
+              <p className="text-xs text-[#4CAF50]">Projects with loans</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Repayment List */}
-        <Card className="relative bg-black/40 backdrop-blur-sm border border-oga-green/30 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-oga-green/20 to-transparent pointer-events-none" />
+        <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
           <CardHeader className="relative">
             <CardTitle className="text-white flex items-center">
-              <Calendar className="w-5 h-5 mr-2 text-oga-green" />
+              <Calendar className="w-5 h-5 mr-2 text-[#4CAF50]" />
               Project Repayments
             </CardTitle>
           </CardHeader>
           <CardContent className="relative">
             <div className="space-y-6">
               {repaymentData.map((project) => (
-                <div key={project.id} className="bg-gray-800/30 rounded-lg p-4 sm:p-6 border border-gray-700/50 backdrop-blur-sm">
+                <div key={project.id} className="bg-gray-800/30 rounded-lg p-4 sm:p-6 border border-[#4CAF50]/20 backdrop-blur-sm">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-2">{project.projectName}</h3>
@@ -163,29 +163,29 @@ export default function RepaymentTracking() {
                       </Badge>
                     </div>
                     <div className="mt-4 lg:mt-0 lg:text-right">
-                      <p className="text-sm text-oga-green">Next Payment Due</p>
+                      <p className="text-sm text-[#4CAF50]">Next Payment Due</p>
                       <p className="text-lg font-semibold text-white">{project.nextDue}</p>
-                      <p className="text-oga-yellow font-bold">${project.nextPayment.toLocaleString()}</p>
+                      <p className="text-[#4CAF50] font-bold">${project.nextPayment.toLocaleString()}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm text-oga-green">Total Loan</p>
+                    <div className="p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
+                      <p className="text-sm text-[#4CAF50]">Total Loan</p>
                       <p className="text-lg font-semibold text-white">${project.totalLoan.toLocaleString()}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-oga-green">Amount Paid</p>
+                    <div className="p-3 bg-gray-800/50 rounded-lg border border-green-400/20">
+                      <p className="text-sm text-[#4CAF50]">Amount Paid</p>
                       <p className="text-lg font-semibold text-green-400">${project.paidAmount.toLocaleString()}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-oga-green">Months Remaining</p>
-                      <p className="text-lg font-semibold text-oga-yellow">{project.monthsRemaining}</p>
+                    <div className="p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
+                      <p className="text-sm text-[#4CAF50]">Months Remaining</p>
+                      <p className="text-lg font-semibold text-[#4CAF50]">{project.monthsRemaining}</p>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <div className="flex justify-between text-sm text-oga-green mb-2">
+                    <div className="flex justify-between text-sm text-[#4CAF50] mb-2">
                       <span>Progress</span>
                       <span>{((project.paidAmount / project.totalLoan) * 100).toFixed(1)}%</span>
                     </div>
@@ -197,13 +197,13 @@ export default function RepaymentTracking() {
 
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button 
-                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white hover:text-white font-medium transition-all duration-200"
+                      className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50] hover:from-[#4CAF50]/90 hover:to-[#4CAF50]/90 text-white font-medium transition-all duration-200"
                     >
                       Make Payment
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="border-oga-green/50 text-oga-green hover:bg-oga-green/20 hover:text-oga-green hover:border-oga-green font-medium transition-all duration-200"
+                      className="border-[#4CAF50]/50 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50] font-medium transition-all duration-200"
                     >
                       View Details
                     </Button>
@@ -219,6 +219,19 @@ export default function RepaymentTracking() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Summary Actions */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+          <Button className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50] hover:from-[#4CAF50]/90 hover:to-[#4CAF50]/90 text-white font-medium transition-all duration-200 px-8 py-3">
+            Download Payment Report
+          </Button>
+          <Button 
+            variant="outline" 
+            className="border-[#4CAF50] text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50] font-medium transition-all duration-200 px-8 py-3"
+          >
+            Schedule Payment
+          </Button>
+        </div>
       </div>
     </div>
   );
