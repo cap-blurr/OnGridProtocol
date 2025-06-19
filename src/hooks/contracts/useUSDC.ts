@@ -1,7 +1,7 @@
-import { useContractRead, useContractWrite, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect } from 'react';
-import { formatUnits, parseUnits } from 'ethers';
+import { formatUnits, parseUnits } from 'viem';
 import toast from 'react-hot-toast';
 import { useChainId } from 'wagmi';
 
@@ -82,28 +82,27 @@ export const USDC_DECIMALS = 6;
 // Get USDC balance
 export function useUSDCBalance(accountAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
-  const chainId = useChainId(); // Get current chain ID for logging or explicit use
+  const chainId = useChainId();
 
   console.log(`useUSDCBalance: Fetching balance for account ${accountAddress} on chain ${chainId} using USDC address ${addresses.usdc}`);
 
-  const { data, isLoading, isError, error, refetch } = useContractRead({
+  const { data, isLoading, error, refetch } = useReadContract({
     address: addresses.usdc as `0x${string}`,
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: accountAddress ? [accountAddress] : undefined,
-    // chainId: chainId, // Optionally pass chainId if your config requires it per call
+    chainId: 84532, // Base Sepolia
     query: { 
-        enabled: !!accountAddress && !!addresses.usdc,
-        retry: 2, // Add a couple of retries
+      enabled: !!accountAddress && !!addresses.usdc,
+      retry: 2,
     },
   });
 
   useEffect(() => {
-    if (isError && error) {
+    if (error) {
       console.error("useUSDCBalance - Error fetching balance:", error);
-      // You could toast here too if needed, but the component using the hook usually handles UI for errors
     }
-  }, [isError, error]);
+  }, [error]);
   
   const formattedBalance = data 
     ? formatUnits(data as bigint, USDC_DECIMALS)
@@ -113,7 +112,6 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
     balance: data as bigint | undefined,
     formattedBalance,
     isLoading,
-    isError,
     error, 
     refetch
   };
@@ -123,13 +121,14 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
 export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   
-  const { data, isLoading, isError, refetch } = useContractRead({
+  const { data, isLoading, error, refetch } = useReadContract({
     address: addresses.usdc as `0x${string}`,
     abi: ERC20_ABI,
     functionName: 'allowance',
     args: ownerAddress && spenderAddress ? [ownerAddress, spenderAddress] : undefined,
+    chainId: 84532, // Base Sepolia
     query: {
-        enabled: !!ownerAddress && !!spenderAddress
+      enabled: !!ownerAddress && !!spenderAddress
     }
   });
   
@@ -141,7 +140,7 @@ export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: 
     allowance: data as bigint | undefined,
     formattedAllowance,
     isLoading,
-    isError,
+    error,
     refetch
   };
 }
@@ -150,7 +149,7 @@ export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: 
 export function useUSDCApprove() {
   const addresses = useContractAddresses();
   
-  const { writeContract, data: hash, isPending, error } = useContractWrite();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
@@ -164,25 +163,40 @@ export function useUSDCApprove() {
     } else if (isSuccess) {
       toast.success('USDC approved successfully!', { id: 'approveTx' });
     } else if (error) {
-      toast.error(`Error: ${error.message}`, { id: 'approveTx' });
+      toast.error(`Approval Error: ${error.message}`, { id: 'approveTx' });
     }
   }, [isPending, isConfirming, isSuccess, error]);
   
   return {
     approve: (spender: `0x${string}`, amount: string) => {
       try {
-        // For max approval, use MaxUint256 from ethers
-        // Or you can just use a specific amount
         const parsedAmount = parseUnits(amount, USDC_DECIMALS);
+        console.log(`Approving ${amount} USDC (${parsedAmount.toString()}) for spender: ${spender}`);
         writeContract({ 
-            address: addresses.usdc as `0x${string}`,
-            abi: ERC20_ABI,
-            functionName: 'approve',
-            args: [spender, parsedAmount] 
+          address: addresses.usdc as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [spender, parsedAmount] 
         });
       } catch (err) {
         console.error('Error parsing approval amount:', err);
         toast.error('Invalid amount format');
+      }
+    },
+    approveMax: (spender: `0x${string}`) => {
+      try {
+        // Use maximum uint256 for unlimited approval
+        const maxAmount = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+        console.log(`Approving MAX USDC for spender: ${spender}`);
+        writeContract({ 
+          address: addresses.usdc as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [spender, maxAmount] 
+        });
+      } catch (err) {
+        console.error('Error with max approval:', err);
+        toast.error('Error with approval transaction');
       }
     },
     isLoading: isPending || isConfirming,
@@ -202,10 +216,38 @@ export function isApprovalNeeded(
   try {
     const requiredAmountBigInt = parseUnits(requiredAmount, USDC_DECIMALS);
     return currentAllowance < requiredAmountBigInt;
-  } catch (err) {
-    console.error('Error checking if approval is needed:', err);
-    return true; // Default to needing approval on error
+  } catch (error) {
+    console.error('Error checking approval:', error);
+    return true; // Default to needing approval if we can't parse
   }
+}
+
+// Helper to format USDC amount
+export function formatUSDCAmount(amount: bigint | undefined): string {
+  if (!amount) return '0.00';
+  return formatUnits(amount, USDC_DECIMALS);
+}
+
+// Helper to parse USDC amount
+export function parseUSDCAmount(amount: string): bigint {
+  return parseUnits(amount, USDC_DECIMALS);
+}
+
+// Comprehensive USDC hook that combines all functionality
+export function useUSDC(userAddress?: `0x${string}`, spenderAddress?: `0x${string}`) {
+  const balance = useUSDCBalance(userAddress);
+  const allowance = useUSDCAllowance(userAddress, spenderAddress);
+  const approve = useUSDCApprove();
+  
+  return {
+    ...balance,
+    ...allowance,
+    ...approve,
+    isApprovalNeeded: (amount: string) => 
+      isApprovalNeeded(allowance.allowance, amount),
+    formatAmount: formatUSDCAmount,
+    parseAmount: parseUSDCAmount,
+  };
 }
 
 // Placeholder for USDC token contract interactions

@@ -70,7 +70,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   const addresses = useContractAddresses();
 
   // Get USDC balance
-  const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance, isLoading: isLoadingUSDCBalance, isError: isErrorUSDCBalance } = 
+    const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance, isLoading: isLoadingUSDCBalance, error: errorUSDCBalance } =
     useUSDCBalance(developerAddress);
 
   // Get USDC allowance for DeveloperDepositEscrow
@@ -205,7 +205,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         toast.error("Fetching USDC balance... Please wait and try again.");
         return;
       }
-      if (isErrorUSDCBalance || usdcBalance === undefined || usdcBalance === null) {
+      if (errorUSDCBalance || usdcBalance === undefined || usdcBalance === null) {
         toast.error("Could not fetch USDC balance. Please check your connection or try again.");
         console.error("USDC Balance fetch error or balance is undefined/null. Raw balance:", usdcBalance);
         return;

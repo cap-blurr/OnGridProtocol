@@ -36,7 +36,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
     = usePoolInfo(poolId);
   const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess, error: depositError }
     = useDepositToPool(poolId);
-  const { shares: userShares, isLoading: isLoadingUserShares,}
+  const { shares: userShares, isLoading: isLoadingUserShares }
     = useUserShares(poolId, userAddress);
   const { redeem, isLoading: isRedeeming, isSuccess: isRedeemSuccess, error: redeemError }
     = useRedeemFromPool();
@@ -65,17 +65,15 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
       toast.success(`Successfully deposited to Solar Pool ${poolId}!`);
       setDepositAmount('');
       refetchAllowance();
-      refetchUserShares();
     }
-  }, [isDepositSuccess, poolId, refetchAllowance, refetchUserShares]);
+  }, [isDepositSuccess, poolId, refetchAllowance]);
 
   useEffect(() => {
     if (isRedeemSuccess) {
       toast.success(`Successfully redeemed shares from Solar Pool ${poolId}!`);
       setRedeemSharesAmount('');
-      refetchUserShares();
     }
-  }, [isRedeemSuccess, poolId, refetchUserShares]);
+  }, [isRedeemSuccess, poolId]);
 
   const handleApprove = () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
@@ -323,6 +321,4 @@ export default function PoolInvestmentCard() {
   );
 } 
 
-function refetchUserShares() {
-  throw new Error('Function not implemented.');
-}
+

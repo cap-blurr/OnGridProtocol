@@ -32,7 +32,11 @@ import {
   ExternalLink,
   FileText,
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  DollarSign,
+  CheckCircle2,
+  Bell,
+  CreditCard
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -47,6 +51,8 @@ import toast from 'react-hot-toast';
 import CreateProjectModal from "@/components/developer/CreateProjectModal";
 import { getAddresses, NetworkAddresses } from "@/contracts/addresses";
 import { useDeveloperProjects, OnChainProject, IPFS_GATEWAY_PREFIX } from "@/hooks/contracts/useDeveloperProjects";
+import { useAllContractEvents, useUserEvents } from "@/hooks/contracts/useContractEvents";
+import { useUSDCBalance } from "@/hooks/contracts/useUSDC";
 
 // Mock data for solar developer dashboard
 const mockData = {
@@ -135,6 +141,52 @@ export default function SolarDeveloperDashboard() {
     error: projectsError,
     refetchProjects 
   } = useDeveloperProjects();
+
+  // Phase 3: Event monitoring and real-time updates
+  const { events: userEvents } = useUserEvents(connectedAddress);
+  const { events: allEvents } = useAllContractEvents();
+  const { formattedBalance: usdcBalance } = useUSDCBalance(connectedAddress);
+  
+  // Phase 3: Recent notifications from contract events
+  const recentNotifications = userEvents.slice(0, 5).map(event => {
+    switch (event.type) {
+      case 'ProjectCreated':
+        return {
+          id: event.id,
+          type: 'success' as const,
+          title: 'Project Created',
+          message: `Solar project #${event.data?.projectId} created successfully`,
+          timestamp: new Date(event.timestamp),
+          actionUrl: `/developer-dashboard/projects/${event.data?.projectId}`
+        };
+      case 'RepaymentRouted':
+        return {
+          id: event.id,
+          type: 'info' as const,
+          title: 'Repayment Processed',
+          message: `Loan repayment processed for project #${event.data?.projectId}`,
+          timestamp: new Date(event.timestamp),
+          actionUrl: '/developer-dashboard/repayment'
+        };
+      case 'KYCStatusChanged':
+        return {
+          id: event.id,
+          type: event.data?.isVerified ? 'success' as const : 'warning' as const,
+          title: 'KYC Status Updated',
+          message: event.data?.isVerified ? 'KYC verification approved!' : 'KYC status changed',
+          timestamp: new Date(event.timestamp),
+          actionUrl: '/developer-dashboard/kyc'
+        };
+      default:
+        return {
+          id: event.id,
+          type: 'info' as const,
+          title: 'Blockchain Event',
+          message: `New ${event.type} event`,
+          timestamp: new Date(event.timestamp)
+        };
+    }
+  });
 
 
 
@@ -318,6 +370,9 @@ export default function SolarDeveloperDashboard() {
         <DashboardTabs
           tabs={[
             { value: "projects", label: "My Projects" },
+            { value: "analytics", label: "Analytics" },
+            { value: "notifications", label: "Notifications" },
+            { value: "repayment", label: "Repayment" },
             { value: "kyc", label: "KYC Status" },
           ]}
           activeTab={activeTab}
@@ -408,7 +463,242 @@ export default function SolarDeveloperDashboard() {
             </div>
           )}
 
-          
+          {/* Phase 3: Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div className="mt-6 space-y-6">
+              {/* Enhanced Analytics Dashboard */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-oga-green/20 rounded-lg">
+                        <DollarSign className="h-5 w-5 text-oga-green" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-zinc-400">USDC Balance</div>
+                        <div className="text-lg font-semibold text-white">{usdcBalance} USDC</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <Sun className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-zinc-400">Total Projects</div>
+                        <div className="text-lg font-semibold text-white">{developerProjects.length}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-oga-yellow/20 rounded-lg">
+                        <BarChart3 className="h-5 w-5 text-oga-yellow" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-zinc-400">Active Events</div>
+                        <div className="text-lg font-semibold text-white">{userEvents.length}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-emerald-500/20 rounded-lg">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-zinc-400">KYC Status</div>
+                        <div className="text-lg font-semibold text-white">
+                          {kycStatus ? 'Verified' : 'Pending'}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Project Performance Analytics */}
+              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                <CardHeader>
+                  <CardTitle className="text-white">Project Performance Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {developerProjects.length > 0 ? (
+                      developerProjects.map((project: OnChainProject) => (
+                        <div key={project.id} className="flex items-center justify-between p-3 bg-black/20 rounded border border-oga-green/20">
+                          <div className="flex items-center gap-3">
+                            <Sun className="h-5 w-5 text-oga-yellow" />
+                            <div>
+                              <div className="text-white font-medium">
+                                {project.metadata?.name || `Project #${project.id}`}
+                              </div>
+                              <div className="text-zinc-400 text-sm">
+                                ${Number(project.loanAmount).toLocaleString()} | {project.isLowValue ? 'Low Value' : 'High Value'}
+                              </div>
+                            </div>
+                          </div>
+                          <Badge className="bg-oga-green/20 text-oga-green border-oga-green/50">
+                            {project.status}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <Sun className="h-12 w-12 mx-auto mb-3 text-zinc-600" />
+                        <p className="text-zinc-400">No projects to analyze yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Phase 3: Notifications Tab */}
+          {activeTab === 'notifications' && (
+            <div className="mt-6">
+              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-oga-green" />
+                    Recent Notifications
+                    {recentNotifications.length > 0 && (
+                      <Badge className="bg-red-500 text-white text-xs">
+                        {recentNotifications.length}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {recentNotifications.length > 0 ? (
+                      recentNotifications.map((notification) => (
+                        <div key={notification.id} className="flex items-start gap-3 p-3 bg-black/20 rounded border border-oga-green/20">
+                          <div className="flex-shrink-0 mt-1">
+                            {notification.type === 'success' && <CheckCircle2 className="h-5 w-5 text-green-400" />}
+                            {notification.type === 'info' && <AlertCircle className="h-5 w-5 text-blue-400" />}
+                            {notification.type === 'warning' && <AlertCircle className="h-5 w-5 text-yellow-400" />}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-white font-medium">{notification.title}</h4>
+                            <p className="text-zinc-400 text-sm">{notification.message}</p>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
+                              <span>{notification.timestamp.toLocaleString()}</span>
+                              {notification.actionUrl && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => router.push(notification.actionUrl!)}
+                                  className="text-oga-green border-oga-green/30 hover:bg-oga-green/20 h-auto py-1 px-2"
+                                >
+                                  View Details
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <Bell className="h-12 w-12 mx-auto mb-3 text-zinc-600" />
+                        <p className="text-zinc-400">No recent notifications.</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Phase 3: Enhanced Repayment Tab */}
+          {activeTab === 'repayment' && (
+            <div className="mt-6">
+              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-oga-green" />
+                    Loan Repayment Management
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="bg-black/20 border border-oga-green/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-oga-green/20 rounded-lg">
+                            <DollarSign className="h-5 w-5 text-oga-green" />
+                          </div>
+                          <div>
+                            <div className="text-sm text-zinc-400">Total Loan Amount</div>
+                            <div className="text-lg font-semibold text-white">
+                              ${developerProjects.reduce((sum, p) => sum + Number(p.loanAmount), 0).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-black/20 border border-oga-green/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 rounded-lg">
+                            <Clock className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <div className="text-sm text-zinc-400">Pending Payments</div>
+                            <div className="text-lg font-semibold text-white">
+                              {developerProjects.filter(p => p.status === 'Metadata Loaded').length}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-black/20 border border-oga-green/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-emerald-500/20 rounded-lg">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                          </div>
+                          <div>
+                            <div className="text-sm text-zinc-400">Repayment Events</div>
+                            <div className="text-lg font-semibold text-white">
+                              {userEvents.filter(e => e.type === 'RepaymentRouted').length}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="pt-4">
+                    <p className="text-zinc-400 mb-4">
+                      Manage your solar project loan repayments, view payment history, and track outstanding balances.
+                    </p>
+                    <Button
+                      onClick={() => router.push('/developer-dashboard/repayment')}
+                      className="bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white"
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Manage Repayments
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* KYC Tab */}
           {activeTab === 'kyc' && (

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useAccount } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,8 +25,12 @@ import {
   PlayCircle,
   Zap
 } from 'lucide-react';
+import { useAllContractEvents, useUserEvents } from '@/hooks/contracts/useContractEvents';
+import { useUSDCBalance } from '@/hooks/contracts/useUSDC';
 
 export default function InstallationStatus() {
+  const { address: userAddress } = useAccount();
+  
   const installations = [
     {
       id: 1,
@@ -143,6 +148,55 @@ export default function InstallationStatus() {
 
   const totalCapacity = installations.reduce((sum, project) => sum + parseFloat(project.components.delivered.toString()), 0);
   const totalAlerts = installations.reduce((sum, project) => sum + project.alerts.length, 0);
+
+  // Phase 3: Enhanced event monitoring and analytics
+  const { events: userEvents } = useUserEvents(userAddress);
+  const { events: allEvents } = useAllContractEvents();
+  const { formattedBalance: usdcBalance } = useUSDCBalance(userAddress);
+
+  // Phase 3: Advanced analytics
+  const recentEvents = userEvents.slice(0, 10);
+  const projectCreatedEvents = userEvents.filter(e => e.type === 'ProjectCreated');
+  const repaymentEvents = userEvents.filter(e => e.type === 'RepaymentRouted');
+  const kycEvents = userEvents.filter(e => e.type === 'KYCStatusChanged');
+
+  // Phase 3: Project performance metrics
+  const totalProjectValue = installations.reduce((sum, installation) => {
+    // Mock calculation - in reality would get from contract
+    return sum + 100000; // $100k per project
+  }, 0);
+
+  // Enhanced status cards for Phase 3
+  const statusCards = [
+    {
+      title: "USDC Balance",
+      value: `${usdcBalance} USDC`,
+      subtitle: "Available for transactions",
+      icon: "💰",
+      color: "green"
+    },
+    {
+      title: "Total Project Value", 
+      value: `$${totalProjectValue.toLocaleString()}`,
+      subtitle: `Across ${installations.length} projects`,
+      icon: "🏗️",
+      color: "blue"
+    },
+    {
+      title: "Active Events",
+      value: userEvents.length.toString(),
+      subtitle: "Blockchain interactions",
+      icon: "⚡",
+      color: "yellow"
+    },
+    {
+      title: "Repayments Made",
+      value: repaymentEvents.length.toString(),
+      subtitle: "Successful payments",
+      icon: "💳",
+      color: "emerald"
+    }
+  ];
 
   return (
     <div className="relative">

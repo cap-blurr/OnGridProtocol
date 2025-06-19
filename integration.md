@@ -277,3 +277,657 @@ To provide a responsive user experience, the frontend must listen for key events
     *   **Event**: `RepaymentRouted (projectId, payer, totalAmountRepaid, feeAmount, principalAmount, interestAmount, fundingSource)`
         *   **Significance**: A developer's repayment was successfully processed and distributed.
         *   **UI Action**: Show a detailed confirmation of the repayment, including the breakdown of fees, principal, and interest. Update the project's repayment history.
+
+---
+
+## Phase 3: Enhanced Analytics & Real-Time Monitoring
+
+Phase 3 introduces advanced analytics capabilities, real-time monitoring systems, and comprehensive reporting features that provide deep insights into project performance, energy production metrics, and ecosystem health.
+
+### Advanced Analytics Architecture
+
+**Overview**: Phase 3 analytics combines on-chain data from smart contracts with off-chain IoT sensor data, weather APIs, and machine learning models to provide comprehensive project analytics and predictive insights.
+
+**Key Components**:
+*   **Real-time Data Aggregation**: Continuous monitoring of energy production, weather conditions, and financial metrics
+*   **Predictive Analytics Engine**: ML models for forecasting energy output, maintenance needs, and ROI projections
+*   **Carbon Credit Tracking**: Automated calculation and verification of carbon credits generated
+*   **Performance Benchmarking**: Comparative analysis across projects and industry standards
+
+### Real-Time Energy Production Analytics
+
+#### 1. Live Production Monitoring
+
+**Data Sources**:
+*   IoT sensors on solar panels/wind turbines
+*   Smart inverters and energy meters
+*   Weather station APIs
+*   Grid connection monitoring
+
+**Implementation**:
+```typescript
+interface EnergyProductionData {
+  projectId: string;
+  timestamp: number;
+  currentOutput: number; // MW
+  efficiency: number; // percentage
+  weatherConditions: {
+    irradiance: number; // W/m²
+    temperature: number; // °C
+    windSpeed: number; // m/s
+    cloudCover: number; // percentage
+  };
+  equipmentStatus: {
+    inverterHealth: number; // percentage
+    panelDegradation: number; // percentage
+    maintenanceAlerts: string[];
+  };
+}
+
+// Real-time data fetching
+async function getLiveProductionData(projectId: string): Promise<EnergyProductionData> {
+  const response = await fetch(`/api/analytics/production/${projectId}/live`);
+  return response.json();
+}
+
+// WebSocket connection for real-time updates
+const ws = new WebSocket(`wss://api.ongrid.com/analytics/${projectId}/live`);
+ws.onmessage = (event) => {
+  const data: EnergyProductionData = JSON.parse(event.data);
+  updateProductionDashboard(data);
+};
+```
+
+#### 2. Performance Prediction Models
+
+**Energy Forecast API**:
+```typescript
+interface EnergyForecast {
+  projectId: string;
+  forecastPeriod: string; // '24h', '7d', '30d', '1y'
+  predictions: {
+    timestamp: number;
+    expectedOutput: number; // MWh
+    confidence: number; // percentage
+    factors: {
+      weather: number;
+      seasonality: number;
+      equipment: number;
+    };
+  }[];
+}
+
+async function getEnergyForecast(
+  projectId: string, 
+  period: string
+): Promise<EnergyForecast> {
+  const response = await fetch(`/api/analytics/forecast/${projectId}?period=${period}`);
+  return response.json();
+}
+```
+
+### Financial Performance Analytics
+
+#### 1. ROI Tracking & Projections
+
+**Contract Integration**:
+```typescript
+// Enhanced ROI calculations with analytics
+interface ProjectROIAnalytics {
+  projectId: string;
+  currentROI: number;
+  projectedROI: number;
+  benchmarkROI: number;
+  riskAdjustedReturn: number;
+  paybackPeriod: number; // months
+  cashFlowProjections: {
+    month: number;
+    energyRevenue: number;
+    carbonCredits: number;
+    maintenanceCosts: number;
+    netCashFlow: number;
+  }[];
+}
+
+async function getProjectROIAnalytics(projectId: string): Promise<ProjectROIAnalytics> {
+  // Combine on-chain financial data with off-chain analytics
+  const [onChainData, analyticsData] = await Promise.all([
+    getProjectPaymentSummary(projectId),
+    fetch(`/api/analytics/roi/${projectId}`).then(r => r.json())
+  ]);
+  
+  return {
+    projectId,
+    currentROI: calculateCurrentROI(onChainData),
+    projectedROI: analyticsData.projectedROI,
+    benchmarkROI: analyticsData.benchmarkROI,
+    riskAdjustedReturn: analyticsData.riskAdjustedReturn,
+    paybackPeriod: analyticsData.paybackPeriod,
+    cashFlowProjections: analyticsData.cashFlowProjections
+  };
+}
+```
+
+#### 2. Risk Assessment & Monitoring
+
+**Risk Analytics API**:
+```typescript
+interface ProjectRiskAssessment {
+  projectId: string;
+  overallRiskScore: number; // 0-100
+  riskFactors: {
+    weather: {
+      score: number;
+      description: string;
+      mitigation: string;
+    };
+    technical: {
+      score: number;
+      equipmentAge: number;
+      maintenanceHistory: string[];
+    };
+    financial: {
+      score: number;
+      cashFlowStability: number;
+      marketVolatility: number;
+    };
+    regulatory: {
+      score: number;
+      policyChanges: string[];
+      incentiveStability: number;
+    };
+  };
+  recommendedActions: string[];
+}
+```
+
+### Carbon Credit Analytics
+
+#### 1. Automated Carbon Credit Calculation
+
+**Integration with Environmental APIs**:
+```typescript
+interface CarbonCreditData {
+  projectId: string;
+  periodStart: number;
+  periodEnd: number;
+  energyGenerated: number; // MWh
+  co2Avoided: number; // tons
+  carbonCreditsEarned: number;
+  verificationStatus: 'pending' | 'verified' | 'issued';
+  certificationBody: string;
+  blockchainTxHash?: string;
+}
+
+async function calculateCarbonCredits(
+  projectId: string,
+  periodStart: number,
+  periodEnd: number
+): Promise<CarbonCreditData> {
+  const energyData = await getEnergyProductionData(projectId, periodStart, periodEnd);
+  const gridEmissionFactor = await getGridEmissionFactor(projectId);
+  
+  const co2Avoided = energyData.totalGeneration * gridEmissionFactor;
+  const carbonCreditsEarned = co2Avoided; // 1 credit per ton CO2
+  
+  return {
+    projectId,
+    periodStart,
+    periodEnd,
+    energyGenerated: energyData.totalGeneration,
+    co2Avoided,
+    carbonCreditsEarned,
+    verificationStatus: 'pending',
+    certificationBody: 'Gold Standard',
+    blockchainTxHash: undefined
+  };
+}
+```
+
+#### 2. Carbon Credit Trading Integration
+
+**Smart Contract Interface**:
+```typescript
+// Integration with carbon credit marketplace
+interface CarbonCreditMarketplace {
+  listCreditsForSale(
+    projectId: string,
+    credits: number,
+    pricePerCredit: number
+  ): Promise<string>; // returns listing ID
+  
+  buyCredits(
+    listingId: string,
+    quantity: number
+  ): Promise<string>; // returns transaction hash
+  
+  getCreditPrice(): Promise<number>; // current market price
+}
+```
+
+### Advanced Reporting & Dashboards
+
+#### 1. Executive Summary Reports
+
+**Automated Report Generation**:
+```typescript
+interface ExecutiveReport {
+  reportId: string;
+  generatedAt: number;
+  period: {
+    start: number;
+    end: number;
+  };
+  summary: {
+    totalEnergyGenerated: number; // MWh
+    totalRevenue: number; // USDC
+    totalCO2Avoided: number; // tons
+    averageROI: number; // percentage
+    activeProjects: number;
+    completedProjects: number;
+  };
+  topPerformingProjects: {
+    projectId: string;
+    name: string;
+    roi: number;
+    energyOutput: number;
+  }[];
+  marketInsights: {
+    energyPricesTrend: string;
+    carbonCreditPrices: number;
+    regulatoryUpdates: string[];
+  };
+  recommendations: string[];
+}
+
+async function generateExecutiveReport(
+  startDate: number,
+  endDate: number
+): Promise<ExecutiveReport> {
+  const [projects, market, analytics] = await Promise.all([
+    getAllProjectsAnalytics(startDate, endDate),
+    getMarketData(),
+    getAnalyticsInsights(startDate, endDate)
+  ]);
+  
+  return {
+    reportId: generateReportId(),
+    generatedAt: Date.now(),
+    period: { start: startDate, end: endDate },
+    summary: calculateSummaryMetrics(projects),
+    topPerformingProjects: getTopPerformers(projects),
+    marketInsights: market,
+    recommendations: generateRecommendations(analytics)
+  };
+}
+```
+
+#### 2. Interactive Analytics Dashboard
+
+**Component Architecture**:
+```typescript
+// Main analytics dashboard component
+const AnalyticsDashboard: React.FC = () => {
+  const [timeRange, setTimeRange] = useState('30d');
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  
+  const { data: liveData } = useLiveAnalytics(selectedProjects);
+  const { data: historicalData } = useHistoricalAnalytics(selectedProjects, timeRange);
+  const { data: forecast } = useEnergyForecast(selectedProjects, timeRange);
+  
+  return (
+    <div className="analytics-dashboard">
+      <MetricsOverview data={liveData} />
+      <EnergyProductionChart data={historicalData} forecast={forecast} />
+      <ROIAnalytics projects={selectedProjects} />
+      <CarbonCreditTracker projects={selectedProjects} />
+      <RiskAssessment projects={selectedProjects} />
+      <PerformanceBenchmarks data={historicalData} />
+    </div>
+  );
+};
+
+// Real-time data hooks
+function useLiveAnalytics(projectIds: string[]) {
+  return useQuery(['liveAnalytics', projectIds], async () => {
+    const data = await Promise.all(
+      projectIds.map(id => getLiveProductionData(id))
+    );
+    return aggregateAnalyticsData(data);
+  }, {
+    refetchInterval: 30000, // 30 seconds
+    enabled: projectIds.length > 0
+  });
+}
+```
+
+### Predictive Maintenance System
+
+#### 1. Equipment Health Monitoring
+
+**AI-Powered Diagnostics**:
+```typescript
+interface EquipmentHealthData {
+  projectId: string;
+  equipment: {
+    id: string;
+    type: 'solar_panel' | 'inverter' | 'wind_turbine' | 'battery';
+    healthScore: number; // 0-100
+    predictedFailureDate?: number;
+    maintenanceRecommendations: {
+      priority: 'low' | 'medium' | 'high' | 'critical';
+      action: string;
+      estimatedCost: number;
+      impactOnProduction: number; // percentage
+    }[];
+    performanceMetrics: {
+      efficiency: number;
+      degradationRate: number;
+      expectedLifespan: number; // years remaining
+    };
+  }[];
+}
+
+async function getEquipmentHealth(projectId: string): Promise<EquipmentHealthData> {
+  const response = await fetch(`/api/analytics/equipment-health/${projectId}`);
+  return response.json();
+}
+```
+
+#### 2. Maintenance Scheduling Optimization
+
+**Smart Scheduling Algorithm**:
+```typescript
+interface MaintenanceSchedule {
+  projectId: string;
+  scheduledMaintenance: {
+    equipmentId: string;
+    maintenanceType: string;
+    scheduledDate: number;
+    estimatedDuration: number; // hours
+    estimatedCost: number;
+    productionImpact: number; // MWh lost
+    priority: number; // 1-10
+  }[];
+  totalMaintenanceCost: number;
+  totalProductionLoss: number;
+  optimizationScore: number; // efficiency of schedule
+}
+
+async function optimizeMaintenanceSchedule(
+  projectId: string,
+  timeHorizon: number // days
+): Promise<MaintenanceSchedule> {
+  const [equipmentHealth, weatherForecast, energyPrices] = await Promise.all([
+    getEquipmentHealth(projectId),
+    getWeatherForecast(projectId, timeHorizon),
+    getEnergyPriceForecast(timeHorizon)
+  ]);
+  
+  // AI algorithm to optimize maintenance timing
+  return optimizeSchedule(equipmentHealth, weatherForecast, energyPrices);
+}
+```
+
+### Environmental Impact Analytics
+
+#### 1. Comprehensive Environmental Tracking
+
+**Environmental Metrics API**:
+```typescript
+interface EnvironmentalImpact {
+  projectId: string;
+  period: { start: number; end: number };
+  metrics: {
+    co2Avoided: number; // tons
+    equivalentCarsOffRoad: number;
+    treesEquivalent: number;
+    waterSaved: number; // liters
+    landUseEfficiency: number; // MW/hectare
+    biodiversityScore: number; // 0-100
+  };
+  certifications: {
+    name: string;
+    issuer: string;
+    validUntil: number;
+    certificateUrl: string;
+  }[];
+  complianceStatus: {
+    environmental: boolean;
+    social: boolean;
+    governance: boolean;
+  };
+}
+```
+
+#### 2. Sustainability Reporting
+
+**ESG Compliance Dashboard**:
+```typescript
+interface ESGReport {
+  projectId: string;
+  reportingPeriod: string;
+  environmental: {
+    carbonFootprint: number;
+    renewableEnergyPercentage: number;
+    wasteReduction: number;
+    waterUsage: number;
+  };
+  social: {
+    jobsCreated: number;
+    localCommunityBenefit: number;
+    safetyIncidents: number;
+    trainingHours: number;
+  };
+  governance: {
+    transparencyScore: number;
+    auditCompliance: boolean;
+    stakeholderEngagement: number;
+    riskManagement: number;
+  };
+  overallESGScore: number;
+  benchmarkComparison: {
+    industry: number;
+    region: number;
+    global: number;
+  };
+}
+```
+
+### Market Intelligence & Competitive Analysis
+
+#### 1. Market Trends Analysis
+
+**Market Data Integration**:
+```typescript
+interface MarketIntelligence {
+  energyMarket: {
+    currentPrices: {
+      residential: number; // per kWh
+      commercial: number;
+      industrial: number;
+    };
+    priceForecasts: {
+      timeframe: string;
+      predicted_price: number;
+      confidence: number;
+    }[];
+    volatility: number;
+  };
+  carbonMarket: {
+    currentPrice: number; // per ton CO2
+    tradingVolume: number;
+    priceHistory: {
+      date: number;
+      price: number;
+    }[];
+  };
+  competitorAnalysis: {
+    averageROI: number;
+    marketShare: {
+      company: string;
+      percentage: number;
+    }[];
+    technologyTrends: string[];
+  };
+  regulatoryEnvironment: {
+    policyChanges: {
+      date: number;
+      policy: string;
+      impact: 'positive' | 'negative' | 'neutral';
+    }[];
+    incentives: {
+      name: string;
+      amount: number;
+      duration: number;
+    }[];
+  };
+}
+```
+
+### Advanced User Interface Components
+
+#### 1. Real-time Analytics Widgets
+
+**Widget Library**:
+```typescript
+// Energy production gauge
+const EnergyGauge: React.FC<{
+  currentOutput: number;
+  capacity: number;
+  efficiency: number;
+}> = ({ currentOutput, capacity, efficiency }) => {
+  return (
+    <div className="energy-gauge">
+      <CircularProgress
+        value={efficiency}
+        color={efficiency > 80 ? 'green' : efficiency > 60 ? 'yellow' : 'red'}
+      />
+      <div className="output-display">
+        {currentOutput.toFixed(2)} MW / {capacity} MW
+      </div>
+    </div>
+  );
+};
+
+// ROI trend chart
+const ROITrendChart: React.FC<{
+  data: ROIDataPoint[];
+  forecast: ROIDataPoint[];
+}> = ({ data, forecast }) => {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={[...data, ...forecast]}>
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Line dataKey="actual" stroke="#4CAF50" strokeWidth={2} />
+        <Line dataKey="forecast" stroke="#FFA726" strokeDasharray="5 5" />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
+```
+
+#### 2. Interactive Data Visualization
+
+**Advanced Chart Components**:
+```typescript
+// Heat map for performance across projects
+const ProjectPerformanceHeatMap: React.FC<{
+  projects: ProjectPerformanceData[];
+}> = ({ projects }) => {
+  const heatmapData = projects.map(project => ({
+    id: project.id,
+    name: project.name,
+    efficiency: project.efficiency,
+    roi: project.roi,
+    co2Saved: project.co2Saved
+  }));
+  
+  return (
+    <div className="heatmap-container">
+      <HeatMap
+        data={heatmapData}
+        xAccessor="efficiency"
+        yAccessor="roi"
+        colorAccessor="co2Saved"
+        colorScheme="green"
+      />
+    </div>
+  );
+};
+
+// 3D visualization for energy production
+const EnergyProduction3D: React.FC<{
+  data: EnergyTimeSeriesData[];
+}> = ({ data }) => {
+  return (
+    <Canvas>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} />
+      <EnergyMesh data={data} />
+      <OrbitControls />
+    </Canvas>
+  );
+};
+```
+
+### Integration Testing & Validation
+
+#### 1. Analytics Data Validation
+
+**Test Suite for Analytics Functions**:
+```typescript
+describe('Phase 3 Analytics Integration', () => {
+  test('Real-time energy data collection', async () => {
+    const projectId = 'test-project-1';
+    const data = await getLiveProductionData(projectId);
+    
+    expect(data.currentOutput).toBeGreaterThanOrEqual(0);
+    expect(data.efficiency).toBeBetween(0, 100);
+    expect(data.timestamp).toBeLessThanOrEqual(Date.now());
+  });
+  
+  test('ROI calculations accuracy', async () => {
+    const projectId = 'test-project-1';
+    const roi = await getProjectROIAnalytics(projectId);
+    
+    expect(roi.currentROI).toBeFinite();
+    expect(roi.projectedROI).toBeFinite();
+    expect(roi.paybackPeriod).toBeGreaterThan(0);
+  });
+  
+  test('Carbon credit calculations', async () => {
+    const credits = await calculateCarbonCredits(
+      'test-project-1',
+      Date.now() - 30 * 24 * 60 * 60 * 1000, // 30 days ago
+      Date.now()
+    );
+    
+    expect(credits.co2Avoided).toBeGreaterThanOrEqual(0);
+    expect(credits.carbonCreditsEarned).toEqual(credits.co2Avoided);
+  });
+});
+```
+
+#### 2. Performance Benchmarks
+
+**Analytics Performance Standards**:
+```typescript
+const ANALYTICS_PERFORMANCE_BENCHMARKS = {
+  REAL_TIME_DATA_LATENCY: 5000, // 5 seconds max
+  DASHBOARD_LOAD_TIME: 3000, // 3 seconds max
+  FORECAST_ACCURACY: 0.85, // 85% minimum accuracy
+  UPTIME_REQUIREMENT: 0.999, // 99.9% uptime
+  DATA_FRESHNESS: 60000 // 1 minute max age for live data
+};
+```
+
+---
+
+## Summary
+
+Phase 3 of the OnGrid Protocol integration provides a comprehensive analytics ecosystem that combines real-time monitoring, predictive analytics, financial performance tracking, and environmental impact assessment. This advanced system enables stakeholders to make data-driven decisions, optimize project performance, and maximize both financial returns and environmental benefits.
+
+The implementation leverages modern web technologies, machine learning algorithms, and blockchain integration to deliver a seamless user experience while maintaining the highest standards of data accuracy and system reliability.
