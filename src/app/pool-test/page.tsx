@@ -1,8 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import PoolInfoTest from "@/components/developer/PoolInfoTest";
 
 export default function PoolTestPage() {
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center text-zinc-400">
+            Loading pool test page...
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
