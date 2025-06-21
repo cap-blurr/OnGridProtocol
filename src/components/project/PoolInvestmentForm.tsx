@@ -141,15 +141,15 @@ export default function PoolInvestmentForm({
   const getRiskLevelColor = () => {
     switch (riskLevel.toLowerCase()) {
       case 'low':
-        return "border-green-600 text-green-500 bg-green-900/20";
+        return "border-oga-green text-oga-green bg-oga-green/20";
       case 'medium-low':
-        return "border-emerald-600 text-emerald-500 bg-emerald-900/20";
+        return "border-oga-green text-oga-green bg-oga-green/20";
       case 'medium':
-        return "border-yellow-600 text-yellow-500 bg-yellow-900/20";
+        return "border-oga-yellow text-oga-yellow bg-oga-yellow/20";
       case 'high':
         return "border-red-600 text-red-500 bg-red-900/20";
       default:
-        return "border-blue-600 text-blue-500 bg-blue-900/20";
+        return "border-oga-green text-oga-green bg-oga-green/20";
     }
   };
 
@@ -161,9 +161,9 @@ export default function PoolInvestmentForm({
           <>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="investmentAmount" className="text-zinc-300">Investment Amount (USDC)</Label>
+                <Label htmlFor="investmentAmount" className="text-oga-green/90">Investment Amount (USDC)</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-oga-green/60" />
                   <Input 
                     id="investmentAmount" 
                     value={investmentAmount} 
@@ -172,27 +172,27 @@ export default function PoolInvestmentForm({
                     step="0.000001"
                     min="0"
                     placeholder="Enter amount to invest" 
-                    className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                    className="h-10 pl-10 bg-oga-green/10 border-oga-green/30 text-oga-green focus:border-oga-green" 
                   />
                 </div>
               </div>
               
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Your USDC Balance:</span>
-                <span className="text-white">{formattedUsdcBalance} USDC</span>
+                <span className="text-oga-green/80">Your USDC Balance:</span>
+                <span className="text-oga-green">{formattedUsdcBalance} USDC</span>
               </div>
               
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Pool Total Assets:</span>
-                <span className="text-white">{totalAssets} USDC</span>
+                <span className="text-oga-green/80">Pool Total Assets:</span>
+                <span className="text-oga-green">{totalAssets} USDC</span>
               </div>
               
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Your Current Pool Shares:</span>
-                <span className="text-white">{currentShares?.toString() || '0'}</span>
+                <span className="text-oga-green/80">Your Current Pool Shares:</span>
+                <span className="text-oga-green">{currentShares?.toString() || '0'}</span>
               </div>
               
-              <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>
                   This pool supports low-value projects and has a risk level of {riskLevel}. Expected APR: {aprPercentage.toFixed(2)}%.
@@ -203,7 +203,7 @@ export default function PoolInvestmentForm({
             <CardFooter className="flex justify-end pt-4">
               <Button 
                 onClick={handleAmountSubmit} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="bg-oga-green hover:bg-oga-green/80 text-black"
               >
                 Continue
                 <ArrowRight size={16} className="ml-2" />
@@ -216,7 +216,7 @@ export default function PoolInvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
+              <Alert className="bg-oga-yellow/20 border-oga-yellow/50 text-oga-yellow">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertTitle>USDC Approval Required</AlertTitle>
                 <AlertDescription>
@@ -224,19 +224,19 @@ export default function PoolInvestmentForm({
                 </AlertDescription>
               </Alert>
               
-              <div className="p-4 border border-zinc-800 rounded-lg space-y-2">
+              <div className="p-4 border border-oga-green/30 rounded-lg space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Amount to Approve:</span>
-                  <span className="text-white">{investmentAmount} USDC</span>
+                  <span className="text-oga-green/80">Amount to Approve:</span>
+                  <span className="text-oga-green">{investmentAmount} USDC</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Contract to Approve:</span>
-                  <span className="text-white truncate max-w-[200px]">{addresses.liquidityPoolManagerProxy}</span>
+                  <span className="text-oga-green/80">Contract to Approve:</span>
+                  <span className="text-oga-green truncate max-w-[200px]">{addresses.liquidityPoolManagerProxy}</span>
                 </div>
               </div>
               
               <Button 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full bg-oga-green hover:bg-oga-green/80 text-black"
                 onClick={handleApprove}
                 disabled={isApproving}
               >
@@ -259,7 +259,7 @@ export default function PoolInvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <Check className="h-4 w-4 mr-2" />
                 <AlertTitle>Ready to Invest</AlertTitle>
                 <AlertDescription>
@@ -267,27 +267,27 @@ export default function PoolInvestmentForm({
                 </AlertDescription>
               </Alert>
               
-              <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
+              <div className="p-4 border border-oga-green/30 rounded-lg space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Pool Name:</span>
-                  <span className="text-white">{poolName}</span>
+                  <span className="text-oga-green/80">Pool Name:</span>
+                  <span className="text-oga-green">{poolName}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Risk Level:</span>
-                  <span className="text-white">{riskLevel}</span>
+                  <span className="text-oga-green/80">Risk Level:</span>
+                  <span className="text-oga-green">{riskLevel}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">APR:</span>
-                  <span className="text-white">{aprPercentage.toFixed(2)}%</span>
+                  <span className="text-oga-green/80">APR:</span>
+                  <span className="text-oga-green">{aprPercentage.toFixed(2)}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Investment Amount:</span>
-                  <span className="text-white">{investmentAmount} USDC</span>
+                  <span className="text-oga-green/80">Investment Amount:</span>
+                  <span className="text-oga-green">{investmentAmount} USDC</span>
                 </div>
               </div>
               
               <Button 
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full bg-oga-green hover:bg-oga-green/80 text-black"
                 onClick={handleDeposit}
                 disabled={isDepositing}
               >
@@ -310,7 +310,7 @@ export default function PoolInvestmentForm({
         return (
           <>
             <CardContent className="space-y-4">
-              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Alert className="bg-oga-green/20 border-oga-green/50 text-oga-green">
                 <Check className="h-4 w-4 mr-2" />
                 <AlertTitle>Investment Successful!</AlertTitle>
                 <AlertDescription>
@@ -319,12 +319,12 @@ export default function PoolInvestmentForm({
               </Alert>
               
               <div className="text-center py-4">
-                <p className="text-zinc-300 mb-4">
+                <p className="text-oga-green/90 mb-4">
                   Your funds are now part of the liquidity pool and will generate returns as they are used to fund low-value renewable energy projects.
                 </p>
                 <Button 
                   onClick={handleReset}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="bg-oga-green hover:bg-oga-green/80 text-black"
                 >
                   Make Another Investment
                 </Button>
@@ -336,15 +336,15 @@ export default function PoolInvestmentForm({
   };
 
   return (
-    <Card className="bg-gradient-to-br from-zinc-950 via-emerald-950/30 to-black backdrop-blur-sm border-emerald-900/20">
+    <Card className="bg-gradient-to-br from-oga-green/20 via-black/90 to-oga-green/20 backdrop-blur-sm border border-oga-green/50">
       <CardHeader className="flex flex-row justify-between items-center">
-        <CardTitle className="text-white flex items-center gap-2">
-          <Shield className="h-5 w-5 text-emerald-500" />
+        <CardTitle className="text-oga-green flex items-center gap-2">
+          <Shield className="h-5 w-5 text-oga-green" />
           Invest in Pool
         </CardTitle>
         <div className="flex items-center gap-2">
-          <Percent className="h-4 w-4 text-emerald-500" />
-          <span className="text-emerald-500 font-medium">{aprPercentage.toFixed(2)}% APR</span>
+          <Percent className="h-4 w-4 text-oga-green" />
+          <span className="text-oga-green font-medium">{aprPercentage.toFixed(2)}% APR</span>
         </div>
       </CardHeader>
       {renderStepContent()}

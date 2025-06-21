@@ -65,10 +65,10 @@ export function DirectProjectInvestment({
   const isDisabled = !isConnected || isFundingClosed || isInvesting || isValidating || !amount;
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <DollarSign className="h-5 w-5 text-[#4CAF50]" />
+        <CardTitle className="flex items-center gap-2 text-oga-green">
+          <DollarSign className="h-5 w-5 text-oga-green" />
           Invest in {projectName}
         </CardTitle>
       </CardHeader>
@@ -92,7 +92,7 @@ export function DirectProjectInvestment({
         )}
         
         <div className="space-y-2">
-          <Label htmlFor="investment-amount" className="text-white">
+          <Label htmlFor="investment-amount" className="text-oga-green">
             Investment Amount (USDC)
           </Label>
           <Input
@@ -102,9 +102,9 @@ export function DirectProjectInvestment({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             disabled={isDisabled}
-            className="bg-black/20 border-[#4CAF50]/20 text-white placeholder:text-zinc-500"
+            className="bg-black/20 border-oga-green/20 text-white placeholder:text-oga-green/60"
           />
-          <div className="flex justify-between text-xs text-zinc-400">
+          <div className="flex justify-between text-xs text-oga-green/80">
             <span>Min: ${minInvestment.toLocaleString()}</span>
             <span>Max: ${maxInvestment.toLocaleString()}</span>
           </div>
@@ -122,7 +122,7 @@ export function DirectProjectInvestment({
         <Button
           onClick={handleInvest}
           disabled={isDisabled}
-          className="w-full bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white"
+          className="w-full bg-oga-green hover:bg-oga-green/80 text-white"
         >
           {isInvesting || isValidating ? (
             <>
@@ -189,14 +189,14 @@ export function PoolInvestment({
   const isDisabled = !isConnected || isDepositing || isValidating || !amount;
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <DollarSign className="h-5 w-5 text-[#4CAF50]" />
+        <CardTitle className="flex items-center gap-2 text-oga-green">
+          <DollarSign className="h-5 w-5 text-oga-green" />
           Invest in {poolName}
         </CardTitle>
         {aprRate && (
-          <Badge className="w-fit bg-[#4CAF50]/20 text-[#4CAF50] border-[#4CAF50]/50">
+          <Badge className="w-fit bg-oga-green/20 text-oga-green border-oga-green/50">
             {aprRate}% APR
           </Badge>
         )}
@@ -212,7 +212,7 @@ export function PoolInvestment({
         )}
         
         <div className="space-y-2">
-          <Label htmlFor="pool-investment-amount" className="text-white">
+          <Label htmlFor="pool-investment-amount" className="text-oga-green">
             Investment Amount (USDC)
           </Label>
           <Input
@@ -222,9 +222,9 @@ export function PoolInvestment({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             disabled={isDisabled}
-            className="bg-black/20 border-[#4CAF50]/20 text-white placeholder:text-zinc-500"
+            className="bg-black/20 border-oga-green/20 text-white placeholder:text-oga-green/60"
           />
-          <div className="flex justify-between text-xs text-zinc-400">
+          <div className="flex justify-between text-xs text-oga-green/80">
             <span>Min: ${minInvestment.toLocaleString()}</span>
             <span>Max: ${maxInvestment.toLocaleString()}</span>
           </div>
@@ -242,7 +242,7 @@ export function PoolInvestment({
         <Button
           onClick={handleDeposit}
           disabled={isDisabled}
-          className="w-full bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white"
+          className="w-full bg-oga-green hover:bg-oga-green/80 text-white"
         >
           {isDepositing || isValidating ? (
             <>
@@ -300,10 +300,10 @@ export function ClaimReturns({
   const hasClaimableAmount = totalClaimable > 0;
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20">
+    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/20">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
-          <CheckCircle className="h-5 w-5 text-[#4CAF50]" />
+        <CardTitle className="flex items-center gap-2 text-oga-green">
+          <CheckCircle className="h-5 w-5 text-oga-green" />
           Claim Returns - {projectName}
         </CardTitle>
       </CardHeader>
@@ -328,19 +328,19 @@ export function ClaimReturns({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <Label className="text-zinc-400">Claimable Principal</Label>
-            <div className="text-lg font-semibold text-white">${claimablePrincipal}</div>
+            <Label className="text-oga-green/80">Claimable Principal</Label>
+            <div className="text-lg font-semibold text-oga-green">${claimablePrincipal}</div>
           </div>
           <div className="space-y-1">
-            <Label className="text-zinc-400">Claimable Interest</Label>
-            <div className="text-lg font-semibold text-[#4CAF50]">${claimableInterest}</div>
+            <Label className="text-oga-green/80">Claimable Interest</Label>
+            <div className="text-lg font-semibold text-oga-green">${claimableInterest}</div>
           </div>
         </div>
 
         <Button
           onClick={handleClaim}
           disabled={!isConnected || !hasClaimableAmount || isClaiming}
-          className="w-full bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white"
+          className="w-full bg-oga-green hover:bg-oga-green/80 text-white"
         >
           {isClaiming ? (
             <>

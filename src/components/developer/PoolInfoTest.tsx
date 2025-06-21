@@ -92,10 +92,10 @@ export default function PoolInfoTest() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-black/30 backdrop-blur-sm border border-[#4CAF50]/40">
+      <Card className="bg-black/30 backdrop-blur-sm border border-oga-green/40">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Info className="h-5 w-5 text-[#4CAF50]" />
+          <CardTitle className="text-oga-green flex items-center gap-2">
+            <Info className="h-5 w-5 text-oga-green" />
             Pool Information Test
           </CardTitle>
         </CardHeader>
@@ -107,24 +107,24 @@ export default function PoolInfoTest() {
               value={poolId}
               onChange={(e) => setPoolId(parseInt(e.target.value) || 1)}
               placeholder="Pool ID"
-              className="bg-black/20 border-[#4CAF50]/30 text-white"
+              className="bg-black/20 border-oga-green/30 text-oga-green"
               min="1"
             />
             <Button
               onClick={() => setPoolId(1)}
-              className="bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white"
+              className="bg-oga-green hover:bg-oga-green/80 text-black"
             >
               Test Pool 1
             </Button>
           </div>
 
           {/* Pool Count Info */}
-          <div className="p-3 bg-black/20 border border-[#4CAF50]/20 rounded-lg">
-            <h3 className="text-[#4CAF50] font-medium mb-2">Pool Count Information</h3>
+          <div className="p-3 bg-black/20 border border-oga-green/20 rounded-lg">
+            <h3 className="text-oga-green font-medium mb-2">Pool Count Information</h3>
             {isLoadingCount ? (
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-zinc-400">Loading pool count...</span>
+                <span className="text-oga-green/80">Loading pool count...</span>
               </div>
             ) : countError ? (
               <Alert className="bg-red-900/30 border-red-700">
@@ -135,25 +135,25 @@ export default function PoolInfoTest() {
             ) : (
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-zinc-400">Total Pools:</span>
-                  <span className="text-white ml-2">{formattedPoolCount}</span>
+                  <span className="text-oga-green/80">Total Pools:</span>
+                  <span className="text-oga-green ml-2">{formattedPoolCount}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400">Raw Pool Count:</span>
-                  <span className="text-white ml-2">{poolCount?.toString() || '0'}</span>
+                  <span className="text-oga-green/80">Raw Pool Count:</span>
+                  <span className="text-oga-green ml-2">{poolCount?.toString() || '0'}</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Pool Info Display */}
-          <div className="p-3 bg-black/20 border border-[#4CAF50]/20 rounded-lg">
-            <h3 className="text-[#4CAF50] font-medium mb-2">Pool ID {poolId} Information</h3>
+          <div className="p-3 bg-black/20 border border-oga-green/20 rounded-lg">
+            <h3 className="text-oga-green font-medium mb-2">Pool ID {poolId} Information</h3>
             
             {isLoadingPoolInfo ? (
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-zinc-400">Loading pool info...</span>
+                <span className="text-oga-green/80">Loading pool info...</span>
               </div>
             ) : poolInfoError ? (
               <Alert className="bg-red-900/30 border-red-700">
@@ -165,36 +165,36 @@ export default function PoolInfoTest() {
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-zinc-400">Exists:</span>
-                    <span className={`ml-2 ${exists ? 'text-[#4CAF50]' : 'text-red-400'}`}>
+                    <span className="text-oga-green/80">Exists:</span>
+                    <span className={`ml-2 ${exists ? 'text-oga-green' : 'text-red-400'}`}>
                       {exists ? 'Yes' : 'No'}
                     </span>
                   </div>
                   <div>
-                    <span className="text-zinc-400">Name:</span>
-                    <span className="text-white ml-2">{name || 'N/A'}</span>
+                    <span className="text-oga-green/80">Name:</span>
+                    <span className="text-oga-green ml-2">{name || 'N/A'}</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-zinc-400">Total Assets:</span>
-                    <span className="text-[#4CAF50] ml-2">{formattedTotalAssets} USDC</span>
+                    <span className="text-oga-green/80">Total Assets:</span>
+                    <span className="text-oga-green ml-2">{formattedTotalAssets} USDC</span>
                   </div>
                   <div>
-                    <span className="text-zinc-400">Total Shares:</span>
-                    <span className="text-white ml-2">{totalShares?.toString() || '0'}</span>
+                    <span className="text-oga-green/80">Total Shares:</span>
+                    <span className="text-oga-green ml-2">{totalShares?.toString() || '0'}</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-zinc-400">Risk Level:</span>
-                    <span className="text-white ml-2">{riskLevel || 'N/A'}</span>
+                    <span className="text-oga-green/80">Risk Level:</span>
+                    <span className="text-oga-green ml-2">{riskLevel || 'N/A'}</span>
                   </div>
                   <div>
-                    <span className="text-zinc-400">APR:</span>
-                    <span className="text-[#4CAF50] ml-2">{aprPercentage.toFixed(2)}%</span>
+                    <span className="text-oga-green/80">APR:</span>
+                    <span className="text-oga-green ml-2">{aprPercentage.toFixed(2)}%</span>
                   </div>
                 </div>
               </div>
@@ -202,15 +202,15 @@ export default function PoolInfoTest() {
           </div>
 
           {/* User Shares */}
-          <div className="p-3 bg-black/20 border border-[#4CAF50]/20 rounded-lg">
-            <h3 className="text-[#4CAF50] font-medium mb-2">Your Pool Investments</h3>
+          <div className="p-3 bg-black/20 border border-oga-green/20 rounded-lg">
+            <h3 className="text-oga-green font-medium mb-2">Your Pool Investments</h3>
             
             {!isConnected ? (
-              <p className="text-zinc-400 text-sm">Connect your wallet to see your shares</p>
+              <p className="text-oga-green/80 text-sm">Connect your wallet to see your shares</p>
             ) : isLoadingUserShares ? (
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-zinc-400">Loading your shares...</span>
+                <span className="text-oga-green/80">Loading your shares...</span>
               </div>
             ) : userSharesError ? (
               <Alert className="bg-red-900/30 border-red-700">
@@ -221,12 +221,12 @@ export default function PoolInfoTest() {
             ) : (
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="text-zinc-400">Your Shares in Pool {poolId}:</span>
-                  <span className="text-[#4CAF50] ml-2">{userShares?.toString() || '0'}</span>
+                  <span className="text-oga-green/80">Your Shares in Pool {poolId}:</span>
+                  <span className="text-oga-green ml-2">{userShares?.toString() || '0'}</span>
                 </div>
                 <div>
-                  <span className="text-zinc-400">Your USDC Balance:</span>
-                  <span className="text-white ml-2">{usdcBalance} USDC</span>
+                  <span className="text-oga-green/80">Your USDC Balance:</span>
+                  <span className="text-oga-green ml-2">{usdcBalance} USDC</span>
                 </div>
               </div>
             )}
@@ -234,8 +234,8 @@ export default function PoolInfoTest() {
 
           {/* Investment Test Section */}
           {exists && isConnected && (
-            <div className="p-3 bg-black/20 border border-[#4CAF50]/20 rounded-lg">
-              <h3 className="text-[#4CAF50] font-medium mb-3">Test Investment</h3>
+            <div className="p-3 bg-black/20 border border-oga-green/20 rounded-lg">
+              <h3 className="text-oga-green font-medium mb-3">Test Investment</h3>
               
               <div className="space-y-3">
                 <Input
@@ -243,7 +243,7 @@ export default function PoolInfoTest() {
                   value={investAmount}
                   onChange={(e) => setInvestAmount(e.target.value)}
                   placeholder="Amount to invest (USDC)"
-                  className="bg-black/20 border-[#4CAF50]/30 text-white"
+                  className="bg-black/20 border-oga-green/30 text-oga-green"
                   step="0.000001"
                   min="0"
                 />
@@ -253,7 +253,7 @@ export default function PoolInfoTest() {
                     <Button
                       onClick={handleApprove}
                       disabled={isApproving || !investAmount || parseFloat(investAmount) <= 0}
-                      className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white"
+                      className="flex-1 bg-oga-yellow hover:bg-oga-yellow/80 text-black"
                     >
                       {isApproving ? (
                         <>
@@ -268,7 +268,7 @@ export default function PoolInfoTest() {
                     <Button
                       onClick={handleDeposit}
                       disabled={isDepositing || !investAmount || parseFloat(investAmount) <= 0}
-                      className="flex-1 bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white"
+                      className="flex-1 bg-oga-green hover:bg-oga-green/80 text-black"
                     >
                       {isDepositing ? (
                         <>
@@ -283,7 +283,7 @@ export default function PoolInfoTest() {
                 </div>
                 
                 {investAmount && parseFloat(investAmount) > 0 && (
-                  <div className="text-xs text-zinc-400">
+                  <div className="text-xs text-oga-green/80">
                     {needsApproval ? 
                       'You need to approve USDC spending first' : 
                       'Ready to invest in the pool'
@@ -295,20 +295,20 @@ export default function PoolInfoTest() {
           )}
 
           {/* Contract Addresses for Debugging */}
-          <div className="p-3 bg-black/20 border border-[#4CAF50]/20 rounded-lg">
-            <h3 className="text-[#4CAF50] font-medium mb-2">Contract Addresses (Debug)</h3>
+          <div className="p-3 bg-black/20 border border-oga-green/20 rounded-lg">
+            <h3 className="text-oga-green font-medium mb-2">Contract Addresses (Debug)</h3>
             <div className="space-y-1 text-xs">
               <div>
-                <span className="text-zinc-400">USDC Address:</span>
-                <span className="text-white ml-2 font-mono">{addresses.usdc}</span>
+                <span className="text-oga-green/80">USDC Address:</span>
+                <span className="text-oga-green ml-2 font-mono">{addresses.usdc}</span>
               </div>
               <div>
-                <span className="text-zinc-400">Pool Manager:</span>
-                <span className="text-white ml-2 font-mono">{addresses.liquidityPoolManagerProxy}</span>
+                <span className="text-oga-green/80">Pool Manager:</span>
+                <span className="text-oga-green ml-2 font-mono">{addresses.liquidityPoolManagerProxy}</span>
               </div>
               <div>
-                <span className="text-zinc-400">Your Address:</span>
-                <span className="text-white ml-2 font-mono">{userAddress || 'Not connected'}</span>
+                <span className="text-oga-green/80">Your Address:</span>
+                <span className="text-oga-green ml-2 font-mono">{userAddress || 'Not connected'}</span>
               </div>
             </div>
           </div>
