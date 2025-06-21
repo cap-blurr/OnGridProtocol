@@ -159,7 +159,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   };
 
   return (
-    <Card className="bg-gradient-to-br from-oga-green/25 via-black/90 to-oga-green/25 backdrop-blur-sm border border-oga-green/50 hover:border-oga-green/70 transition-all duration-300 hover:shadow-lg hover:shadow-oga-green/40">
+    <Card className="bg-transparent border-none shadow-none">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg lg:text-xl text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center space-x-3">
@@ -319,21 +319,21 @@ export default function PoolInvestmentCard() {
         </div>
       </div>
       
-      <Card className="bg-gradient-to-br from-oga-green/20 via-black/90 to-oga-green/20 backdrop-blur-sm border border-oga-green/50 shadow-2xl shadow-oga-green/25">
-        <CardContent className="space-y-6 lg:space-y-8 p-8">
-          {poolIds.length === 0 && !isLoadingCount && (
-            <div className="text-center text-oga-green py-12">
-              <Sun size={64} className="mx-auto mb-6 text-oga-yellow opacity-60" />
-              <h3 className="text-2xl font-bold text-white mb-4">No Solar Pools Available</h3>
-              <p className="text-lg text-oga-green/80 mb-2">No solar energy liquidity pools are available at the moment.</p>
-              <p className="text-sm text-oga-green/60">Check back soon for new solar investment opportunities!</p>
-            </div>
-          )}
-          {poolIds.map((id) => (
-            <PoolDetailCard key={id} poolId={id} liquidityPoolManagerAddress={liquidityPoolManagerProxy as `0x${string}`} />
-          ))}
-        </CardContent>
-      </Card>
+      <div className="space-y-6 lg:space-y-8">
+        {poolIds.length === 0 && !isLoadingCount && (
+          <div className="text-center text-oga-green py-12 bg-gradient-to-br from-oga-green/20 via-black/90 to-oga-green/20 backdrop-blur-sm border border-oga-green/50 shadow-2xl shadow-oga-green/25 rounded-lg p-8">
+            <Sun size={64} className="mx-auto mb-6 text-oga-yellow opacity-60" />
+            <h3 className="text-2xl font-bold text-white mb-4">No Solar Pools Available</h3>
+            <p className="text-lg text-oga-green/80 mb-2">No solar energy liquidity pools are available at the moment.</p>
+            <p className="text-sm text-oga-green/60">Check back soon for new solar investment opportunities!</p>
+          </div>
+        )}
+        {poolIds.map((id) => (
+          <div key={id} className="bg-gradient-to-br from-oga-green/25 via-black/90 to-oga-green/25 backdrop-blur-sm border border-oga-green/50 hover:border-oga-green/70 transition-all duration-300 hover:shadow-lg hover:shadow-oga-green/40 rounded-lg overflow-hidden p-6">
+            <PoolDetailCard poolId={id} liquidityPoolManagerAddress={liquidityPoolManagerProxy as `0x${string}`} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 } 
