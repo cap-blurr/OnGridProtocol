@@ -159,7 +159,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   };
 
   return (
-    <Card className="bg-black/30 backdrop-blur-sm border border-[#4CAF50]/40 hover:border-[#4CAF50]/60 transition-colors duration-300">
+    <Card className="bg-gradient-to-br from-black/60 via-[#4CAF50]/5 to-black/60 backdrop-blur-sm border border-[#4CAF50]/40 hover:border-[#4CAF50]/60 transition-all duration-300 hover:shadow-lg hover:shadow-[#4CAF50]/20">
       <CardHeader className="pb-3">
         <CardTitle className="text-base lg:text-lg text-[#4CAF50] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center space-x-2">
@@ -199,7 +199,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
               <Button 
                 onClick={handleApprove} 
                 disabled={isApproving || isLoadingAllowance || !depositAmount || parseFloat(depositAmount) <= 0}
-                className="flex-1 bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold text-xs sm:text-sm"
+                className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-semibold text-xs sm:text-sm shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all duration-300"
               >
                 {isApproving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
                 Approve USDC
@@ -208,7 +208,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             <Button 
               onClick={handleDeposit} 
               disabled={isDepositing || (needsApproval && parseFloat(depositAmount) > 0) || !depositAmount || parseFloat(depositAmount) <= 0}
-              className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/80 hover:from-[#4CAF50]/80 hover:to-[#4CAF50] text-white font-semibold text-xs sm:text-sm"
+              className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/80 hover:from-[#4CAF50]/80 hover:to-[#4CAF50] text-white font-semibold text-xs sm:text-sm shadow-lg shadow-[#4CAF50]/25 hover:shadow-[#4CAF50]/40 transition-all duration-300"
             >
               {isDepositing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
               Deposit to Solar Pool
@@ -237,7 +237,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           <Button 
             onClick={handleRedeem}
             disabled={isRedeeming || !redeemSharesAmount || BigInt(redeemSharesAmount) <= 0 || (userShares != undefined && BigInt(redeemSharesAmount) > userShares)}
-            className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold text-xs sm:text-sm"
+            className="w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-rose-600/25 hover:shadow-rose-600/40 transition-all duration-300"
           >
             {isRedeeming ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
             Redeem Solar Pool Shares
@@ -294,16 +294,36 @@ export default function PoolInvestmentCard() {
   }
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
-      <CardHeader>
-        <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
-          <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />
-          Invest in Solar Liquidity Pools
-        </CardTitle>
-        <CardDescription className="text-zinc-400 pt-1 text-sm lg:text-base">
-          Provide liquidity to solar energy project funding pools and earn yield. Select a pool and enter the amount of USDC you wish to deposit.
-        </CardDescription>
-      </CardHeader>
+    <div className="space-y-6">
+      {/* New Header Design */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#4CAF50]/20 via-black/60 to-[#4CAF50]/10 backdrop-blur-sm border border-[#4CAF50]/30 rounded-xl p-6">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#4CAF50]/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#4CAF50]/20 rounded-full blur-2xl"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="bg-[#4CAF50]/20 p-3 rounded-lg">
+                <Sun className="h-6 w-6 text-[#4CAF50]" />
+              </div>
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-white">Solar Investment Pools</h1>
+                <p className="text-zinc-400 text-sm">New Enhanced Interface</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-[#4CAF50]/20 to-[#4CAF50]/10 px-4 py-2 rounded-full border border-[#4CAF50]/30">
+              <span className="text-[#4CAF50] text-sm font-medium">✨ Updated</span>
+            </div>
+          </div>
+          
+          <p className="text-zinc-300 text-sm lg:text-base max-w-3xl">
+            Invest in diversified solar energy pools with our redesigned interface. 
+            Experience seamless transactions, real-time data, and enhanced user experience.
+          </p>
+        </div>
+      </div>
+      
+      <Card className="bg-gradient-to-br from-black/80 via-[#4CAF50]/5 to-black/80 backdrop-blur-sm border border-[#4CAF50]/30 shadow-2xl shadow-[#4CAF50]/10">
       <CardContent className="space-y-4 lg:space-y-6">
         {poolIds.length === 0 && !isLoadingCount && (
           <div className="text-center text-zinc-400 py-6">
@@ -318,6 +338,7 @@ export default function PoolInvestmentCard() {
         ))}
       </CardContent>
     </Card>
+    </div>
   );
 } 
 

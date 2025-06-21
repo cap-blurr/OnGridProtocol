@@ -24,7 +24,7 @@ import Link from 'next/link';
 // Import enhanced components
 import InvestorPortfolio from '@/components/investment/InvestorPortfolio';
 import ProjectDiscovery from '@/components/investment/ProjectDiscovery';
-import PoolInvestmentCard from '@/components/project/PoolInvestmentCard';
+// Removed PoolInvestmentCard - now only available on dedicated pools page
 import { useUserEvents } from '@/hooks/contracts/useContractEvents';
 import { useUSDCBalance } from '@/hooks/contracts/useUSDC';
 
@@ -126,7 +126,7 @@ export default function InvestmentDashboard() {
             <ProjectDiscovery />
           </TabsContent>
 
-          {/* Liquidity Pools Tab - Enhanced with real pool data */}
+          {/* Liquidity Pools Tab - Overview and Navigation */}
           <TabsContent value="pools" className="space-y-4 lg:space-y-6">
             <div className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -138,12 +138,54 @@ export default function InvestmentDashboard() {
                 </div>
                 <div className="flex items-center gap-2 text-oga-green">
                   <Users className="h-5 w-5" />
-                  <span className="text-sm font-medium">Pool Investments</span>
+                  <span className="text-sm font-medium">Pool Overview</span>
                 </div>
               </div>
 
-              {/* Pool Investment Cards */}
-              <PoolInvestmentCard />
+              {/* Pool Navigation Card */}
+              <Card className="bg-gradient-to-br from-black/60 via-[#4CAF50]/10 to-black/60 backdrop-blur-sm border border-[#4CAF50]/30 hover:border-[#4CAF50]/50 transition-all duration-300">
+                <CardContent className="p-8">
+                  <div className="text-center space-y-6">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-[#4CAF50]/20 rounded-full blur-xl"></div>
+                      <div className="relative bg-[#4CAF50]/10 p-6 rounded-full w-24 h-24 mx-auto flex items-center justify-center">
+                        <Users className="h-12 w-12 text-[#4CAF50]" />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Access Solar Investment Pools</h3>
+                      <p className="text-zinc-400 max-w-2xl mx-auto">
+                        Explore and invest in our curated selection of solar energy liquidity pools. 
+                        Diversify your investments across multiple projects with lower entry barriers.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                      <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20">
+                        <div className="text-2xl font-bold text-[#4CAF50] mb-1">3</div>
+                        <div className="text-sm text-zinc-400">Active Pools</div>
+                      </div>
+                      <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20">
+                        <div className="text-2xl font-bold text-[#4CAF50] mb-1">12.5%</div>
+                        <div className="text-sm text-zinc-400">Avg APR</div>
+                      </div>
+                      <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20">
+                        <div className="text-2xl font-bold text-[#4CAF50] mb-1">$500</div>
+                        <div className="text-sm text-zinc-400">Min Investment</div>
+                      </div>
+                    </div>
+
+                    <Link href="/dashboard/investments/pools">
+                      <Button className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/80 hover:from-[#4CAF50]/80 hover:to-[#4CAF50] text-white font-semibold px-8 py-3 text-lg">
+                        <Users className="h-5 w-5 mr-2" />
+                        Explore Investment Pools
+                        <ArrowUpRight className="h-5 w-5 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Pool Benefits */}
               <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">

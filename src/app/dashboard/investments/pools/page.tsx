@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { useGetAllPools, useUserPoolInvestments } from '@/hooks/contracts/useLiquidityPoolManager';
+import PoolInvestmentCard from '@/components/project/PoolInvestmentCard';
 import LoadingScreen from '@/components/ui/loading-screen';
 import { formatUnits } from 'viem';
 
@@ -85,20 +86,50 @@ export default function InvestmentPools() {
     <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="mb-6 lg:mb-8">
-          <Link href="/dashboard/investments" className="inline-flex items-center text-oga-green hover:text-oga-green-light mb-4 transition-colors">
+          <Link href="/dashboard/investments" className="inline-flex items-center text-[#4CAF50] hover:text-[#4CAF50]/80 mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Solar Investment Dashboard
           </Link>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Solar Investment Pools</h1>
-              <p className="text-zinc-400 text-sm sm:text-base">
-                Join diversified solar investment pools for reduced risk and steady returns
-              </p>
-            </div>
-            <div className="flex items-center space-x-2 text-oga-green">
-              <Sun className="h-5 w-5" />
-              <span className="text-sm font-medium">Live Pool Data</span>
+          
+          {/* Enhanced Header */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#4CAF50]/20 via-black/60 to-[#4CAF50]/10 backdrop-blur-sm border border-[#4CAF50]/30 rounded-xl p-8 mb-8">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#4CAF50]/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#4CAF50]/20 rounded-full blur-2xl"></div>
+            
+            <div className="relative z-10">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="bg-[#4CAF50]/20 p-4 rounded-xl">
+                      <Sun className="h-8 w-8 text-[#4CAF50]" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">Solar Investment Pools</h1>
+                      <div className="flex items-center space-x-3">
+                        <span className="bg-gradient-to-r from-[#4CAF50]/20 to-[#4CAF50]/10 px-3 py-1 rounded-full border border-[#4CAF50]/30 text-[#4CAF50] text-sm font-medium">
+                          ✨ Enhanced Interface
+                        </span>
+                        <span className="text-zinc-400 text-sm">New Design & Features</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-zinc-300 text-lg max-w-2xl">
+                    Join diversified solar investment pools with our redesigned interface. 
+                    Experience reduced risk, steady returns, and seamless investment management.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">
+                  <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20 text-center">
+                    <div className="text-2xl font-bold text-[#4CAF50] mb-1">Live</div>
+                    <div className="text-sm text-zinc-400">Pool Data</div>
+                  </div>
+                  <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20 text-center">
+                    <div className="text-2xl font-bold text-[#4CAF50] mb-1">Real-time</div>
+                    <div className="text-sm text-zinc-400">Updates</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -281,14 +312,27 @@ export default function InvestmentPools() {
                     </div>
                   </div>
 
-                  {/* Investment Action - Using Enhanced Pool Investment Card */}
-                  <div className="border-t border-zinc-800 pt-4">
-                    <div className="bg-black/20 p-4 rounded-lg">
-                      <h4 className="text-white font-semibold mb-4 text-sm flex items-center">
-                        <DollarSign className="w-4 h-4 mr-2 text-[#4CAF50]" />
-                        Invest in This Pool
-                      </h4>
-                     
+                  {/* Investment Action - New Enhanced Interface */}
+                  <div className="border-t border-[#4CAF50]/20 pt-6 mt-6">
+                    <div className="bg-gradient-to-br from-[#4CAF50]/10 via-black/40 to-[#4CAF50]/5 p-6 rounded-xl border border-[#4CAF50]/30 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-[#4CAF50]/10 rounded-full blur-xl"></div>
+                      <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-white font-bold text-lg flex items-center">
+                            <div className="bg-[#4CAF50]/20 p-2 rounded-lg mr-3">
+                              <DollarSign className="w-5 h-5 text-[#4CAF50]" />
+                            </div>
+                            Investment Interface
+                          </h4>
+                          <div className="bg-gradient-to-r from-[#4CAF50]/20 to-[#4CAF50]/10 px-3 py-1 rounded-full border border-[#4CAF50]/30">
+                            <span className="text-[#4CAF50] text-xs font-medium">✨ New Design</span>
+                          </div>
+                        </div>
+                        <p className="text-zinc-400 text-sm mb-6">
+                          Experience our redesigned investment interface with enhanced UX and real-time feedback.
+                        </p>
+                        <PoolInvestmentCard />
+                      </div>
                     </div>
                   </div>
                 </CardContent>
