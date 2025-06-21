@@ -21,7 +21,6 @@ import {
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { useGetAllPools, useUserPoolInvestments } from '@/hooks/contracts/useLiquidityPoolManager';
-import PoolInvestmentCard from '@/components/project/PoolInvestmentCard';
 import LoadingScreen from '@/components/ui/loading-screen';
 import { formatUnits } from 'viem';
 
@@ -289,7 +288,7 @@ export default function InvestmentPools() {
                         <DollarSign className="w-4 h-4 mr-2 text-[#4CAF50]" />
                         Invest in This Pool
                       </h4>
-                      <PoolInvestmentCard />
+                     
                     </div>
                   </div>
                 </CardContent>
