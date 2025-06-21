@@ -133,7 +133,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   
   if (!name && poolId > 0) {
       return (
-        <div className="p-4 border rounded-lg bg-black/20 border-oga-green/30 text-center text-zinc-500 backdrop-blur-sm">
+        <div className="p-4 border rounded-lg bg-black/20 border-[#4CAF50]/30 text-center text-zinc-500 backdrop-blur-sm">
             Solar Pool {poolId} details not found.
         </div>
       );
@@ -151,17 +151,17 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   const getRiskLevelColor = (level: number | undefined) => {
     switch (level) {
-      case 1: return 'bg-oga-green/30 text-oga-green border-oga-green/50';
-      case 2: return 'bg-oga-yellow/30 text-oga-yellow border-oga-yellow/50';
+      case 1: return 'bg-[#4CAF50]/30 text-[#4CAF50] border-[#4CAF50]/50';
+      case 2: return 'bg-yellow-500/30 text-yellow-500 border-yellow-500/50';
       case 3: return 'bg-red-700/50 text-red-300 border-red-600/50';
       default: return 'bg-zinc-700/50 text-zinc-300 border-zinc-600/50';
     }
   };
 
   return (
-    <Card className="bg-black/30 backdrop-blur-sm border border-oga-green/40 hover:border-oga-green/60 transition-colors duration-300">
+    <Card className="bg-black/30 backdrop-blur-sm border border-[#4CAF50]/40 hover:border-[#4CAF50]/60 transition-colors duration-300">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base lg:text-lg text-oga-green flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <CardTitle className="text-base lg:text-lg text-[#4CAF50] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center space-x-2">
             <Sun className="h-4 w-4 text-oga-yellow flex-shrink-0" />
             <span className="leading-tight">{name} (Pool ID: {poolId})</span>
@@ -171,16 +171,16 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           </span>
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm text-zinc-400 pt-1 space-y-1">
-          <div>Total Solar Assets: <span className="text-oga-green">{formattedTotalAssets} USDC</span> | APR: <span className="text-oga-green">{aprPercentage.toFixed(2)}%</span></div>
+          <div>Total Solar Assets: <span className="text-[#4CAF50]">{formattedTotalAssets} USDC</span> | APR: <span className="text-[#4CAF50]">{aprPercentage.toFixed(2)}%</span></div>
         </CardDescription>
         <CardDescription className="text-xs sm:text-sm text-zinc-400 pt-1 flex flex-wrap items-center gap-2">
             <div className="flex items-center">
-              <Coins size={12} className="mr-1 text-oga-green"/> 
+              <Coins size={12} className="mr-1 text-[#4CAF50]"/> 
               <span>Your Shares:</span>
             </div>
             {isLoadingUserShares ? 
               <Loader2 className="h-3 w-3 animate-spin" /> : 
-              <span className="text-oga-green font-medium">{formattedUserShares}</span>
+              <span className="text-[#4CAF50] font-medium">{formattedUserShares}</span>
             }
             {userShares && <span className="text-xs text-red-400">(Error loading shares)</span>}
         </CardDescription>
@@ -192,7 +192,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="USDC Amount to Deposit" 
             value={depositAmount}
             onChange={(e) => setDepositAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2 text-sm"
+            className="h-10 bg-zinc-900/70 border-[#4CAF50]/30 text-white focus:border-[#4CAF50] placeholder-zinc-500 mb-2 text-sm"
           />
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             {needsApproval && (
@@ -208,7 +208,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             <Button 
               onClick={handleDeposit} 
               disabled={isDepositing || (needsApproval && parseFloat(depositAmount) > 0) || !depositAmount || parseFloat(depositAmount) <= 0}
-              className="flex-1 bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold text-xs sm:text-sm"
+              className="flex-1 bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/80 hover:from-[#4CAF50]/80 hover:to-[#4CAF50] text-white font-semibold text-xs sm:text-sm"
             >
               {isDepositing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
               Deposit to Solar Pool
@@ -216,10 +216,10 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           </div>
           {approveError && <p className="text-xs text-red-400 mt-1">Approval Error: {approveError.message}</p>}
           {depositError && <p className="text-xs text-red-400 mt-1">Deposit Error: {depositError.message}</p>}
-          {isDepositSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Deposit Confirmed!</p>}
+          {isDepositSuccess && <p className="text-xs text-[#4CAF50] mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Deposit Confirmed!</p>}
         </div>
 
-        <hr className="my-4 border-oga-green/20" />
+        <hr className="my-4 border-[#4CAF50]/20" />
 
         <div>
           <Input 
@@ -227,11 +227,11 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             placeholder="Shares to Redeem" 
             value={redeemSharesAmount}
             onChange={(e) => setRedeemSharesAmount(e.target.value)}
-            className="h-10 bg-zinc-900/70 border-oga-green/30 text-white focus:border-oga-green placeholder-zinc-500 mb-2 text-sm"
+            className="h-10 bg-zinc-900/70 border-[#4CAF50]/30 text-white focus:border-[#4CAF50] placeholder-zinc-500 mb-2 text-sm"
           />
           {redeemSharesAmount && BigInt(redeemSharesAmount) > 0 && poolTotalShares > BigInt(0) && (
             <p className="text-xs text-zinc-400 mb-2">
-              You will receive approx. <span className="text-oga-green">{previewAssetsOnRedeem()} USDC</span>
+              You will receive approx. <span className="text-[#4CAF50]">{previewAssetsOnRedeem()} USDC</span>
             </p>
           )}
           <Button 
@@ -243,7 +243,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
             Redeem Solar Pool Shares
           </Button>
           {redeemError && <p className="text-xs text-red-400 mt-1">Redeem Error: {redeemError.message}</p>}
-          {isRedeemSuccess && <p className="text-xs text-oga-green mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Redemption Confirmed!</p>}
+          {isRedeemSuccess && <p className="text-xs text-[#4CAF50] mt-1 flex items-center"><CheckCircle className="h-4 w-4 mr-1"/>Solar Pool Redemption Confirmed!</p>}
         </div>
       </CardContent>
     </Card>
@@ -267,17 +267,17 @@ export default function PoolInvestmentCard() {
   }, [poolCount]);
 
   if (isLoadingCount) {
-    return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-        <CardHeader>
-          <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
-            <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />
-            Loading Solar Liquidity Pools...
-          </CardTitle>
+      return (
+    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+      <CardHeader>
+        <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
+          <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />
+          Loading Solar Liquidity Pools...
+        </CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center items-center py-10">
           <div className="flex flex-col items-center space-y-3">
-            <Loader2 className="h-10 w-10 animate-spin text-oga-green" />
+            <Loader2 className="h-10 w-10 animate-spin text-[#4CAF50]" />
             <p className="text-zinc-400 text-sm">Loading solar energy pools...</p>
           </div>
         </CardContent>
@@ -294,7 +294,7 @@ export default function PoolInvestmentCard() {
   }
 
   return (
-    <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
       <CardHeader>
         <CardTitle className="text-xl lg:text-2xl font-bold text-white flex items-center">
           <Sun className="h-5 w-5 lg:h-6 lg:w-6 mr-2 text-oga-yellow" />

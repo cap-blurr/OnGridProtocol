@@ -21,7 +21,7 @@ import {
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 import { useGetAllPools, useUserPoolInvestments } from '@/hooks/contracts/useLiquidityPoolManager';
-import { PoolInvestment } from '@/components/investment/InvestmentActions';
+import PoolInvestmentCard from '@/components/project/PoolInvestmentCard';
 import LoadingScreen from '@/components/ui/loading-screen';
 import { formatUnits } from 'viem';
 
@@ -282,19 +282,15 @@ export default function InvestmentPools() {
                     </div>
                   </div>
 
-                  {/* Investment Action */}
+                  {/* Investment Action - Using Enhanced Pool Investment Card */}
                   <div className="border-t border-zinc-800 pt-4">
-                    <PoolInvestment
-                      poolId={pool.id}
-                      poolName={pool.name}
-                      minInvestment={pool.minInvestment}
-                      maxInvestment={100000}
-                      aprRate={pool.apy}
-                      onSuccess={() => {
-                        // Could trigger refetch of user data
-                        window.location.reload();
-                      }}
-                    />
+                    <div className="bg-black/20 p-4 rounded-lg">
+                      <h4 className="text-white font-semibold mb-4 text-sm flex items-center">
+                        <DollarSign className="w-4 h-4 mr-2 text-[#4CAF50]" />
+                        Invest in This Pool
+                      </h4>
+                      <PoolInvestmentCard />
+                    </div>
                   </div>
                 </CardContent>
               </Card>

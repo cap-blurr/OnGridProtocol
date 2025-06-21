@@ -53,6 +53,8 @@ import { getAddresses, NetworkAddresses } from "@/contracts/addresses";
 import { useDeveloperProjects, OnChainProject, IPFS_GATEWAY_PREFIX } from "@/hooks/contracts/useDeveloperProjects";
 import { useAllContractEvents, useUserEvents } from "@/hooks/contracts/useContractEvents";
 import { useUSDCBalance } from "@/hooks/contracts/useUSDC";
+import PoolInfoTest from "@/components/developer/PoolInfoTest";
+import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 
 // Mock data for solar developer dashboard
 const mockData = {
@@ -371,6 +373,7 @@ export default function SolarDeveloperDashboard() {
           tabs={[
             { value: "projects", label: "My Projects" },
             { value: "analytics", label: "Analytics" },
+            { value: "pool-test", label: "Pool Testing" },
             { value: "notifications", label: "Notifications" },
             { value: "repayment", label: "Repayment" },
             { value: "kyc", label: "KYC Status" },
@@ -559,6 +562,64 @@ export default function SolarDeveloperDashboard() {
                         <p className="text-zinc-400">No projects to analyze yet.</p>
                       </div>
                     )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Pool Testing Tab */}
+          {activeTab === 'pool-test' && (
+            <div className="mt-6">
+              <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Database className="h-5 w-5 text-[#4CAF50]" />
+                    Pool Investment Testing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Pool Testing Interface</AlertTitle>
+                      <AlertDescription>
+                        Test the `getPoolInfo(poolId)` functionality and pool investment features with Pool ID 1. 
+                        This includes testing the new MockUSDC contract integration.
+                      </AlertDescription>
+                    </Alert>
+                    
+                    <PoolInfoTest />
+                    
+                    {/* Enhanced Pool Investment Test */}
+                    <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 mt-6">
+                      <CardHeader>
+                        <CardTitle className="text-white flex items-center gap-2">
+                          <DollarSign className="h-5 w-5 text-[#4CAF50]" />
+                          Enhanced Pool Investment Interface
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Alert className="bg-blue-900/30 border-blue-700 text-blue-300 mb-4">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>User-Friendly Pool Investment</AlertTitle>
+                          <AlertDescription>
+                            This is the enhanced pool investment interface with improved UX, better error handling, and the new #4CAF50 color scheme.
+                          </AlertDescription>
+                        </Alert>
+                        <PoolInvestmentCard />
+                      </CardContent>
+                    </Card>
+                    
+                    <div className="mt-6 p-4 bg-zinc-900/50 border border-zinc-700 rounded-lg">
+                      <h3 className="text-zinc-300 font-medium mb-2">Testing Summary</h3>
+                      <div className="space-y-2 text-sm text-zinc-400">
+                        <div>✅ Updated MockUSDC address: <code className="text-[#4CAF50]">0x145aA83e713BBc200aB08172BE9e347442a6c33E</code></div>
+                        <div>✅ Updated USDC contract ABI to use MockUSDC</div>
+                        <div>✅ Pool investment buttons should now be active</div>
+                        <div>✅ USDC approval should work with the correct contract</div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

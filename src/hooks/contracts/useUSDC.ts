@@ -5,76 +5,11 @@ import { formatUnits, parseUnits } from 'viem';
 import toast from 'react-hot-toast';
 import { useChainId } from 'wagmi';
 
-// Standard ERC20 ABI (partial, only what we need)
-const ERC20_ABI = [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "spender",
-        "type": "address"
-      }
-    ],
-    "name": "allowance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+// Import MockUSDC ABI for testnet
+import MockUSDCABI from '@/contracts/abis/MockUSDC.json';
+
+// Use MockUSDC ABI for contract interactions
+const USDC_ABI = MockUSDCABI.abi;
 
 // USDC has 6 decimal places
 export const USDC_DECIMALS = 6;
@@ -88,7 +23,7 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
 
   const { data, isLoading, error, refetch } = useReadContract({
     address: addresses.usdc as `0x${string}`,
-    abi: ERC20_ABI,
+    abi: USDC_ABI,
     functionName: 'balanceOf',
     args: accountAddress ? [accountAddress] : undefined,
     chainId: 84532, // Base Sepolia
@@ -123,7 +58,7 @@ export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: 
   
   const { data, isLoading, error, refetch } = useReadContract({
     address: addresses.usdc as `0x${string}`,
-    abi: ERC20_ABI,
+    abi: USDC_ABI,
     functionName: 'allowance',
     args: ownerAddress && spenderAddress ? [ownerAddress, spenderAddress] : undefined,
     chainId: 84532, // Base Sepolia
@@ -174,7 +109,7 @@ export function useUSDCApprove() {
         console.log(`Approving ${amount} USDC (${parsedAmount.toString()}) for spender: ${spender}`);
         writeContract({ 
           address: addresses.usdc as `0x${string}`,
-          abi: ERC20_ABI,
+          abi: USDC_ABI,
           functionName: 'approve',
           args: [spender, parsedAmount] 
         });
@@ -190,7 +125,7 @@ export function useUSDCApprove() {
         console.log(`Approving MAX USDC for spender: ${spender}`);
         writeContract({ 
           address: addresses.usdc as `0x${string}`,
-          abi: ERC20_ABI,
+          abi: USDC_ABI,
           functionName: 'approve',
           args: [spender, maxAmount] 
         });

@@ -21,8 +21,8 @@ export type NetworkAddresses = {
 export const CONTRACT_ADDRESSES: Record<number, NetworkAddresses> = {
   // Base Sepolia (testnet)
   84532: {
-    // Use the correct USDC address for Base Sepolia - this needs to be the actual USDC token
-    usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Base Sepolia USDC
+    // MockUSDC contract address for testnet (provided by contract developer)
+    usdc: "0x145aA83e713BBc200aB08172BE9e347442a6c33E", // MockUSDC on Base Sepolia
     // These should be updated with actual deployed addresses when available
     carbonCreditToken: undefined, // Update when deployed
     carbonCreditExchange: undefined, // Update when deployed
