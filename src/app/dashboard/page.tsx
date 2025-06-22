@@ -38,70 +38,51 @@ import LoadingScreen from "@/components/ui/loading-screen";
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
-import { useDashboardData } from "@/hooks/contracts/useDashboardData";
-
-// Temporary mock data for stable dashboard display
-const mockData = {
-  totalInvested: 385000,
-  totalProjects: 5,
-  monthlyGrowth: 8.5,
-  averageROI: 12.7,
-  activePools: 3,
-  recentTransactions: [
-    {
-      id: "1",
-      projectName: "California Solar Farm",
-      amount: "50000",
-      type: "investment" as const,
-      timestamp: Date.now() - 86400000 * 5,
-      status: "completed" as const,
-    },
-    {
-      id: "2",
-      projectName: "Green Energy Pool A",
-      amount: "25000",
-      type: "investment" as const,
-      timestamp: Date.now() - 86400000 * 10,
-      status: "completed" as const,
-    },
-    {
-      id: "3",
-      projectName: "Texas Wind Farm",
-      amount: "35000",
-      type: "investment" as const,
-      timestamp: Date.now() - 86400000 * 15,
-      status: "completed" as const,
-    },
-  ],
-  poolInvestments: {
-    totalValue: "150000",
-    poolCount: 2,
-  },
-  projectInvestments: {
-    totalValue: 235000,
-    projectCount: 3,
-  },
-};
+import { useDashboardData, useUserTransactionHistory } from "@/hooks/contracts/useDashboardData";
+import { useEnhancedDashboardData } from "@/hooks/contracts/useEnhancedDashboardData";
+import { TransactionList } from "@/components/dashboard/TransactionDetails";
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("investments");
   
-  // Use real contract data in background (for future integration)
-  const dashboardData = useDashboardData('investor');
+  // Use enhanced dashboard data with real contract integration
+  const { 
+    metrics, 
+    poolInvestments, 
+    projectInvestments, 
+    isLoading: isLoadingDashboard,
+    hasInvestments 
+  } = useEnhancedDashboardData();
   
-  // For now, use mock data for stable display
-  const metrics = mockData;
-  const transactionHistory = { transactions: mockData.recentTransactions };
+  // Get real transaction history
+  const { recentTransactions } = useUserTransactionHistory();
 
   // Handle client-side mounting
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Handle loading timeout separately
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const timer = setTimeout(() => {
+      setLoadingTimeout(true);
+    }, 3000); // 3 second timeout
+    
+    return () => clearTimeout(timer);
+  }, [mounted]);
+
   // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
+    return <LoadingScreen />;
+  }
+
+  // Show loading screen only if still loading and timeout hasn't been reached
+  if (isLoadingDashboard && !loadingTimeout) {
     return <LoadingScreen />;
   }
 
@@ -249,36 +230,20 @@ export default function DashboardPage() {
                     Your latest investment activities
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="relative space-y-6">
-                  <div className="space-y-5">
-                    {transactionHistory?.transactions?.length > 0 ? (
-                      transactionHistory.transactions.slice(0, 3).map((tx) => (
-                        <div key={tx.id} className="flex items-center justify-between border-b border-[#4CAF50]/10 pb-4 group/item hover:border-[#4CAF50]/20 transition-colors">
-                          <div className="flex flex-col gap-1">
-                            <span className="font-medium text-white group-hover/item:text-[#4CAF50]/90 transition-colors">{tx.projectName}</span>
-                            <span className="text-sm text-zinc-500">{new Date(tx.timestamp).toLocaleDateString()}</span>
-                          </div>
-                          <div className="flex flex-col items-end gap-1">
-                            <span className="font-medium text-[#4CAF50]">${parseFloat(tx.amount).toLocaleString()}</span>
-                            <Badge variant="outline" className="text-xs border-[#4CAF50]/20 bg-[#4CAF50]/5 text-[#4CAF50] px-2">
-                              {tx.type}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8 text-zinc-400">
-                        <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No transactions yet</p>
-                        <p className="text-sm">Start investing to see your activity here</p>
-                      </div>
-                    )}
+                <CardContent className="relative">
+                  <TransactionList 
+                    transactions={recentTransactions} 
+                    maxItems={3}
+                    showDetails={false}
+                    title=""
+                  />
+                  <div className="mt-4 pt-4 border-t border-[#4CAF50]/10">
+                    <Button variant="ghost" className="w-full justify-center text-zinc-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/5 group" asChild>
+                      <Link href="/dashboard/investments/current" className="flex items-center">
+                        View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Link>
+                    </Button>
                   </div>
-                  <Button variant="ghost" className="w-full justify-center text-zinc-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/5 group" asChild>
-                    <Link href="/dashboard/investments/current" className="flex items-center">
-                      View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
-                  </Button>
                 </CardContent>
               </Card>
 
@@ -298,19 +263,19 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="relative">
                   <div className="space-y-4">
-                    {metrics?.poolInvestments?.poolCount > 0 || metrics?.projectInvestments?.projectCount > 0 ? (
+                    {hasInvestments ? (
                       <>
                         {/* Pool Investments */}
-                        {metrics.poolInvestments.poolCount > 0 && (
+                        {metrics.activePools > 0 && (
                           <div className="space-y-2">
                             <div className="flex justify-between">
                               <span className="text-zinc-300">Pool Investments</span>
                               <span className="text-zinc-300">
-                                {Math.round((Number(metrics.poolInvestments.totalValue) / metrics.totalInvested) * 100) || 0}%
+                                {Math.round((Number(poolInvestments.totalValue || 0) / metrics.totalInvested) * 100) || 0}%
                               </span>
                             </div>
                             <Progress 
-                              value={(Number(metrics.poolInvestments.totalValue) / metrics.totalInvested) * 100 || 0} 
+                              value={(Number(poolInvestments.totalValue || 0) / metrics.totalInvested) * 100 || 0} 
                               className="h-1.5 bg-zinc-800/70" 
                               indicatorClassName="bg-[#4CAF50]" 
                             />
@@ -318,16 +283,16 @@ export default function DashboardPage() {
                         )}
                         
                         {/* Direct Project Investments */}
-                        {metrics.projectInvestments.projectCount > 0 && (
+                        {metrics.totalProjects > 0 && (
                           <div className="space-y-2">
                             <div className="flex justify-between">
                               <span className="text-zinc-300">Direct Projects</span>
                               <span className="text-zinc-300">
-                                {Math.round((metrics.projectInvestments.totalValue / metrics.totalInvested) * 100) || 0}%
+                                {Math.round(((metrics.totalInvested - Number(poolInvestments.totalValue || 0)) / metrics.totalInvested) * 100) || 0}%
                               </span>
                             </div>
                             <Progress 
-                              value={(metrics.projectInvestments.totalValue / metrics.totalInvested) * 100 || 0} 
+                              value={((metrics.totalInvested - Number(poolInvestments.totalValue || 0)) / metrics.totalInvested) * 100 || 0} 
                               className="h-1.5 bg-zinc-800/70" 
                               indicatorClassName="bg-[#4CAF50]" 
                             />

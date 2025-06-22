@@ -1,9 +1,12 @@
 import { useAccount } from 'wagmi';
+import { formatUnits } from 'viem';
 import { useGetAllHighValueProjects } from './useProjectFactory';
 import { useGetAllPools, useUserPoolInvestments } from './useLiquidityPoolManager';
 import { useVaultDetails, useInvestorDetails } from './useDirectProjectVault';
 import { useDeveloperProjectStats } from './useDeveloperProjects';
 import { useIsVerified } from './useDeveloperRegistry';
+import { useUserEvents } from './useContractEvents';
+import { useContractFallback } from './useContractFallback';
 import { useState, useEffect, useMemo } from 'react';
 
 // Hook for investor dashboard data
@@ -202,41 +205,132 @@ export function usePoolInvestmentOpportunities() {
   };
 }
 
-// Hook for user's transaction history
+// Hook for user's transaction history - Enhanced with real contract events
 export function useUserTransactionHistory() {
   const { address } = useAccount();
+  const { shouldUseFallback } = useContractFallback();
+  const eventsHook = useUserEvents(address);
+  const events = shouldUseFallback ? [] : eventsHook.events;
+  
   const [transactions, setTransactions] = useState<Array<{
     id: string;
-    type: 'investment' | 'withdrawal' | 'repayment';
+    type: 'investment' | 'withdrawal' | 'repayment' | 'claim';
     amount: string;
     projectName: string;
     timestamp: number;
     status: 'completed' | 'pending' | 'failed';
+    transactionHash: string;
+    blockNumber: bigint;
+    description: string;
   }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
+  
   useEffect(() => {
-    if (!address) return;
-
-    const fetchTransactionHistory = async () => {
-      setIsLoading(true);
-      try {
-        // This would fetch transaction events from the blockchain
-        // For now, we'll return empty array
-        setTransactions([]);
-      } catch (error) {
-        console.error('Error fetching transaction history:', error);
-      } finally {
-        setIsLoading(false);
+    if (!events.length) {
+      setTransactions([]);
+      return;
+    }
+    
+    const processedTransactions = events.map(event => {
+      let transaction: any = {
+        id: event.id,
+        timestamp: event.timestamp,
+        status: 'completed',
+        transactionHash: event.transactionHash,
+        blockNumber: event.blockNumber
+      };
+      
+      switch (event.type) {
+        case 'Invested':
+          transaction = {
+            ...transaction,
+            type: 'investment',
+            amount: formatUnits(event.data.amount || BigInt(0), 6),
+            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
+            description: `Invested in solar energy project`
+          };
+          break;
+          
+        case 'PoolDeposit':
+          transaction = {
+            ...transaction,
+            type: 'investment',
+            amount: formatUnits(event.data.amount || BigInt(0), 6),
+            projectName: `Investment Pool #${event.data.poolId || 'Unknown'}`,
+            description: `Deposited to liquidity pool`
+          };
+          break;
+          
+        case 'PoolRedeem':
+          transaction = {
+            ...transaction,
+            type: 'withdrawal',
+            amount: formatUnits(event.data.amount || BigInt(0), 6),
+            projectName: `Investment Pool #${event.data.poolId || 'Unknown'}`,
+            description: `Redeemed from liquidity pool`
+          };
+          break;
+          
+        case 'PrincipalClaimed':
+        case 'YieldClaimed':
+          transaction = {
+            ...transaction,
+            type: 'claim',
+            amount: formatUnits(event.data.amount || BigInt(0), 6),
+            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
+            description: `Claimed ${event.type === 'PrincipalClaimed' ? 'principal' : 'yield'} payment`
+          };
+          break;
+          
+        case 'RepaymentRouted':
+          transaction = {
+            ...transaction,
+            type: 'repayment',
+            amount: formatUnits(event.data.amount || BigInt(0), 6),
+            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
+            description: `Received project repayment`
+          };
+          break;
+          
+        default:
+          return null;
       }
+      
+      return transaction;
+    }).filter(Boolean);
+    
+    // Sort by timestamp (newest first)
+    const sortedTransactions = processedTransactions.sort((a, b) => b.timestamp - a.timestamp);
+    
+    setTransactions(sortedTransactions);
+  }, [events]);
+  
+  // Memoized helper calculations to prevent re-renders
+  const transactionAnalysis = useMemo(() => {
+    const getTransactionsByType = (type: string) => {
+      return transactions.filter(tx => tx.type === type);
     };
-
-    fetchTransactionHistory();
-  }, [address]);
-
+    
+    const getTotalByType = (type: string) => {
+      return getTransactionsByType(type).reduce((sum, tx) => sum + Number(tx.amount), 0);
+    };
+    
+    return {
+      recentTransactions: transactions.slice(0, 5),
+      investmentTransactions: getTransactionsByType('investment'),
+      withdrawalTransactions: getTransactionsByType('withdrawal'),
+      claimTransactions: getTransactionsByType('claim'),
+      repaymentTransactions: getTransactionsByType('repayment'),
+      totalInvested: getTotalByType('investment'),
+      totalWithdrawn: getTotalByType('withdrawal'),
+      totalClaimed: getTotalByType('claim'),
+      totalRepayments: getTotalByType('repayment'),
+    };
+  }, [transactions]);
+  
   return {
     transactions,
-    isLoading,
+    ...transactionAnalysis,
+    isLoading: false // Events are already loaded
   };
 }
 

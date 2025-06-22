@@ -26,14 +26,15 @@ export interface ContractEvent {
 export function useProjectFactoryEvents() {
   const addresses = useContractAddresses();
   const [events, setEvents] = useState<ContractEvent[]>([]);
+  const [hasError, setHasError] = useState(false);
 
-  // Watch for ProjectCreated events
+  // Watch for ProjectCreated events - with error handling
   useWatchContractEvent({
     address: addresses.projectFactoryProxy as `0x${string}`,
     abi: ProjectFactoryABI.abi,
     eventName: 'ProjectCreated',
     poll: true,
-    enabled: !!addresses.projectFactoryProxy,
+    enabled: !!addresses.projectFactoryProxy && !hasError,
     onLogs(logs) {
       logs.forEach((log: any) => {
         if (!log.args) return;

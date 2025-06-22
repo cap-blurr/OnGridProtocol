@@ -2,6 +2,8 @@ export * from './useDashboardData';
 export * from './useLiquidityPoolManager';
 export * from './useDeveloperProjects';
 export * from './useContractEvents';
+export * from './useContractFallback';
+export * from './useEnhancedDashboardData';
 export * from './useFeeRouter';
 export * from './useRepaymentRouter';
 export * from './useDirectProjectVault';

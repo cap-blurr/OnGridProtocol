@@ -200,8 +200,8 @@ export default function DeveloperSettings() {
                     className="bg-gray-800 border-[#4CAF50]/50 text-white flex-1 focus:border-[#4CAF50] focus:ring-[#4CAF50] focus:ring-1"
                     readOnly
                   />
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     onClick={() => setShowApiKey(!showApiKey)}
                     className="border-[#4CAF50]/50 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50]"
@@ -235,71 +235,71 @@ export default function DeveloperSettings() {
             </CardHeader>
             <CardContent className="relative space-y-4">
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
-                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-[#4CAF50]" />
-                  <div>
+                    <div>
                     <p className="text-white font-medium">Email Notifications</p>
                     <p className="text-xs text-zinc-400">Receive updates via email</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={notifications.email}
+                  <Switch
+                    checked={notifications.email}
                   onCheckedChange={(value) => handleNotificationChange('email', value)}
-                />
-              </div>
-
+                  />
+                </div>
+                
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
-                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                   <Smartphone className="w-5 h-5 text-[#4CAF50]" />
-                  <div>
+                    <div>
                     <p className="text-white font-medium">SMS Notifications</p>
                     <p className="text-xs text-zinc-400">Receive urgent alerts via SMS</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={notifications.sms}
+                  <Switch
+                    checked={notifications.sms}
                   onCheckedChange={(value) => handleNotificationChange('sms', value)}
-                />
-              </div>
+                  />
+                </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
-                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                   <BarChart3 className="w-5 h-5 text-[#4CAF50]" />
-                  <div>
+                    <div>
                     <p className="text-white font-medium">Project Updates</p>
                     <p className="text-xs text-zinc-400">Notifications about project progress</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={notifications.projectUpdates}
+                  <Switch
+                    checked={notifications.projectUpdates}
                   onCheckedChange={(value) => handleNotificationChange('projectUpdates', value)}
-                />
-              </div>
+                  />
+                </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
-                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                   <CreditCard className="w-5 h-5 text-[#4CAF50]" />
-                  <div>
+                    <div>
                     <p className="text-white font-medium">Payment Alerts</p>
                     <p className="text-xs text-zinc-400">Alerts for payments and transactions</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={notifications.paymentAlerts}
+                  <Switch
+                    checked={notifications.paymentAlerts}
                   onCheckedChange={(value) => handleNotificationChange('paymentAlerts', value)}
-                />
-              </div>
+                  />
+                </div>
 
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-[#4CAF50]/20">
-                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3">
                   <Shield className="w-5 h-5 text-[#4CAF50]" />
-                  <div>
+                    <div>
                     <p className="text-white font-medium">System Maintenance</p>
                     <p className="text-xs text-zinc-400">Notifications about system updates</p>
+                    </div>
                   </div>
-                </div>
-                <Switch 
-                  checked={notifications.systemMaintenance}
+                  <Switch
+                    checked={notifications.systemMaintenance}
                   onCheckedChange={(value) => handleNotificationChange('systemMaintenance', value)}
                 />
               </div>

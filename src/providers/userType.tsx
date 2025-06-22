@@ -55,81 +55,40 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
       loadUserType();
     }
   }, [ready]);
-  // Handle authentication state changes and user type modal
+  // Handle authentication state changes - split into separate effects
   useEffect(() => {
     if (!mounted || !ready || isStorageLoading) return;
 
-    console.log('🔍 Auth effect running:', {
-      authenticated,
-      hasCheckedAuth,
-      userTypeValue,
-      showModal,
-      isStorageLoading,
-      ready
-    });
-
-    const handleAuth = async () => {
-      // If user just authenticated and we haven't checked their auth state yet
-      if (authenticated && !hasCheckedAuth) {
-        setHasCheckedAuth(true);
-        
-        try {
-          const savedType = localStorage.getItem('userType') as UserType;
-          console.log('🎯 Auth check - savedType:', savedType);
-          
-          if (!savedType) {
-            if (!showModal) {
-              console.log('🎭 No saved type, showing modal');
-              setShowModal(true);
-            }
-          } else {
-            console.log('✅ Found saved type, setting and navigating:', savedType);
-            setUserTypeValue(savedType);
-            // Use a promise chain instead of await
-            new Promise(resolve => setTimeout(resolve, 100))
-              .then(() => {
-                const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
-                console.log('🚀 Navigating to:', path);
-                router.replace(path);
-              });
-          }
-        } catch (error) {
-          console.error("Error checking user type:", error);
-        } finally {
-          setIsNavigating(false);
-        }
-      }
-    };
-
-    handleAuth();    // Handle disconnection
-    if (!authenticated && hasCheckedAuth) {
-      const cleanup = () => {
-        try {
-          console.log('🧹 Cleaning up - user disconnected');
-          // Reset all state
-          setHasCheckedAuth(false);
-          setUserTypeValue(null);
-          setShowModal(false);
-          setIsNavigating(false);
-          localStorage.removeItem('userType');
-          
-          // Redirect to home page
-          router.replace('/');
-        } catch (error) {
-          console.error("Error during cleanup:", error);
-        }
-      };
+    // Only handle authentication changes - avoid complex logic
+    if (authenticated && !hasCheckedAuth) {
+      setHasCheckedAuth(true);
       
-      cleanup();
-    }
-
-    // Cleanup function for unmounting
-    return () => {
-      if (isNavigating) {
-        setIsNavigating(false);
+      const savedType = localStorage.getItem('userType') as UserType;
+      
+      if (!savedType) {
+        setShowModal(true);
+      } else {
+        setUserTypeValue(savedType);
+        // Navigate after state update
+        setTimeout(() => {
+          const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
+          router.replace(path);
+        }, 100);
       }
-    };
-  }, [authenticated, ready, mounted, hasCheckedAuth, isStorageLoading, router, isNavigating]);
+    }
+  }, [authenticated, ready, mounted, hasCheckedAuth, isStorageLoading, router]);
+
+  // Handle disconnection separately
+  useEffect(() => {
+    if (!authenticated && hasCheckedAuth) {
+      setHasCheckedAuth(false);
+      setUserTypeValue(null);
+      setShowModal(false);
+      setIsNavigating(false);
+      localStorage.removeItem('userType');
+      router.replace('/');
+    }
+  }, [authenticated, hasCheckedAuth, router]);
   const handleUserTypeSelection = (type: UserType) => {
     setIsNavigating(true);
     

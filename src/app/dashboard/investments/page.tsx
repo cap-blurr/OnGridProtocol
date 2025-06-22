@@ -80,13 +80,13 @@ export default function InvestmentDashboard() {
                 <span className="text-sm font-medium">
                   {isLoadingBalance ? 'Loading...' : `${usdcBalance} USDC`}
                 </span>
-              </div>
-              <div className="flex items-center space-x-2 text-oga-green">
-                <Sun className="h-5 w-5" />
-                <span className="text-sm font-medium">Powered by Solar Energy</span>
-              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-oga-green">
+              <Sun className="h-5 w-5" />
+              <span className="text-sm font-medium">Powered by Solar Energy</span>
             </div>
           </div>
+        </div>
         </div>
 
         {/* Recent Activity Alert */}
@@ -135,12 +135,12 @@ export default function InvestmentDashboard() {
                   <p className="text-zinc-400">
                     Invest in diversified pools that fund multiple low-value solar projects
                   </p>
-                </div>
+                    </div>
                 <div className="flex items-center gap-2 text-oga-green">
                   <Users className="h-5 w-5" />
                   <span className="text-sm font-medium">Pool Overview</span>
-                </div>
-              </div>
+                      </div>
+                      </div>
 
               {/* Pool Navigation Card */}
               <Card className="bg-gradient-to-br from-black/60 via-[#4CAF50]/10 to-black/60 backdrop-blur-sm border border-[#4CAF50]/30 hover:border-[#4CAF50]/50 transition-all duration-300">
@@ -153,13 +153,13 @@ export default function InvestmentDashboard() {
                       </div>
                     </div>
                     
-                    <div>
+                      <div>
                       <h3 className="text-2xl font-bold text-white mb-2">Access Solar Investment Pools</h3>
                       <p className="text-zinc-400 max-w-2xl mx-auto">
                         Explore and invest in our curated selection of solar energy liquidity pools. 
                         Diversify your investments across multiple projects with lower entry barriers.
                       </p>
-                    </div>
+                      </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                       <div className="bg-black/40 p-4 rounded-lg border border-[#4CAF50]/20">
@@ -175,7 +175,7 @@ export default function InvestmentDashboard() {
                         <div className="text-sm text-zinc-400">Min Investment</div>
                       </div>
                     </div>
-
+                    
                     <Link href="/dashboard/investments/pools">
                       <Button className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/80 hover:from-[#4CAF50]/80 hover:to-[#4CAF50] text-white font-semibold px-8 py-3 text-lg">
                         <Users className="h-5 w-5 mr-2" />
@@ -184,17 +184,17 @@ export default function InvestmentDashboard() {
                       </Button>
                     </Link>
                   </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
               {/* Pool Benefits */}
               <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-                <CardHeader>
+                  <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Target className="h-5 w-5 text-oga-green" />
                     Why Invest in Solar Pools?
                   </CardTitle>
-                </CardHeader>
+                  </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
@@ -214,7 +214,7 @@ export default function InvestmentDashboard() {
                       <p className="text-zinc-400 text-sm">
                         Start investing with smaller amounts compared to direct project investments.
                       </p>
-                    </div>
+                      </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-oga-green" />
@@ -224,9 +224,9 @@ export default function InvestmentDashboard() {
                         Earn consistent returns as projects in the pool make repayments.
                       </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardContent>
+                </Card>
             </div>
           </TabsContent>
         </Tabs>

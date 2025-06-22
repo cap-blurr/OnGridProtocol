@@ -28,7 +28,7 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
     args: accountAddress ? [accountAddress] : undefined,
     chainId: 84532, // Base Sepolia
     query: { 
-      enabled: !!accountAddress && !!addresses.usdc,
+        enabled: !!accountAddress && !!addresses.usdc,
       retry: 2,
     },
   });
@@ -63,7 +63,7 @@ export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: 
     args: ownerAddress && spenderAddress ? [ownerAddress, spenderAddress] : undefined,
     chainId: 84532, // Base Sepolia
     query: {
-      enabled: !!ownerAddress && !!spenderAddress
+        enabled: !!ownerAddress && !!spenderAddress
     }
   });
   
@@ -108,10 +108,10 @@ export function useUSDCApprove() {
         const parsedAmount = parseUnits(amount, USDC_DECIMALS);
         console.log(`Approving ${amount} USDC (${parsedAmount.toString()}) for spender: ${spender}`);
         writeContract({ 
-          address: addresses.usdc as `0x${string}`,
+            address: addresses.usdc as `0x${string}`,
           abi: USDC_ABI,
-          functionName: 'approve',
-          args: [spender, parsedAmount] 
+            functionName: 'approve',
+            args: [spender, parsedAmount] 
         });
       } catch (err) {
         console.error('Error parsing approval amount:', err);

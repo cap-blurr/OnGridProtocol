@@ -29,6 +29,8 @@ import { useGetAllHighValueProjects } from '@/hooks/contracts/useProjectFactory'
 import { useVaultDetails, useInvestorDetails, useClaimPrincipal, useClaimYield } from '@/hooks/contracts/useDirectProjectVault';
 import { useUserPoolInvestments, useUserShares, useRedeemFromPool } from '@/hooks/contracts/useLiquidityPoolManager';
 import { useUSDCBalance } from '@/hooks/contracts/useUSDC';
+import { useEnhancedDashboardData } from '@/hooks/contracts/useEnhancedDashboardData';
+import { useUserTransactionHistory } from '@/hooks/contracts/useDashboardData';
 
 interface HighValueInvestment {
   vaultAddress: `0x${string}`;
@@ -58,103 +60,53 @@ export default function InvestorPortfolio() {
   // Get USDC balance
   const { formattedBalance: usdcBalance } = useUSDCBalance(userAddress);
 
-  // Get all high-value projects to check user investments
-  const { projects: allVaults, isLoading: isLoadingVaults } = useGetAllHighValueProjects();
+  // Use enhanced dashboard data for portfolio metrics
+  const { 
+    metrics, 
+    poolInvestments: poolData, 
+    projectInvestments, 
+    isLoading: isLoadingEnhanced 
+  } = useEnhancedDashboardData();
 
-  // Get user's pool investments
+  // Get transaction history
+  const { recentTransactions } = useUserTransactionHistory();
+
+  // Get user's pool investments (for detailed operations)
   const { poolIds, shares: poolShares, values: poolValues, isLoading: isLoadingPools } = useUserPoolInvestments(userAddress);
 
-  // State for high-value investments
-  const [highValueInvestments, setHighValueInvestments] = useState<HighValueInvestment[]>([]);
-  const [isLoadingHighValue, setIsLoadingHighValue] = useState(true);
+  // Transform project investments to match interface
+  const highValueInvestments: HighValueInvestment[] = projectInvestments.map(project => ({
+    vaultAddress: project.vaultAddress as `0x${string}`,
+    projectId: project.projectId,
+    shares: BigInt(Math.round(project.investedAmount * 1e6)), // Convert to wei
+    principalClaimed: BigInt(0), // Would need to track from events
+    interestClaimed: BigInt(0), // Would need to track from events  
+    claimablePrincipal: BigInt(Math.round(project.claimablePrincipal * 1e6)),
+    claimableInterest: BigInt(Math.round(project.claimableInterest * 1e6)),
+    totalAssets: BigInt(Math.round(project.currentValue * 1e6)),
+    fundingPercentage: 0, // Would come from vault details
+    isFundingClosed: !project.isActive
+  }));
 
-  // State for pool investments
-  const [poolInvestments, setPoolInvestments] = useState<PoolInvestment[]>([]);
+  // Transform pool investments to match interface
+  const poolInvestments: PoolInvestment[] = poolData.details.map(pool => ({
+    poolId: pool.poolId,
+    shares: pool.shares,
+    value: pool.value,
+    poolName: `Solar Pool ${pool.poolId}`
+  }));
 
-  // Process pool investments
-  useEffect(() => {
-    if (poolIds && poolShares && poolValues) {
-      const investments: PoolInvestment[] = poolIds.map((poolId, index) => ({
-        poolId: Number(poolId),
-        shares: poolShares[index] || BigInt(0),
-        value: poolValues[index] || BigInt(0),
-        poolName: `Solar Pool ${Number(poolId)}`
-      })).filter(investment => investment.shares > BigInt(0));
-
-      setPoolInvestments(investments);
-    }
-  }, [poolIds, poolShares, poolValues]);
-
-  // Process high-value investments
-  useEffect(() => {
-    const fetchHighValueInvestments = async () => {
-      if (!userAddress || !allVaults || allVaults.length === 0) {
-        setIsLoadingHighValue(false);
-        return;
-      }
-
-      const investments: HighValueInvestment[] = [];
-
-      for (const vaultAddress of allVaults) {
-        try {
-          // This would need to be implemented to get investor details for each vault
-          // For now, we'll use a placeholder structure
-          const investmentData: HighValueInvestment = {
-            vaultAddress,
-            projectId: 'Unknown',
-            shares: BigInt(0),
-            principalClaimed: BigInt(0),
-            interestClaimed: BigInt(0),
-            claimablePrincipal: BigInt(0),
-            claimableInterest: BigInt(0),
-            totalAssets: BigInt(0),
-            fundingPercentage: 0,
-            isFundingClosed: false
-          };
-
-          // Only add if user has actual investment
-          if (investmentData.shares > BigInt(0)) {
-            investments.push(investmentData);
-          }
-        } catch (error) {
-          console.error(`Error fetching investment details for vault ${vaultAddress}:`, error);
-        }
-      }
-
-      setHighValueInvestments(investments);
-      setIsLoadingHighValue(false);
-    };
-
-    fetchHighValueInvestments();
-  }, [userAddress, allVaults]);
-
-  // Calculate portfolio totals
-  const calculatePortfolioTotals = () => {
-    const highValueTotal = highValueInvestments.reduce((total, investment) => {
-      return total + Number(formatUnits(investment.shares, 6));
-    }, 0);
-
-    const poolTotal = poolInvestments.reduce((total, investment) => {
-      return total + Number(formatUnits(investment.value, 6));
-    }, 0);
-
-    const totalClaimable = highValueInvestments.reduce((total, investment) => {
-      const claimablePrincipal = Number(formatUnits(investment.claimablePrincipal, 6));
-      const claimableInterest = Number(formatUnits(investment.claimableInterest, 6));
-      return total + claimablePrincipal + claimableInterest;
-    }, 0);
-
-    return {
-      totalInvested: highValueTotal + poolTotal,
-      highValueTotal,
-      poolTotal,
-      totalClaimable,
-      projectCount: highValueInvestments.length,
-      poolCount: poolInvestments.length
-    };
+  // Use enhanced portfolio metrics directly
+  const portfolioTotals = {
+    totalInvested: metrics.totalInvested,
+    highValueTotal: projectInvestments.reduce((sum, p) => sum + p.investedAmount, 0),
+    poolTotal: Number(poolData.totalValue || '0'),
+    totalClaimable: metrics.availableWithdrawals,
+    projectCount: metrics.totalProjects,
+    poolCount: metrics.activePools
   };
 
-  const portfolioTotals = calculatePortfolioTotals();
+  const isLoadingHighValue = isLoadingEnhanced;
 
   if (!isConnected) {
     return (

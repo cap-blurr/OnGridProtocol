@@ -31,7 +31,7 @@ export default function RepaymentPage() {
   }
 
   if (error) {
-    return (
+  return (
       <div className="container mx-auto px-4 py-8">
         <Alert className="bg-red-900/30 border-red-700 text-red-300">
           <AlertTriangle className="h-4 w-4" />
@@ -39,7 +39,7 @@ export default function RepaymentPage() {
             Error loading projects: {error}
           </AlertDescription>
         </Alert>
-      </div>
+        </div>
     );
   }
 

@@ -311,13 +311,13 @@ export default function InstallationStatus() {
             return (
               <Card key={installation.id} className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
-                <CardHeader className="relative">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-3">
-                      {getStageIcon(installation.stage)}
-                      <div>
-                        <CardTitle className="text-white text-lg">{installation.projectName}</CardTitle>
-                        <div className="flex items-center space-x-2 mt-1">
+              <CardHeader className="relative">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-3">
+                    {getStageIcon(installation.stage)}
+                    <div>
+                      <CardTitle className="text-white text-lg">{installation.projectName}</CardTitle>
+                      <div className="flex items-center space-x-2 mt-1">
                           <MapPin className="w-4 h-4 text-[#4CAF50]" />
                           <p className="text-sm text-[#4CAF50]">{installation.location}</p>
                         </div>
@@ -326,81 +326,81 @@ export default function InstallationStatus() {
                     <Badge className={`${statusInfo.color} text-white`}>
                       <StatusIcon className="w-3 h-3" />
                       {statusInfo.label}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="space-y-6">
-                    {/* Progress Overview */}
-                    <div>
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="relative">
+                <div className="space-y-6">
+                  {/* Progress Overview */}
+                  <div>
                       <div className="flex justify-between text-sm text-[#4CAF50] mb-2">
-                        <span>Overall Progress</span>
-                        <span>{installation.progress}%</span>
-                      </div>
-                      <Progress value={installation.progress} className="h-3 mb-4" />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-                          <Truck className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                          <p className="text-lg font-bold text-white">{installation.components.delivered}%</p>
+                      <span>Overall Progress</span>
+                      <span>{installation.progress}%</span>
+                    </div>
+                    <Progress value={installation.progress} className="h-3 mb-4" />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <Truck className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.delivered}%</p>
                           <p className="text-xs text-[#4CAF50]">Delivered</p>
-                        </div>
-                        <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-                          <Wrench className="w-5 h-5 text-orange-400 mx-auto mb-1" />
-                          <p className="text-lg font-bold text-white">{installation.components.installed}%</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <Wrench className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.installed}%</p>
                           <p className="text-xs text-[#4CAF50]">Installed</p>
-                        </div>
-                        <div className="text-center p-3 bg-gray-800/50 rounded-lg">
-                          <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-1" />
-                          <p className="text-lg font-bold text-white">{installation.components.tested}%</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{installation.components.tested}%</p>
                           <p className="text-xs text-[#4CAF50]">Tested</p>
-                        </div>
                       </div>
-                    </div>
-
-                    {/* Project Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-[#4CAF50]">Installation Crew</p>
-                        <p className="text-white font-semibold">{installation.crew}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#4CAF50]">Next Milestone</p>
-                        <p className="text-white font-semibold">{installation.nextMilestone}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#4CAF50]">Start Date</p>
-                        <p className="text-white font-semibold">{installation.startDate}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#4CAF50]">Expected Completion</p>
-                        <p className="text-white font-semibold">{installation.expectedCompletion}</p>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Button 
-                        className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50] hover:from-[#4CAF50]/90 hover:to-[#4CAF50]/90 text-white font-medium transition-all duration-200"
-                      >
-                        View Details
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="border-[#4CAF50]/50 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50] font-medium transition-all duration-200"
-                      >
-                        Update Status
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 font-medium transition-all duration-200"
-                      >
-                        Contact Crew
-                      </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Project Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-sm text-[#4CAF50]">Installation Crew</p>
+                      <p className="text-white font-semibold">{installation.crew}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-[#4CAF50]">Next Milestone</p>
+                      <p className="text-white font-semibold">{installation.nextMilestone}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-[#4CAF50]">Start Date</p>
+                      <p className="text-white font-semibold">{installation.startDate}</p>
+                    </div>
+                    <div>
+                        <p className="text-sm text-[#4CAF50]">Expected Completion</p>
+                      <p className="text-white font-semibold">{installation.expectedCompletion}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                        className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50] hover:from-[#4CAF50]/90 hover:to-[#4CAF50]/90 text-white font-medium transition-all duration-200"
+                    >
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                        className="border-[#4CAF50]/50 text-[#4CAF50] hover:bg-[#4CAF50]/20 hover:text-[#4CAF50] hover:border-[#4CAF50] font-medium transition-all duration-200"
+                    >
+                      Update Status
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white hover:border-gray-500 font-medium transition-all duration-200"
+                    >
+                      Contact Crew
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             );
           })}
         </div>
