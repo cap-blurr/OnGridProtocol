@@ -66,14 +66,16 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           config={{
             appearance: {
               theme: 'dark',
-          accentColor: '#4CAF50',
+              accentColor: '#4CAF50',
             },
             embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
+              createOnLogin: 'users-without-wallets',
             },
             supportedChains: [baseSepolia],
-        loginMethods: ['wallet', 'email', 'sms'],
-        defaultChain: baseSepolia,
+            loginMethods: ['email', 'sms'],
+            defaultChain: baseSepolia,
+            // Only use embedded wallets and email/SMS to avoid WalletConnect
+            walletConnectCloudProjectId: undefined
           }}
         >
       <WagmiProvider config={config}>

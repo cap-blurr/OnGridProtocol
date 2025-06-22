@@ -3,8 +3,13 @@ import { useState, useEffect } from 'react';
 export function useContractFallback() {
   const [hasRpcError, setHasRpcError] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [errorCount, setErrorCount] = useState(0);
+  const [isProduction, setIsProduction] = useState(false);
 
   useEffect(() => {
+    // Detect production environment
+    setIsProduction(window.location.hostname === 'www.ongridprotocol.com' || window.location.hostname === 'ongridprotocol.com');
+    
     // Listen for network status
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -12,14 +17,40 @@ export function useContractFallback() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    // Monitor for CORS/RPC errors in console
+    // Monitor for RPC errors more aggressively
     const originalConsoleError = console.error;
+    const originalFetch = window.fetch;
+    
+    // Override fetch to catch RPC errors early
+    window.fetch = async (input, init) => {
+      try {
+        const response = await originalFetch(input, init);
+        if (!response.ok && typeof input === 'string' && input.includes('alchemy.com')) {
+          setErrorCount(prev => prev + 1);
+          if (errorCount > 3) {
+            setHasRpcError(true);
+          }
+        }
+        return response;
+      } catch (error) {
+        if (typeof input === 'string' && input.includes('alchemy.com')) {
+          setErrorCount(prev => prev + 1);
+          setHasRpcError(true);
+        }
+        throw error;
+      }
+    };
+    
+    // Monitor console errors
     console.error = (...args) => {
       const message = args.join(' ');
       if (message.includes('CORS') || 
           message.includes('Failed to fetch') || 
           message.includes('Network Error') ||
-          message.includes('base-sepolia.g.alchemy.com')) {
+          message.includes('ERR_INSUFFICIENT_RESOURCES') ||
+          message.includes('alchemy.com') ||
+          message.includes('Failed to load resource')) {
+        setErrorCount(prev => prev + 1);
         setHasRpcError(true);
       }
       originalConsoleError.apply(console, args);
@@ -29,8 +60,9 @@ export function useContractFallback() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       console.error = originalConsoleError;
+      window.fetch = originalFetch;
     };
-  }, []);
+  }, [errorCount]);
 
   // Auto-recovery after 30 seconds
   useEffect(() => {
@@ -43,10 +75,18 @@ export function useContractFallback() {
     }
   }, [hasRpcError]);
 
+  const retry = () => {
+    setHasRpcError(false);
+    setErrorCount(0);
+  };
+
   return {
     hasRpcError,
     isOnline,
-    shouldUseFallback: hasRpcError || !isOnline
+    isProduction,
+    errorCount,
+    shouldUseFallback: hasRpcError || !isOnline || (isProduction && errorCount > 2),
+    retry
   };
 }
 

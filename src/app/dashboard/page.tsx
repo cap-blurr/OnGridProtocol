@@ -40,13 +40,16 @@ import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
 import { useDashboardData, useUserTransactionHistory } from "@/hooks/contracts/useDashboardData";
 import { useEnhancedDashboardData } from "@/hooks/contracts/useEnhancedDashboardData";
+import { useContractFallback } from "@/hooks/contracts/useContractFallback";
 import { TransactionList } from "@/components/dashboard/TransactionDetails";
+import { RPCErrorBanner } from "@/components/ui/rpc-error-banner";
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("investments");
+  const { shouldUseFallback, retry } = useContractFallback();
   
   // Use enhanced dashboard data with real contract integration
   const { 
@@ -122,6 +125,9 @@ export default function DashboardPage() {
             </AlertDescription>
           </Alert>
         )}
+        
+        {/* RPC Error Banner */}
+        <RPCErrorBanner isActive={shouldUseFallback} onRetry={retry} />
         
         <DashboardTabs
           tabs={[

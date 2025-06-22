@@ -33,6 +33,7 @@ import Link from "next/link";
 import { useUserPoolInvestments, useRedeemFromPool } from '@/hooks/contracts/useLiquidityPoolManager';
 import { useGetAllHighValueProjects } from '@/hooks/contracts/useProjectFactory';
 import { useDashboardData } from '@/hooks/contracts/useDashboardData';
+import { useContractFallback } from '@/hooks/contracts/useContractFallback';
 import { ClaimReturns } from '@/components/investment/InvestmentActions';
 import LoadingScreen from '@/components/ui/loading-screen';
 import { formatUnits, parseUnits } from 'viem';
@@ -46,16 +47,33 @@ export default function CurrentInvestmentsPage() {
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
   
   const { address, isConnected } = useAccount();
+  const { shouldUseFallback } = useContractFallback();
+  
+  // Use fallback data when RPC is failing
+  const poolHook = useUserPoolInvestments(address);
+  const poolData = shouldUseFallback ? {
+    poolIds: [],
+    shares: [],
+    values: [],
+    formattedTotalValue: '0',
+    isLoading: false
+  } : poolHook;
+  
   const { 
     poolIds: userPoolIds, 
     shares: userShares, 
     values: userValues,
     formattedTotalValue,
     isLoading: poolDataLoading 
-  } = useUserPoolInvestments(address);
+  } = poolData;
   
-  const { projects: allProjects, isLoading: projectsLoading } = useGetAllHighValueProjects();
-  const { metrics, isLoading: metricsLoading } = useDashboardData('investor');
+  const projectsHook = useGetAllHighValueProjects();
+  const projects = shouldUseFallback ? { projects: [], isLoading: false } : projectsHook;
+  const { projects: allProjects, isLoading: projectsLoading } = projects;
+  
+  const metricsHook = useDashboardData('investor');
+  const metricsData = shouldUseFallback ? { metrics: {}, isLoading: false } : metricsHook;
+  const { metrics, isLoading: metricsLoading } = metricsData;
   
   const {
     redeem: redeemFromPool,
