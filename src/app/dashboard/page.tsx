@@ -43,7 +43,7 @@ import { useEnhancedDashboardData } from "@/hooks/contracts/useEnhancedDashboard
 import { useContractFallback } from "@/hooks/contracts/useContractFallback";
 import { TransactionList } from "@/components/dashboard/TransactionDetails";
 import { CORSErrorBanner } from "@/components/ui/cors-error-banner";
-import NavigationTest from './test-navigation';
+
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -135,8 +135,7 @@ export default function DashboardPage() {
           getDiagnosticReport={getDiagnosticReport} 
         />
         
-        {/* DEBUG: Navigation Test Panel */}
-        <NavigationTest />
+
         
         <DashboardTabs
           tabs={[

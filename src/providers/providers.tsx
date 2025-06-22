@@ -9,23 +9,36 @@ import { useState } from 'react';
 import { UserTypeProvider } from './userType';
 import { injected } from 'wagmi/connectors';
 
-// Multiple RPC endpoints for redundancy
+// Multiple RPC endpoints for redundancy - prioritize CORS-friendly endpoints
 const baseSepoliaTransports = fallback([
-  http('https://base-sepolia.g.alchemy.com/v2/1gJpy5A2EiQrD8o1RIjPOo0-xXf_CFLA', {
-    batch: false, // Disable batching to avoid server errors
-    retryDelay: 1000,
-    retryCount: 3,
-  }),
+  // Primary: Official Base Sepolia RPC (no CORS restrictions)
   http('https://sepolia.base.org', {
     batch: false,
-    retryDelay: 1000,
+    retryDelay: 500,
     retryCount: 3,
   }),
+  // Secondary: Public Node RPC (generally CORS-friendly)  
   http('https://base-sepolia-rpc.publicnode.com', {
     batch: false,
-    retryDelay: 1000,
+    retryDelay: 800,
     retryCount: 3,
   }),
+  // Tertiary: Additional public endpoint
+  http('https://base-sepolia.blockpi.network/v1/rpc/public', {
+    batch: false,
+    retryDelay: 1000,
+    retryCount: 2,
+  }),
+  // Last resort: Alchemy (may fail due to CORS in production)
+  ...(typeof window === 'undefined' || 
+      window.location.hostname === 'localhost' || 
+      window.location.hostname === '127.0.0.1' ? [
+    http('https://base-sepolia.g.alchemy.com/v2/1gJpy5A2EiQrD8o1RIjPOo0-xXf_CFLA', {
+      batch: false,
+      retryDelay: 1000,
+      retryCount: 1,
+    })
+  ] : []),
 ]);
 
 // Wagmi configuration for contract interactions - Privy v2 handles wallet connections directly

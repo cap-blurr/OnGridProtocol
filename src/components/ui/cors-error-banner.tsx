@@ -118,6 +118,10 @@ export function CORSErrorBanner({
                   <li>Add <code className="bg-white/10 px-1 rounded">ongridprotocol.com</code> to CORS Origins</li>
                   <li>Save and wait 2-3 minutes for propagation</li>
                 </ol>
+                <div className="mt-3 p-2 bg-green-500/10 border border-green-500/30 rounded text-green-300 text-xs">
+                  <strong>Good News:</strong> The app now uses multiple fallback RPC endpoints to minimize disruption. 
+                  Most features should work without Alchemy configuration.
+                </div>
               </div>
 
               <div className="text-xs text-blue-200">
