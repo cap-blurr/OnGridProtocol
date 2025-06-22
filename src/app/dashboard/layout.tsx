@@ -19,7 +19,11 @@ export default function DashboardLayout({
   }, []);
 
   if (!mounted) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
   }
 
   return (    <div className="flex flex-col min-h-screen bg-black overflow-hidden">

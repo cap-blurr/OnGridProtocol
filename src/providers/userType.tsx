@@ -69,11 +69,13 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
         setShowModal(true);
       } else {
         setUserTypeValue(savedType);
-        // Navigate after state update
-        setTimeout(() => {
-          const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
-          router.replace(path);
-        }, 100);
+        // Only redirect from home page - don't interrupt dashboard navigation
+        if (window.location.pathname === '/') {
+          setTimeout(() => {
+            const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
+            router.replace(path);
+          }, 100);
+        }
       }
     }
   }, [authenticated, ready, mounted, hasCheckedAuth, isStorageLoading, router]);

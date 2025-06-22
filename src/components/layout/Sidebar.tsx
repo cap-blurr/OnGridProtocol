@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { 
   BarChart3, 
   Leaf, 
@@ -58,6 +59,21 @@ function SidebarSection({ title, children }: SidebarSectionProps) {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="w-64 h-screen fixed left-0 top-16 pb-6 px-3 border-r border-[#4CAF50]/20 bg-black/60 backdrop-blur-md flex flex-col">
+        <div className="flex items-center justify-center h-full">
+          <div className="text-zinc-400 text-sm">Loading navigation...</div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="w-64 h-screen fixed left-0 top-16 pb-6 px-3 border-r border-[#4CAF50]/20 bg-black/60 backdrop-blur-md flex flex-col">

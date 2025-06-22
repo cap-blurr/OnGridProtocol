@@ -72,7 +72,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               createOnLogin: 'users-without-wallets',
             },
             supportedChains: [baseSepolia],
-            loginMethods: ['email', 'sms'],
+            loginMethods: ['email', 'sms','google','wallet'],
             defaultChain: baseSepolia,
             // Only use embedded wallets and email/SMS to avoid WalletConnect
             walletConnectCloudProjectId: undefined
