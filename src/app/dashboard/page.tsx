@@ -42,7 +42,7 @@ import { useDashboardData, useUserTransactionHistory } from "@/hooks/contracts/u
 import { useEnhancedDashboardData } from "@/hooks/contracts/useEnhancedDashboardData";
 import { useContractFallback } from "@/hooks/contracts/useContractFallback";
 import { TransactionList } from "@/components/dashboard/TransactionDetails";
-import { RPCErrorBanner } from "@/components/ui/rpc-error-banner";
+import { CORSErrorBanner } from "@/components/ui/cors-error-banner";
 import NavigationTest from './test-navigation';
 
 export default function DashboardPage() {
@@ -50,7 +50,7 @@ export default function DashboardPage() {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("investments");
-  const { shouldUseFallback, retry } = useContractFallback();
+  const { shouldUseFallback, hasCORSError, retry, getDiagnosticReport } = useContractFallback();
   
   // Use enhanced dashboard data with real contract integration
   const { 
@@ -127,8 +127,13 @@ export default function DashboardPage() {
           </Alert>
         )}
         
-        {/* RPC Error Banner */}
-        <RPCErrorBanner isActive={shouldUseFallback} onRetry={retry} />
+        {/* Enhanced CORS Error Banner */}
+        <CORSErrorBanner 
+          isActive={shouldUseFallback} 
+          hasCORSError={hasCORSError}
+          onRetry={retry}
+          getDiagnosticReport={getDiagnosticReport} 
+        />
         
         {/* DEBUG: Navigation Test Panel */}
         <NavigationTest />

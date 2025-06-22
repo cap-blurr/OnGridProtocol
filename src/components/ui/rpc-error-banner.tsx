@@ -15,8 +15,8 @@ export function RPCErrorBanner({ isActive, onRetry }: RPCErrorBannerProps) {
       <AlertTriangle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>
-          🚧 Blockchain RPC temporarily limited due to high demand. 
-          Some features may show reduced data until connection stabilizes.
+          🚧 Blockchain connection temporarily unavailable (CORS/RPC limit). 
+          Displaying cached data. Features will restore automatically when connection stabilizes.
         </span>
         <Button 
           onClick={onRetry}

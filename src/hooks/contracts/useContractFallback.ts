@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { rpcCORSHandler } from '@/lib/rpc-cors-handler';
 
 export function useContractFallback() {
   const [hasRpcError, setHasRpcError] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [errorCount, setErrorCount] = useState(0);
   const [isProduction, setIsProduction] = useState(false);
+  const [hasCORSError, setHasCORSError] = useState(false);
 
   useEffect(() => {
     // Detect production environment
@@ -16,6 +18,13 @@ export function useContractFallback() {
     
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // Setup CORS error handler
+    rpcCORSHandler.onCORSError((error) => {
+      console.warn('CORS error detected, activating fallback mode:', error);
+      setHasCORSError(true);
+      setHasRpcError(true);
+    });
     
     // Monitor for RPC errors more aggressively
     const originalConsoleError = console.error;
@@ -26,16 +35,33 @@ export function useContractFallback() {
       try {
         const response = await originalFetch(input, init);
         if (!response.ok && typeof input === 'string' && input.includes('alchemy.com')) {
+          console.warn('RPC request failed:', response.status, response.statusText);
           setErrorCount(prev => prev + 1);
           if (errorCount > 3) {
             setHasRpcError(true);
           }
         }
         return response;
-      } catch (error) {
+      } catch (error: any) {
+        // Enhanced CORS error detection
         if (typeof input === 'string' && input.includes('alchemy.com')) {
-          setErrorCount(prev => prev + 1);
-          setHasRpcError(true);
+          console.warn('RPC fetch error:', error.message);
+          
+          // Specifically catch CORS errors
+          if (error.message && (
+            error.message.includes('CORS') || 
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('Network Error') ||
+            error.message.includes('Access-Control-Allow-Origin')
+          )) {
+            console.warn('CORS/Network error detected, activating fallback mode');
+            setHasRpcError(true);
+          } else {
+            setErrorCount(prev => prev + 1);
+            if (errorCount > 2) { // Lower threshold for production
+              setHasRpcError(true);
+            }
+          }
         }
         throw error;
       }
@@ -49,7 +75,10 @@ export function useContractFallback() {
           message.includes('Network Error') ||
           message.includes('ERR_INSUFFICIENT_RESOURCES') ||
           message.includes('alchemy.com') ||
-          message.includes('Failed to load resource')) {
+          message.includes('Failed to load resource') ||
+          message.includes('Access-Control-Allow-Origin') ||
+          message.includes('net::ERR_FAILED')) {
+        console.warn('RPC error detected via console:', message);
         setErrorCount(prev => prev + 1);
         setHasRpcError(true);
       }
@@ -78,15 +107,23 @@ export function useContractFallback() {
   const retry = () => {
     setHasRpcError(false);
     setErrorCount(0);
+    setHasCORSError(false);
+    rpcCORSHandler.clearErrors();
+  };
+
+  const getDiagnosticReport = () => {
+    return rpcCORSHandler.generateDiagnosticReport();
   };
 
   return {
     hasRpcError,
+    hasCORSError,
     isOnline,
     isProduction,
     errorCount,
-    shouldUseFallback: hasRpcError || !isOnline || (isProduction && errorCount > 2),
-    retry
+    shouldUseFallback: hasRpcError || hasCORSError || !isOnline || (isProduction && errorCount > 2),
+    retry,
+    getDiagnosticReport
   };
 }
 
