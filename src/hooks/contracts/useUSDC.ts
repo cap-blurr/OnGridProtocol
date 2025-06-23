@@ -3,7 +3,7 @@ import { useContractAddresses } from './useDeveloperRegistry';
 import { useEffect } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 import toast from 'react-hot-toast';
-import { useChainId } from 'wagmi';
+import { useChainId, useAccount } from 'wagmi';
 
 // Import MockUSDC ABI for testnet
 import MockUSDCABI from '@/contracts/abis/MockUSDC.json';
@@ -80,9 +80,10 @@ export function useUSDCAllowance(ownerAddress?: `0x${string}`, spenderAddress?: 
   };
 }
 
-// Approve USDC for a spender
+// Approve USDC for a spender - Enhanced with connection validation
 export function useUSDCApprove() {
   const addresses = useContractAddresses();
+  const { isConnected, address: userAddress } = useAccount();
   
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   
@@ -98,15 +99,37 @@ export function useUSDCApprove() {
     } else if (isSuccess) {
       toast.success('USDC approved successfully!', { id: 'approveTx' });
     } else if (error) {
-      toast.error(`Approval Error: ${error.message}`, { id: 'approveTx' });
+      console.error('USDC Approval Error Details:', error);
+      const errorMessage = error.message.includes('Connector not connected') 
+        ? 'Wallet connection lost. Please reconnect your wallet and try again.'
+        : `Approval Error: ${error.message}`;
+      toast.error(errorMessage, { id: 'approveTx' });
     }
   }, [isPending, isConfirming, isSuccess, error]);
   
   return {
     approve: (spender: `0x${string}`, amount: string) => {
+      // Enhanced connection validation
+      if (!isConnected) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+      
+      if (!userAddress) {
+        toast.error('Wallet address not available. Please reconnect your wallet.');
+        return;
+      }
+      
+      if (!addresses.usdc) {
+        toast.error('USDC contract address not found');
+        return;
+      }
+      
       try {
         const parsedAmount = parseUnits(amount, USDC_DECIMALS);
         console.log(`Approving ${amount} USDC (${parsedAmount.toString()}) for spender: ${spender}`);
+        console.log('Current connection state:', { isConnected, userAddress });
+        
         writeContract({ 
             address: addresses.usdc as `0x${string}`,
           abi: USDC_ABI,
@@ -119,10 +142,23 @@ export function useUSDCApprove() {
       }
     },
     approveMax: (spender: `0x${string}`) => {
+      // Enhanced connection validation
+      if (!isConnected) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+      
+      if (!userAddress) {
+        toast.error('Wallet address not available. Please reconnect your wallet.');
+        return;
+      }
+      
       try {
         // Use maximum uint256 for unlimited approval
         const maxAmount = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
         console.log(`Approving MAX USDC for spender: ${spender}`);
+        console.log('Current connection state:', { isConnected, userAddress });
+        
         writeContract({ 
           address: addresses.usdc as `0x${string}`,
           abi: USDC_ABI,
@@ -137,7 +173,10 @@ export function useUSDCApprove() {
     isLoading: isPending || isConfirming,
     isSuccess,
     error,
-    hash
+    hash,
+    // Add connection state for components to check
+    isConnected,
+    userAddress
   };
 }
 

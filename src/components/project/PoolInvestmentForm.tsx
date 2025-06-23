@@ -52,10 +52,10 @@ export default function PoolInvestmentForm({
     useUSDCAllowance(investorAddress, addresses.liquidityPoolManagerProxy as `0x${string}`);
   
   // USDC approve function
-  const { approve, isLoading: isApproving, isSuccess: isApproveSuccess } = useUSDCApprove();
+  const { approve, approveMax, isLoading: isApproving, isSuccess: isApproveSuccess, isConnected: isApprovalConnected, userAddress: approveUserAddress } = useUSDCApprove();
   
   // Deposit to pool function
-  const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess } = useDepositToPool(poolId);
+  const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess, isConnected: isDepositConnected, userAddress: depositUserAddress } = useDepositToPool(poolId);
 
   // User's current shares in this pool
   const { shares: currentShares } = useUserShares(poolId, investorAddress);
@@ -114,6 +114,12 @@ export default function PoolInvestmentForm({
       return;
     }
     
+    // Check if approval hook indicates proper connection
+    if (!isApprovalConnected) {
+      toast.error("Wallet connection issue. Please reconnect your wallet.");
+      return;
+    }
+    
     // Approve exact amount
     approve(
       addresses.liquidityPoolManagerProxy as `0x${string}`, 
@@ -125,6 +131,12 @@ export default function PoolInvestmentForm({
   const handleDeposit = () => {
     if (!investorAddress) {
       toast.error("Wallet not connected");
+      return;
+    }
+    
+    // Check if deposit hook indicates proper connection
+    if (!isDepositConnected) {
+      toast.error("Wallet connection issue. Please reconnect your wallet.");
       return;
     }
     

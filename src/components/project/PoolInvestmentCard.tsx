@@ -34,7 +34,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   const { address: userAddress } = useAccount();
   const { name, formattedTotalAssets, aprPercentage, riskLevel, totalShares: poolTotalShares, isLoading: isLoadingPoolInfo, error: poolInfoError }
     = usePoolInfo(poolId);
-  const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess, error: depositError }
+  const { deposit, isLoading: isDepositing, isSuccess: isDepositSuccess, error: depositError, isConnected: isDepositConnected, userAddress: depositUserAddress }
     = useDepositToPool(poolId);
   const { shares: userShares, isLoading: isLoadingUserShares }
     = useUserShares(poolId, userAddress);
@@ -46,7 +46,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   const { allowance, refetch: refetchAllowance, isLoading: isLoadingAllowance }
     = useUSDCAllowance(userAddress, liquidityPoolManagerAddress);
-  const { approve, isLoading: isApproving, isSuccess: isApproveSuccess, error: approveError }
+  const { approve, approveMax, isLoading: isApproving, isSuccess: isApproveSuccess, error: approveError, isConnected: isApprovalConnected, userAddress: approveUserAddress }
     = useUSDCApprove();
 
   const needsApproval = parseFloat(depositAmount) > 0 && checkApprovalNeeded(allowance, depositAmount);
@@ -80,6 +80,13 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
       toast.error('Please enter a valid amount to approve.');
       return;
     }
+    
+    // Check wallet connection state
+    if (!isApprovalConnected) {
+      toast.error('Wallet connection issue. Please reconnect your wallet.');
+      return;
+    }
+    
     approve(liquidityPoolManagerAddress, depositAmount);
   };
 
@@ -88,6 +95,13 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
       toast.error('Please enter a valid deposit amount.');
       return;
     }
+    
+    // Check wallet connection state
+    if (!isDepositConnected) {
+      toast.error('Wallet connection issue. Please reconnect your wallet.');
+      return;
+    }
+    
     deposit(poolId, depositAmount);
   };
 

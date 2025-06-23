@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { formatUnits, parseUnits } from 'viem';
 import LiquidityPoolManagerABI from '@/contracts/abis/LiquidityPoolManager.json';
+import { useAccount } from 'wagmi';
 
 // Constants
 const USDC_DECIMALS = 6;
@@ -198,9 +199,10 @@ export function useUserShares(poolId: number, userAddress?: `0x${string}`) {
   };
 }
 
-// Hook to deposit to a pool
+// Hook to deposit to a pool - Enhanced with connection validation
 export function useDepositToPool(poolId?: number) {
   const addresses = useContractAddresses();
+  const { isConnected, address: userAddress } = useAccount();
   
   const { writeContract, data: hash, isPending, error, status } = useWriteContract();
   
@@ -216,12 +218,32 @@ export function useDepositToPool(poolId?: number) {
     } else if (isSuccess) {
       toast.success('Deposit successful!', { id: 'depositTx' });
     } else if (error) {
-      toast.error(`Error: ${error.message}`, { id: 'depositTx' });
+      console.error('Pool Deposit Error Details:', error);
+      const errorMessage = error.message.includes('Connector not connected') 
+        ? 'Wallet connection lost. Please reconnect your wallet and try again.'
+        : `Error: ${error.message}`;
+      toast.error(errorMessage, { id: 'depositTx' });
     }
   }, [isPending, isConfirming, isSuccess, error]);
   
   return {
     deposit: (depositPoolId: number, amount: string) => {
+      // Enhanced connection validation
+      if (!isConnected) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+      
+      if (!userAddress) {
+        toast.error('Wallet address not available. Please reconnect your wallet.');
+        return;
+      }
+      
+      if (!addresses.liquidityPoolManagerProxy) {
+        toast.error('Pool Manager contract address not found');
+        return;
+      }
+      
       try {
         const targetPoolId = depositPoolId || poolId;
         if (!targetPoolId) {
@@ -229,6 +251,14 @@ export function useDepositToPool(poolId?: number) {
           return;
         }
         const parsedAmount = parseUnits(amount, USDC_DECIMALS);
+        console.log('Pool deposit details:', { 
+          poolId: targetPoolId, 
+          amount, 
+          parsedAmount: parsedAmount.toString(),
+          isConnected, 
+          userAddress 
+        });
+        
         writeContract({
           address: addresses.liquidityPoolManagerProxy as `0x${string}`,
           abi: LiquidityPoolManagerABI.abi,
@@ -242,7 +272,10 @@ export function useDepositToPool(poolId?: number) {
     },
     isLoading: isPending || isConfirming,
     isSuccess,
-    error
+    error,
+    // Add connection state for components to check
+    isConnected,
+    userAddress
   };
 }
 

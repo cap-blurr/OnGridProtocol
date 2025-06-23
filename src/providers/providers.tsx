@@ -7,7 +7,7 @@ import { baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { UserTypeProvider } from './userType';
-import { injected } from 'wagmi/connectors';
+import { injected, walletConnect } from 'wagmi/connectors';
 
 // Multiple RPC endpoints for redundancy - prioritize CORS-friendly endpoints
 const baseSepoliaTransports = fallback([
@@ -41,21 +41,30 @@ const baseSepoliaTransports = fallback([
   ] : []),
 ]);
 
-// Wagmi configuration for contract interactions - Privy v2 handles wallet connections directly
+// Wagmi configuration for contract interactions - Enhanced for Privy v2 compatibility
 const config = createConfig({
   chains: [baseSepolia],
   connectors: [
+    // Enhanced injected connector that properly detects Privy wallets
     injected({
-      // This allows wagmi to work with Privy's injected wallet
-      // No specific target needed - will detect Privy's injected wallet automatically
+      target: 'metaMask',
     }),
   ],
   transports: {
     [baseSepolia.id]: baseSepoliaTransports,
   },
   ssr: true,
-  // Add polling configuration
-  pollingInterval: 4000, // Poll every 4 seconds instead of default
+  // Enhanced polling configuration for better responsiveness
+  pollingInterval: 3000, // Poll every 3 seconds
+  // Add batch configuration
+  batch: {
+    multicall: {
+      batchSize: 1024,
+      wait: 16,
+    },
+  },
+  // Sync connected state between Privy and Wagmi
+  syncConnectedChain: true,
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -66,38 +75,39 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         refetchOnMount: true,
         retry: 2,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        staleTime: 5000, // 5 seconds
+        staleTime: 3000, // 3 seconds 
         gcTime: 1000 * 60 * 10, // 10 minutes
       },
     },
   }));
 
   return (
-        <PrivyProvider
-          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
-          clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
-          config={{
-            appearance: {
-              theme: 'dark',
-              accentColor: '#4CAF50',
-            },
-            embeddedWallets: {
-              createOnLogin: 'users-without-wallets',
-            },
-            supportedChains: [baseSepolia],
-            loginMethods: ['email', 'sms','google','wallet'],
-            defaultChain: baseSepolia,
-            // Only use embedded wallets and email/SMS to avoid WalletConnect
-            walletConnectCloudProjectId: undefined
-          }}
-        >
+    <PrivyProvider
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
+      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
+      config={{
+        appearance: {
+          theme: 'dark',
+          accentColor: '#4CAF50',
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+          requireUserPasswordOnCreate: false,
+        },
+        supportedChains: [baseSepolia],
+        loginMethods: ['email', 'sms','google','wallet'],
+        defaultChain: baseSepolia,
+        // Disable WalletConnect to avoid conflicts
+        walletConnectCloudProjectId: undefined,
+      }}
+    >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </PrivyProvider>
   );
 }
