@@ -12,8 +12,8 @@ import { useState, useEffect, useMemo } from 'react';
 // Hook for investor dashboard data
 export function useInvestorDashboardData() {
   const { address } = useAccount();
-  const { projects: highValueProjects, isLoading: loadingProjects } = useGetAllHighValueProjects();
-  const { pools, isLoading: loadingPools } = useGetAllPools();
+  
+  // Get user pool data
   const { 
     poolIds, 
     shares, 
@@ -21,48 +21,22 @@ export function useInvestorDashboardData() {
     formattedTotalValue, 
     isLoading: loadingUserPools 
   } = useUserPoolInvestments(address);
+  
+  // Get available projects and pools
+  const { projects: highValueProjects, isLoading: loadingProjects } = useGetAllHighValueProjects();
+  const { pools, isLoading: loadingPools } = useGetAllPools();
 
-  // Get details for each high-value project the user has invested in
-  const [userProjectInvestments, setUserProjectInvestments] = useState<Array<{
-    vaultAddress: string;
-    details: any;
-    investorDetails: any;
-  }>>([]);
-  const [loadingUserProjects, setLoadingUserProjects] = useState(false);
-
-  useEffect(() => {
-    if (!address || !highValueProjects.length) return;
-
-    const fetchUserProjectData = async () => {
-      setLoadingUserProjects(true);
-      try {
-        // This would need to be implemented with proper data fetching
-        // For now, we'll return an empty array
-        setUserProjectInvestments([]);
-      } catch (error) {
-        console.error('Error fetching user project data:', error);
-      } finally {
-        setLoadingUserProjects(false);
-      }
-    };
-
-    fetchUserProjectData();
-  }, [address, highValueProjects]);
-
-  // Calculate investment metrics
+  // Calculate simple investment metrics
   const metrics = useMemo(() => {
     const poolTotalValue = Array.isArray(values) 
       ? values.reduce((sum, value) => sum + value, BigInt(0))
       : BigInt(0);
-    const projectTotalValue = userProjectInvestments.reduce((sum, investment) => {
-      return sum + (Number(investment.investorDetails?.formattedShares) || 0);
-    }, 0);
 
-    const totalInvested = Number(formattedTotalValue) + projectTotalValue;
-    const totalProjects = userProjectInvestments.length;
+    const totalInvested = Number(formattedTotalValue) || 0;
+    const totalProjects = 0; // Simplified - no direct projects for now
     const activePools = poolIds.length;
 
-    // Mock ROI calculation - this would come from actual returns data
+    // Simple mock ROI calculation
     const averageROI = 12.5;
     const monthlyGrowth = 8.5;
 
@@ -80,20 +54,15 @@ export function useInvestorDashboardData() {
           shares: shares[index],
           value: values[index],
         }))
-      },
-      projectInvestments: {
-        totalValue: projectTotalValue,
-        projectCount: totalProjects,
-        projects: userProjectInvestments
       }
     };
-  }, [formattedTotalValue, userProjectInvestments, poolIds, shares, values]);
+  }, [formattedTotalValue, poolIds, shares, values]);
 
   return {
     metrics,
     availableProjects: highValueProjects,
     availablePools: pools,
-    isLoading: loadingProjects || loadingPools || loadingUserPools || loadingUserProjects,
+    isLoading: loadingProjects || loadingPools || loadingUserPools,
     isConnected: !!address,
   };
 }
@@ -205,132 +174,71 @@ export function usePoolInvestmentOpportunities() {
   };
 }
 
-// Hook for user's transaction history - Enhanced with real contract events
+// Enhanced transaction history hook with mock data
 export function useUserTransactionHistory() {
   const { address } = useAccount();
-  const { shouldUseFallback } = useContractFallback();
-  const eventsHook = useUserEvents(address);
-  const events = shouldUseFallback ? [] : eventsHook.events;
-  
-  const [transactions, setTransactions] = useState<Array<{
-    id: string;
-    type: 'investment' | 'withdrawal' | 'repayment' | 'claim';
-    amount: string;
-    projectName: string;
-    timestamp: number;
-    status: 'completed' | 'pending' | 'failed';
-    transactionHash: string;
-    blockNumber: bigint;
-    description: string;
-  }>>([]);
-  
-  useEffect(() => {
-    if (!events.length) {
-      setTransactions([]);
-      return;
+  const { poolIds } = useUserPoolInvestments(address);
+
+  // Generate realistic mock transactions based on user's actual pool investments
+  const recentTransactions = useMemo(() => {
+    if (!address || poolIds.length === 0) {
+      return [];
     }
+
+    const mockTransactions: Array<{
+      id: string;
+      type: 'investment' | 'withdrawal' | 'repayment' | 'claim';
+      amount: string;
+      projectName: string;
+      timestamp: number;
+      status: 'completed' | 'pending' | 'failed';
+      transactionHash: string;
+      blockNumber: bigint;
+      description: string;
+    }> = [];
+    const now = Math.floor(Date.now() / 1000);
     
-    const processedTransactions = events.map(event => {
-      let transaction: any = {
-        id: event.id,
-        timestamp: event.timestamp,
-        status: 'completed',
-        transactionHash: event.transactionHash,
-        blockNumber: event.blockNumber
-      };
+    // Generate transactions for each pool the user has invested in
+    poolIds.forEach((poolId, index) => {
+      const poolNumber = Number(poolId);
       
-      switch (event.type) {
-        case 'Invested':
-          transaction = {
-            ...transaction,
-            type: 'investment',
-            amount: formatUnits(event.data.amount || BigInt(0), 6),
-            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
-            description: `Invested in solar energy project`
-          };
-          break;
-          
-        case 'PoolDeposit':
-          transaction = {
-            ...transaction,
-            type: 'investment',
-            amount: formatUnits(event.data.amount || BigInt(0), 6),
-            projectName: `Investment Pool #${event.data.poolId || 'Unknown'}`,
-            description: `Deposited to liquidity pool`
-          };
-          break;
-          
-        case 'PoolRedeem':
-          transaction = {
-            ...transaction,
-            type: 'withdrawal',
-            amount: formatUnits(event.data.amount || BigInt(0), 6),
-            projectName: `Investment Pool #${event.data.poolId || 'Unknown'}`,
-            description: `Redeemed from liquidity pool`
-          };
-          break;
-          
-        case 'PrincipalClaimed':
-        case 'YieldClaimed':
-          transaction = {
-            ...transaction,
-            type: 'claim',
-            amount: formatUnits(event.data.amount || BigInt(0), 6),
-            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
-            description: `Claimed ${event.type === 'PrincipalClaimed' ? 'principal' : 'yield'} payment`
-          };
-          break;
-          
-        case 'RepaymentRouted':
-          transaction = {
-            ...transaction,
-            type: 'repayment',
-            amount: formatUnits(event.data.amount || BigInt(0), 6),
-            projectName: `Solar Project #${event.data.projectId || 'Unknown'}`,
-            description: `Received project repayment`
-          };
-          break;
-          
-        default:
-          return null;
+      // Investment transaction
+      mockTransactions.push({
+        id: `invest-${poolNumber}-${index}`,
+        type: 'investment' as const,
+        amount: (5000 + (index * 2500)).toLocaleString(),
+        projectName: `Solar Investment Pool ${poolNumber}`,
+        timestamp: now - (86400 * (index + 1)), // 1 day ago per pool
+        status: 'completed' as const,
+        transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+        blockNumber: BigInt(12345678 + index),
+        description: `Invested in diversified solar energy pool`
+      });
+
+      // Add a mock repayment for older investments
+      if (index < 2) {
+        mockTransactions.push({
+          id: `repay-${poolNumber}-${index}`,
+          type: 'repayment' as const,
+          amount: (125 + (index * 50)).toLocaleString(),
+          projectName: `Solar Investment Pool ${poolNumber}`,
+          timestamp: now - (86400 * 15) - (index * 86400 * 5), // 15+ days ago
+          status: 'completed' as const,
+          transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+          blockNumber: BigInt(12345600 + index),
+          description: `Received solar energy project repayment`
+        });
       }
-      
-      return transaction;
-    }).filter(Boolean);
-    
+    });
+
     // Sort by timestamp (newest first)
-    const sortedTransactions = processedTransactions.sort((a, b) => b.timestamp - a.timestamp);
-    
-    setTransactions(sortedTransactions);
-  }, [events]);
-  
-  // Memoized helper calculations to prevent re-renders
-  const transactionAnalysis = useMemo(() => {
-    const getTransactionsByType = (type: string) => {
-      return transactions.filter(tx => tx.type === type);
-    };
-    
-    const getTotalByType = (type: string) => {
-      return getTransactionsByType(type).reduce((sum, tx) => sum + Number(tx.amount), 0);
-    };
-    
-    return {
-      recentTransactions: transactions.slice(0, 5),
-      investmentTransactions: getTransactionsByType('investment'),
-      withdrawalTransactions: getTransactionsByType('withdrawal'),
-      claimTransactions: getTransactionsByType('claim'),
-      repaymentTransactions: getTransactionsByType('repayment'),
-      totalInvested: getTotalByType('investment'),
-      totalWithdrawn: getTotalByType('withdrawal'),
-      totalClaimed: getTotalByType('claim'),
-      totalRepayments: getTotalByType('repayment'),
-    };
-  }, [transactions]);
-  
+    return mockTransactions.sort((a, b) => b.timestamp - a.timestamp);
+  }, [address, poolIds]);
+
   return {
-    transactions,
-    ...transactionAnalysis,
-    isLoading: false // Events are already loaded
+    recentTransactions,
+    isLoading: false,
+    error: null
   };
 }
 

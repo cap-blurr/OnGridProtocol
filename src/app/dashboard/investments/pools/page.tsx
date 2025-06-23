@@ -11,7 +11,6 @@ import {
   TrendingUp,
   Shield,
   Calendar,
-  Zap,
   Activity,
   Sun,
   Heart,
@@ -88,7 +87,7 @@ export default function InvestmentPools() {
         <div className="mb-6 lg:mb-8">
           <Link href="/dashboard/investments" className="inline-flex items-center text-oga-green hover:text-oga-green/80 mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Solar Investment Dashboard
+            Back to Investment Dashboard
           </Link>
           
           {/* Enhanced Header */}
@@ -200,13 +199,11 @@ export default function InvestmentPools() {
                       <Badge className="bg-oga-green/20 text-oga-green border-oga-green/50">
                         {pool.status}
                       </Badge>
-                      <Badge 
-                        className={
-                          pool.riskLevel === 'Low' ? 'bg-oga-green/20 text-oga-green border-oga-green/50' :
-                          pool.riskLevel === 'Medium' ? 'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50' : 
-                          'bg-red-600/20 text-red-400 border-red-600/50'
-                        }
-                      >
+                      <Badge className={`text-xs ${
+                        pool.riskLevel === 'Low' ? 'bg-oga-green/20 text-oga-green border-oga-green/50' :
+                        pool.riskLevel === 'Medium' ? 'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50' :
+                        'bg-red-600/20 text-red-400 border-red-600/50'
+                      }`}>
                         {pool.riskLevel} Risk
                       </Badge>
                     </div>
@@ -274,7 +271,7 @@ export default function InvestmentPools() {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div>
                         <h4 className="text-oga-green font-semibold text-sm mb-1">Ready to invest?</h4>
-                        <p className="text-oga-green/80 text-sm mb-6">
+                        <p className="text-oga-green/80 text-sm">
                           Join {pool.investors} other investors in funding solar energy across Africa
                         </p>
                       </div>
@@ -301,7 +298,17 @@ export default function InvestmentPools() {
 
         {/* Pool Investment Form Component */}
         <div className="mt-8">
-          <PoolInvestmentCard />
+          <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+            <CardHeader>
+              <CardTitle className="text-oga-green flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Pool Investment Center
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PoolInvestmentCard />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

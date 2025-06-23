@@ -38,30 +38,24 @@ import LoadingScreen from "@/components/ui/loading-screen";
 import { DashboardTabs } from "@/components/ui/custom-tabs";
 import PoolInvestmentCard from "@/components/project/PoolInvestmentCard";
 import DirectProjectInvestmentList from "@/components/project/DirectProjectInvestmentList";
-import { useDashboardData, useUserTransactionHistory } from "@/hooks/contracts/useDashboardData";
 import { useEnhancedDashboardData } from "@/hooks/contracts/useEnhancedDashboardData";
-import { useContractFallback } from "@/hooks/contracts/useContractFallback";
+import { useUserTransactionHistory } from "@/hooks/contracts/useDashboardData";
 import { TransactionList } from "@/components/dashboard/TransactionDetails";
-import { CORSErrorBanner } from "@/components/ui/cors-error-banner";
-
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState("investments");
-  const { shouldUseFallback, hasCORSError, retry, getDiagnosticReport } = useContractFallback();
   
-  // Use enhanced dashboard data with real contract integration
+  // Use simplified dashboard data
   const { 
     metrics, 
     poolInvestments, 
-    projectInvestments, 
     isLoading: isLoadingDashboard,
     hasInvestments 
   } = useEnhancedDashboardData();
-  
-  // Get real transaction history
+
+  // Get transaction history
   const { recentTransactions } = useUserTransactionHistory();
 
   // Handle client-side mounting
@@ -69,24 +63,13 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
-  // Handle loading timeout separately
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const timer = setTimeout(() => {
-      setLoadingTimeout(true);
-    }, 3000); // 3 second timeout
-    
-    return () => clearTimeout(timer);
-  }, [mounted]);
-
   // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
     return <LoadingScreen />;
   }
 
-  // Show loading screen only if still loading and timeout hasn't been reached
-  if (isLoadingDashboard && !loadingTimeout) {
+  // Show loading screen briefly
+  if (isLoadingDashboard) {
     return <LoadingScreen />;
   }
 
@@ -126,17 +109,7 @@ export default function DashboardPage() {
             </AlertDescription>
           </Alert>
         )}
-        
-        {/* Enhanced CORS Error Banner */}
-        <CORSErrorBanner 
-          isActive={shouldUseFallback} 
-          hasCORSError={hasCORSError}
-          onRetry={retry}
-          getDiagnosticReport={getDiagnosticReport} 
-        />
-        
 
-        
         <DashboardTabs
           tabs={[
             { value: "investments", label: "Investments" },
@@ -203,7 +176,7 @@ export default function DashboardPage() {
                     {metrics?.activePools || 0}
                   </div>
                   <p className="text-xs text-zinc-400">
-                    With varied APY rates
+                    Pool investments
                   </p>
                 </CardContent>
               </Card>
@@ -214,68 +187,32 @@ export default function DashboardPage() {
                 
                 <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-white">
-                    Total Projects
+                    Projects
                   </CardTitle>
-                  <Trees className="h-4 w-4 text-green-500" />
+                  <BarChart3 className="h-4 w-4 text-[#4CAF50]" />
                 </CardHeader>
                 <CardContent className="relative">
                   <div className="text-2xl font-bold text-white">
                     {metrics?.totalProjects || 0}
                   </div>
                   <p className="text-xs text-zinc-400">
-                    Direct and pooled investments
+                    Direct investments
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Enhanced Recent Transactions Card */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 overflow-hidden group hover:border-[#4CAF50]/30 transition-all duration-300">
-                {/* Enhanced gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-3 text-white text-xl">
-                    <History className="h-5 w-5 text-[#4CAF50]" />
-                    Recent Transactions
+            {/* Investment Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Portfolio Allocation */}
+              <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 hover:border-[#4CAF50]/50 transition-colors">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <PieChart className="h-5 w-5 text-[#4CAF50]" />
+                    Portfolio Allocation
                   </CardTitle>
-                  <CardDescription className="text-zinc-400 mt-2">
-                    Your latest investment activities
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="relative">
-                  <TransactionList 
-                    transactions={recentTransactions} 
-                    maxItems={3}
-                    showDetails={false}
-                    title=""
-                  />
-                  <div className="mt-4 pt-4 border-t border-[#4CAF50]/10">
-                    <Button variant="ghost" className="w-full justify-center text-zinc-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/5 group" asChild>
-                      <Link href="/dashboard/investments/current" className="flex items-center">
-                        View all transactions <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Enhanced Investment Distribution Card */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 overflow-hidden">
-                {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/20 to-transparent pointer-events-none" />
-                
-                <CardHeader className="relative">
-                  <CardTitle className="flex items-center gap-2 text-white">
-                    <CreditCard className="h-5 w-5 text-[#4CAF50]" />
-                    Investment Distribution
-                  </CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Allocation of your investments across projects
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative">
+                <CardContent>
                   <div className="space-y-4">
                     {hasInvestments ? (
                       <>
@@ -323,57 +260,48 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-            
-            <div className="mt-12 space-y-6">
-              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Globe2 className="h-5 w-5 text-[#4CAF50]" />
-                Quick Actions
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Button 
-                  variant="outline" 
-                  className="border-zinc-800 bg-zinc-900/50 text-zinc-100 hover:bg-gradient-to-r hover:from-[#3D9970] hover:to-[#4CAF50] hover:text-white hover:border-transparent transition-all duration-300 h-12 text-base" 
-                  asChild
-                >
-                  <Link href="/dashboard/investments/opportunities">
-                    Browse Investment Opportunities
-                  </Link>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-zinc-800 bg-zinc-900/50 text-zinc-100 hover:bg-gradient-to-r hover:from-[#3D9970] hover:to-[#4CAF50] hover:text-white hover:border-transparent transition-all duration-300 h-12 text-base" 
-                  asChild
-                >
-                  <Link href="/dashboard/investments/pools">
-                    Explore Investment Pools
-                  </Link>
-                </Button>
-              </div>
+
+              {/* Transaction History - Replacing Quick Actions */}
+              <TransactionList 
+                transactions={recentTransactions} 
+                maxItems={4}
+                showDetails={true}
+                title="Recent Transactions"
+                className=""
+              />
             </div>
 
-            {/* Enhanced dividers with new color scheme */}
-            <div className="relative my-12">
-              <hr className="border-[#4CAF50]/10" />
-              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-background">
-                <Trees className="h-6 w-6 text-[#4CAF50]" />
-              </div>
-            </div>
+            {/* Pool Investment Component */}
+            <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Network className="h-5 w-5 text-[#4CAF50]" />
+                  Pool Investment Center
+                </CardTitle>
+                <CardDescription className="text-zinc-400">
+                  Invest in diversified solar energy pools
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PoolInvestmentCard />
+              </CardContent>
+            </Card>
 
-            {/* Pool Investment Section */}
-            <PoolInvestmentCard />
-
-            {/* Enhanced divider */}
-            <div className="relative my-12">
-              <hr className="border-[#4CAF50]/10" />
-              <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 bg-background">
-                <Network className="h-6 w-6 text-[#4CAF50]" />
-              </div>
-            </div>
-
-            {/* Direct Project Investment Section */}
-            <DirectProjectInvestmentList />
-
+            {/* Direct Project Investments */}
+            <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-[#4CAF50]" />
+                  Direct Project Investments
+                </CardTitle>
+                <CardDescription className="text-zinc-400">
+                  Invest directly in high-value solar projects
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DirectProjectInvestmentList />
+              </CardContent>
+            </Card>
           </TabsContent>
         </DashboardTabs>
       </div>

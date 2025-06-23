@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ArrowUpRight,
   ArrowDownLeft,
@@ -8,8 +8,14 @@ import {
   RefreshCw,
   Circle,
   ExternalLink,
-  Clock
+  Clock,
+  CheckCircle2,
+  ArrowRight,
+  Coins
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 // Define Transaction interface locally since it's now part of useDashboardData
 interface Transaction {
   id: string;
@@ -152,51 +158,150 @@ interface TransactionListProps {
   maxItems?: number;
   showDetails?: boolean;
   title?: string;
+  className?: string;
 }
 
 export function TransactionList({ 
   transactions, 
   maxItems = 5, 
-  showDetails = false,
-  title = "Recent Transactions"
+  showDetails = true, 
+  title = "Recent Transactions",
+  className = ""
 }: TransactionListProps) {
   const displayTransactions = transactions.slice(0, maxItems);
 
-  if (transactions.length === 0) {
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'investment':
+        return <ArrowUpRight className="h-4 w-4" />;
+      case 'withdrawal':
+        return <ArrowDownLeft className="h-4 w-4" />;
+      case 'repayment':
+        return <Coins className="h-4 w-4" />;
+      case 'claim':
+        return <CheckCircle2 className="h-4 w-4" />;
+      default:
+        return <ArrowUpRight className="h-4 w-4" />;
+    }
+  };
+
+  const getTransactionColor = (type: string) => {
+    switch (type) {
+      case 'investment':
+        return 'text-[#4CAF50]';
+      case 'withdrawal':
+        return 'text-orange-400';
+      case 'repayment':
+        return 'text-blue-400';
+      case 'claim':
+        return 'text-[#4CAF50]';
+      default:
+        return 'text-[#4CAF50]';
+    }
+  };
+
+  const getTransactionBg = (type: string) => {
+    switch (type) {
+      case 'investment':
+        return 'bg-[#4CAF50]/10 border-[#4CAF50]/20';
+      case 'withdrawal':
+        return 'bg-orange-500/10 border-orange-500/20';
+      case 'repayment':
+        return 'bg-blue-500/10 border-blue-500/20';
+      case 'claim':
+        return 'bg-[#4CAF50]/10 border-[#4CAF50]/20';
+      default:
+        return 'bg-[#4CAF50]/10 border-[#4CAF50]/20';
+    }
+  };
+
+  if (displayTransactions.length === 0) {
     return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-        <CardContent className="py-8 text-center">
-          <Circle className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
-          <h3 className="text-lg font-semibold text-white mb-2">No Transactions Yet</h3>
-          <p className="text-zinc-400">
-            Your transaction history will appear here once you start investing.
-          </p>
+      <Card className={`bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 ${className}`}>
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Clock className="h-5 w-5 text-[#4CAF50]" />
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <Clock className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
+            <h3 className="text-lg font-semibold text-white mb-2">No Transactions Yet</h3>
+            <p className="text-zinc-400 text-sm">
+              Your transaction history will appear here once you start investing.
+            </p>
+            <Link href="/dashboard/investments/pools">
+              <Button className="mt-4 bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-black">
+                Start Investing
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {title && (
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
-      )}
-      <div className={showDetails ? "space-y-4" : "space-y-3"}>
+    <Card className={`bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30 hover:border-[#4CAF50]/50 transition-colors ${className}`}>
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <Clock className="h-5 w-5 text-[#4CAF50]" />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
         {displayTransactions.map((transaction) => (
-          <TransactionDetails
+          <div
             key={transaction.id}
-            transaction={transaction}
-            showDetails={showDetails}
-          />
+            className={`flex items-center justify-between p-3 rounded-lg border ${getTransactionBg(transaction.type)} hover:bg-opacity-20 transition-colors`}
+          >
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full bg-black/20 ${getTransactionColor(transaction.type)}`}>
+                {getTransactionIcon(transaction.type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-medium text-sm">
+                    {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                  </p>
+                  <Badge className="bg-[#4CAF50]/20 text-[#4CAF50] border-[#4CAF50]/50 text-xs">
+                    {transaction.status}
+                  </Badge>
+                </div>
+                <p className="text-zinc-400 text-xs">{transaction.projectName}</p>
+                <p className="text-zinc-500 text-xs">
+                  {formatDistanceToNow(new Date(transaction.timestamp * 1000), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className={`font-semibold text-sm ${getTransactionColor(transaction.type)}`}>
+                ${transaction.amount}
+              </p>
+              {showDetails && (
+                <button
+                  onClick={() => window.open(`https://sepolia.basescan.org/tx/${transaction.transactionHash}`, '_blank')}
+                  className="text-zinc-400 hover:text-[#4CAF50] transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
         ))}
-      </div>
-      {transactions.length > maxItems && (
-        <div className="text-center pt-2">
-          <p className="text-sm text-zinc-400">
-            Showing {maxItems} of {transactions.length} transactions
-          </p>
-        </div>
-      )}
-    </div>
+        
+        {transactions.length > maxItems && (
+          <div className="pt-3 border-t border-[#4CAF50]/20">
+            <Link href="/dashboard/investments/current">
+              <Button variant="ghost" className="w-full justify-center text-zinc-400 hover:text-[#4CAF50] hover:bg-[#4CAF50]/5">
+                View all transactions 
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 } 
