@@ -99,13 +99,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         },
           }}
         >
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={wagmiConfig}>
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
+        </WagmiProvider>
       </QueryClientProvider>
-    </WagmiProvider>
     </PrivyProvider>
   );
 }
