@@ -164,7 +164,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
   
   if (!name && poolId > 0) {
     return (
-      <div className="p-6 border rounded-lg bg-gradient-to-br from-oga-green/20 via-oga-green/10 to-oga-green/20 border-oga-green/50 text-center text-oga-green backdrop-blur-sm">
+      <div className="p-6 border rounded-lg bg-black/40 backdrop-blur-sm border-oga-green/30 text-center text-oga-green">
         <span className="font-medium">Solar Pool {poolId} details not found.</span>
       </div>
     );
@@ -237,7 +237,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
               <Button 
                 onClick={handleApprove} 
                 disabled={isApproving || isLoadingAllowance || !depositAmount || parseFloat(depositAmount) <= 0}
-                className="flex-1 bg-gradient-to-r from-oga-yellow to-oga-yellow-light hover:from-oga-yellow-dark hover:to-oga-yellow text-black font-semibold text-sm shadow-lg shadow-oga-yellow/30 hover:shadow-oga-yellow/50 transition-all duration-300"
+                className="flex-1 bg-oga-yellow hover:bg-oga-yellow/80 text-black font-semibold text-sm transition-all duration-300"
               >
                 {isApproving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
                 Approve USDC
@@ -246,7 +246,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
             <Button 
               onClick={handleDeposit} 
               disabled={isDepositing || (needsApproval && parseFloat(depositAmount) > 0) || !depositAmount || parseFloat(depositAmount) <= 0}
-              className="flex-1 bg-gradient-to-r from-oga-green to-oga-green-light hover:from-oga-green-dark hover:to-oga-green text-white font-semibold text-sm shadow-lg shadow-oga-green/30 hover:shadow-oga-green/50 transition-all duration-300"
+              className="flex-1 bg-oga-green hover:bg-oga-green/80 text-white font-semibold text-sm transition-all duration-300"
             >
               {isDepositing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
               Deposit to Solar Pool
@@ -275,7 +275,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
           <Button 
             onClick={handleRedeem}
             disabled={isRedeeming || !redeemSharesAmount || BigInt(redeemSharesAmount) <= 0 || (userShares != undefined && BigInt(redeemSharesAmount) > userShares)}
-            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold text-sm shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transition-all duration-300"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-all duration-300"
           >
             {isRedeeming ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
             Redeem Solar Pool Shares
@@ -312,7 +312,7 @@ export default function PoolInvestmentCard({ onInvestmentUpdate }: { onInvestmen
 
   if (isLoadingCount) {
     return (
-      <Card className="bg-gradient-to-br from-oga-green/20 via-oga-green/10 to-oga-green/20 backdrop-blur-sm border border-oga-green/50">
+      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
         <CardHeader>
           <CardTitle className="text-2xl lg:text-3xl font-bold text-white flex items-center">
             <Sun className="h-6 w-6 lg:h-7 lg:w-7 mr-3 text-oga-yellow" />
@@ -339,30 +339,9 @@ export default function PoolInvestmentCard({ onInvestmentUpdate }: { onInvestmen
 
   return (
     <div className="space-y-8">
-      <div className="relative overflow-hidden bg-gradient-to-br from-oga-green/30 via-black/70 to-oga-green/20 backdrop-blur-sm border border-oga-green/40 rounded-xl p-8">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-oga-green/15 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-oga-green/25 rounded-full blur-2xl"></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="bg-oga-green/25 p-4 rounded-lg border border-oga-green/40">
-              <Sun className="h-8 w-8 text-oga-green" />
-            </div>
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-white">Solar Investment Pools</h1>
-              <p className="text-oga-green font-medium">Diversified solar energy investments • Real-time updates</p>
-            </div>
-          </div>
-          
-          <p className="text-oga-green/80 text-lg max-w-4xl font-medium">
-            Invest in diversified solar energy pools with professional management and risk distribution across multiple projects.
-          </p>
-        </div>
-      </div>
-      
       <div className="space-y-6 lg:space-y-8">
         {poolIds.length === 0 && !isLoadingCount && (
-          <div className="text-center text-oga-green py-12 bg-gradient-to-br from-oga-green/20 via-black/90 to-oga-green/20 backdrop-blur-sm border border-oga-green/50 shadow-2xl shadow-oga-green/25 rounded-lg p-8">
+          <div className="text-center text-oga-green py-12 bg-black/40 backdrop-blur-sm border border-oga-green/30 rounded-lg p-8">
             <Sun size={64} className="mx-auto mb-6 text-oga-yellow opacity-60" />
             <h3 className="text-2xl font-bold text-white mb-4">No Solar Pools Available</h3>
             <p className="text-lg text-oga-green/80 mb-2">No solar energy liquidity pools are available at the moment.</p>
@@ -370,7 +349,7 @@ export default function PoolInvestmentCard({ onInvestmentUpdate }: { onInvestmen
           </div>
         )}
         {poolIds.map((id) => (
-          <div key={id} className="bg-gradient-to-br from-oga-green/25 via-black/90 to-oga-green/25 backdrop-blur-sm border border-oga-green/50 hover:border-oga-green/70 transition-all duration-300 hover:shadow-lg hover:shadow-oga-green/40 rounded-lg overflow-hidden p-6">
+          <div key={id} className="bg-black/40 backdrop-blur-sm border border-oga-green/30 hover:border-oga-green/50 transition-all duration-300 rounded-lg overflow-hidden p-6">
             <PoolDetailCard 
               poolId={id} 
               liquidityPoolManagerAddress={liquidityPoolManagerProxy as `0x${string}`}
