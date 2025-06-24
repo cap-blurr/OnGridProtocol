@@ -25,7 +25,7 @@ interface Transaction {
   timestamp: number;
   status: 'completed' | 'pending' | 'failed';
   transactionHash: string;
-  blockNumber: bigint;
+  blockNumber: string; // Changed from bigint to string to avoid JSON serialization issues
   description: string;
 }
 
