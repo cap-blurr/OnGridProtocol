@@ -21,16 +21,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, CheckCircle, AlertCircle, Info, ShieldCheck, Coins, Sun } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, Info, ShieldCheck, Coins, Sun, RefreshCw } from 'lucide-react';
 import { formatUnits, parseUnits } from 'ethers';
 import toast from 'react-hot-toast';
 
 interface PoolDetailProps {
   poolId: number;
   liquidityPoolManagerAddress: `0x${string}`;
+  onDepositSuccess?: () => void;
+  onRedeemSuccess?: () => void;
 }
 
-function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps) {
+function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess, onRedeemSuccess }: PoolDetailProps) {
   const { address: userAddress } = useAccount();
   const { name, formattedTotalAssets, aprPercentage, riskLevel, totalShares: poolTotalShares, isLoading: isLoadingPoolInfo, error: poolInfoError }
     = usePoolInfo(poolId);
@@ -62,18 +64,26 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
 
   useEffect(() => {
     if (isDepositSuccess) {
-      toast.success(`Successfully deposited to Solar Pool ${poolId}!`);
+      // Only clear the input and trigger refresh - toast is handled in the hook
       setDepositAmount('');
       refetchAllowance();
+      // Trigger dashboard refresh
+      if (onDepositSuccess) {
+        onDepositSuccess();
+      }
     }
-  }, [isDepositSuccess, poolId, refetchAllowance]);
+  }, [isDepositSuccess, poolId, refetchAllowance, onDepositSuccess]);
 
   useEffect(() => {
     if (isRedeemSuccess) {
-      toast.success(`Successfully redeemed shares from Solar Pool ${poolId}!`);
+      // Only clear the input and trigger refresh - toast is handled in the hook  
       setRedeemSharesAmount('');
+      // Trigger dashboard refresh
+      if (onRedeemSuccess) {
+        onRedeemSuccess();
+      }
     }
-  }, [isRedeemSuccess, poolId]);
+  }, [isRedeemSuccess, poolId, onRedeemSuccess]);
 
   const handleApprove = () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) {
@@ -179,6 +189,10 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
           <div className="flex items-center space-x-3">
             <Sun className="h-5 w-5 text-oga-yellow flex-shrink-0" />
             <span className="leading-tight">{name} (Pool ID: {poolId})</span>
+            {/* Real-time update indicators */}
+            {(isDepositing || isRedeeming || isApproving) && (
+              <Loader2 className="h-4 w-4 animate-spin text-oga-green" />
+            )}
           </div>
           <span className={`text-xs px-3 py-1.5 rounded-full flex items-center w-fit font-medium ${getRiskLevelColor(riskLevel)}`}>
             <ShieldCheck size={12} className="mr-1.5" /> {getRiskLevelText(riskLevel)}
@@ -267,7 +281,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress }: PoolDetailProps
   );
 }
 
-export default function PoolInvestmentCard() {
+export default function PoolInvestmentCard({ onInvestmentUpdate }: { onInvestmentUpdate?: () => void }) {
   const { poolCount, isLoading: isLoadingCount, error: countError } = usePoolCount();
   const { liquidityPoolManagerProxy } = useContractAddresses(); 
   const [poolIds, setPoolIds] = useState<number[]>([]);
@@ -282,6 +296,12 @@ export default function PoolInvestmentCard() {
       }
     }
   }, [poolCount]);
+
+  const handleInvestmentSuccess = () => {
+    if (onInvestmentUpdate) {
+      onInvestmentUpdate();
+    }
+  };
 
   if (isLoadingCount) {
     return (
@@ -323,7 +343,7 @@ export default function PoolInvestmentCard() {
             </div>
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold text-white">Solar Investment Pools</h1>
-              <p className="text-oga-green font-medium">Diversified solar energy investments</p>
+              <p className="text-oga-green font-medium">Diversified solar energy investments • Real-time updates</p>
             </div>
           </div>
           
@@ -344,7 +364,12 @@ export default function PoolInvestmentCard() {
         )}
         {poolIds.map((id) => (
           <div key={id} className="bg-gradient-to-br from-oga-green/25 via-black/90 to-oga-green/25 backdrop-blur-sm border border-oga-green/50 hover:border-oga-green/70 transition-all duration-300 hover:shadow-lg hover:shadow-oga-green/40 rounded-lg overflow-hidden p-6">
-            <PoolDetailCard poolId={id} liquidityPoolManagerAddress={liquidityPoolManagerProxy as `0x${string}`} />
+            <PoolDetailCard 
+              poolId={id} 
+              liquidityPoolManagerAddress={liquidityPoolManagerProxy as `0x${string}`}
+              onDepositSuccess={handleInvestmentSuccess}
+              onRedeemSuccess={handleInvestmentSuccess}
+            />
           </div>
         ))}
       </div>

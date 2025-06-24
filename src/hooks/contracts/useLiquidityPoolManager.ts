@@ -199,7 +199,7 @@ export function useUserShares(poolId: number, userAddress?: `0x${string}`) {
   };
 }
 
-// Hook to deposit to a pool - Enhanced with connection validation
+// Hook to deposit to a pool - Enhanced with connection validation and event firing
 export function useDepositToPool(poolId?: number) {
   const addresses = useContractAddresses();
   const { isConnected, address: userAddress } = useAccount();
@@ -208,23 +208,46 @@ export function useDepositToPool(poolId?: number) {
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
-  // Show toast notifications for transaction states
+  // Show toast notifications for transaction states and fire events
   useEffect(() => {
-    if (isPending || isConfirming) {
-      toast.loading(
-        isPending ? 'Processing deposit...' : 'Confirming transaction...',
-        { id: 'depositTx' }
-      );
-    } else if (isSuccess) {
-      toast.success('Deposit successful!', { id: 'depositTx' });
+    if (isPending) {
+      toast.loading('Processing deposit...', { id: 'depositTx' });
+    } else if (isConfirming) {
+      toast.loading('Confirming transaction...', { id: 'depositTx' });
+    } else if (isSuccess && hash) {
+      // Clear the loading toast and show success
+      toast.dismiss('depositTx');
+      toast.success('Deposit successful! Dashboard will update automatically.', { 
+        duration: 4000,
+        id: 'depositSuccess'
+      });
+      
+      // Fire custom event for dashboard refresh
+      if (userAddress) {
+        const event = new CustomEvent('transactionSuccess', {
+          detail: {
+            type: 'poolDeposit',
+            userAddress,
+            hash,
+            timestamp: Date.now()
+          }
+        });
+        window.dispatchEvent(event);
+        console.log('🎉 Pool deposit success event fired for:', userAddress);
+      }
     } else if (error) {
+      // Clear any loading toast and show error
+      toast.dismiss('depositTx');
       console.error('Pool Deposit Error Details:', error);
       const errorMessage = error.message.includes('Connector not connected') 
         ? 'Wallet connection lost. Please reconnect your wallet and try again.'
         : `Error: ${error.message}`;
-      toast.error(errorMessage, { id: 'depositTx' });
+      toast.error(errorMessage, { 
+        duration: 5000,
+        id: 'depositError'
+      });
     }
-  }, [isPending, isConfirming, isSuccess, error]);
+  }, [isPending, isConfirming, isSuccess, error, userAddress, hash]);
   
   return {
     deposit: (depositPoolId: number, amount: string) => {
@@ -279,27 +302,51 @@ export function useDepositToPool(poolId?: number) {
   };
 }
 
-// Hook to redeem from a pool
+// Hook to redeem from a pool - Enhanced with event firing
 export function useRedeemFromPool() {
   const addresses = useContractAddresses();
+  const { address: userAddress } = useAccount();
   
   const { writeContract, data: hash, isPending, error, status } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
   
-  // Show toast notifications for transaction states
+  // Show toast notifications for transaction states and fire events
   useEffect(() => {
-    if (isPending || isConfirming) {
-      toast.loading(
-        isPending ? 'Processing redemption...' : 'Confirming transaction...',
-        { id: 'redeemTx' }
-      );
-    } else if (isSuccess) {
-      toast.success('Redemption successful!', { id: 'redeemTx' });
+    if (isPending) {
+      toast.loading('Processing redemption...', { id: 'redeemTx' });
+    } else if (isConfirming) {
+      toast.loading('Confirming transaction...', { id: 'redeemTx' });
+    } else if (isSuccess && hash) {
+      // Clear the loading toast and show success
+      toast.dismiss('redeemTx');
+      toast.success('Redemption successful! Dashboard will update automatically.', { 
+        duration: 4000,
+        id: 'redeemSuccess'
+      });
+      
+      // Fire custom event for dashboard refresh
+      if (userAddress) {
+        const event = new CustomEvent('transactionSuccess', {
+          detail: {
+            type: 'poolRedeem',
+            userAddress,
+            hash,
+            timestamp: Date.now()
+          }
+        });
+        window.dispatchEvent(event);
+        console.log('🎉 Pool redemption success event fired for:', userAddress);
+      }
     } else if (error) {
-      toast.error(`Error: ${error.message}`, { id: 'redeemTx' });
+      // Clear any loading toast and show error
+      toast.dismiss('redeemTx');
+      toast.error(`Error: ${error.message}`, { 
+        duration: 5000,
+        id: 'redeemError'
+      });
     }
-  }, [isPending, isConfirming, isSuccess, error]);
+  }, [isPending, isConfirming, isSuccess, error, userAddress, hash]);
   
   return {
     redeem: (poolId: number, shares: string) => {

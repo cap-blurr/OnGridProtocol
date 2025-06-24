@@ -174,13 +174,63 @@ export function usePoolInvestmentOpportunities() {
   };
 }
 
-// Enhanced transaction history hook with mock data
+// Enhanced transaction history hook with real-time updates
 export function useUserTransactionHistory() {
   const { address } = useAccount();
   const { poolIds } = useUserPoolInvestments(address);
+  const [liveTransactions, setLiveTransactions] = useState<Array<{
+    id: string;
+    type: 'investment' | 'withdrawal' | 'repayment' | 'claim';
+    amount: string;
+    projectName: string;
+    timestamp: number;
+    status: 'completed' | 'pending' | 'failed';
+    transactionHash: string;
+    blockNumber: bigint;
+    description: string;
+  }>>([]);
+
+  // Listen for transaction success events to add new transactions
+  useEffect(() => {
+    if (!address) return;
+
+    const handleTransactionSuccess = (event: any) => {
+      if (event.detail && event.detail.userAddress === address) {
+        const { type, hash, timestamp } = event.detail;
+        
+        console.log('📝 Adding new transaction to history:', type);
+        
+        const newTransaction = {
+          id: `${type}-${timestamp}-${hash?.slice(-8) || 'pending'}`,
+          type: type === 'poolDeposit' ? 'investment' as const : 
+                type === 'poolRedeem' ? 'withdrawal' as const :
+                type === 'usdcApproval' ? 'claim' as const : 'investment' as const,
+          amount: '0.00', // Will be updated from event data if available
+          projectName: type === 'poolDeposit' ? `Solar Investment Pool` :
+                      type === 'poolRedeem' ? `Solar Investment Pool` :
+                      type === 'usdcApproval' ? `USDC Approval` : 'Transaction',
+          timestamp: Math.floor(timestamp / 1000),
+          status: 'completed' as const,
+          transactionHash: hash || '0x0000000000000000000000000000000000000000000000000000000000000000',
+          blockNumber: BigInt(0), // Will be updated when block is mined
+          description: type === 'poolDeposit' ? 'Invested in diversified solar energy pool' :
+                      type === 'poolRedeem' ? 'Withdrew from solar energy pool' :
+                      type === 'usdcApproval' ? 'Approved USDC spending' : 'Transaction completed'
+        };
+
+        setLiveTransactions(prev => [newTransaction, ...prev].slice(0, 50)); // Keep last 50 transactions
+      }
+    };
+
+    window.addEventListener('transactionSuccess', handleTransactionSuccess);
+    
+    return () => {
+      window.removeEventListener('transactionSuccess', handleTransactionSuccess);
+    };
+  }, [address]);
 
   // Generate realistic mock transactions based on user's actual pool investments
-  const recentTransactions = useMemo(() => {
+  const baseTransactions = useMemo(() => {
     if (!address || poolIds.length === 0) {
       return [];
     }
@@ -231,9 +281,14 @@ export function useUserTransactionHistory() {
       }
     });
 
-    // Sort by timestamp (newest first)
-    return mockTransactions.sort((a, b) => b.timestamp - a.timestamp);
+    return mockTransactions;
   }, [address, poolIds]);
+
+  // Combine live transactions with base transactions and sort by timestamp
+  const recentTransactions = useMemo(() => {
+    const allTransactions = [...liveTransactions, ...baseTransactions];
+    return allTransactions.sort((a, b) => b.timestamp - a.timestamp).slice(0, 20); // Show last 20 transactions
+  }, [liveTransactions, baseTransactions]);
 
   return {
     recentTransactions,

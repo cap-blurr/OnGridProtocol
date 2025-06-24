@@ -14,7 +14,7 @@ const USDC_ABI = MockUSDCABI.abi;
 // USDC has 6 decimal places
 export const USDC_DECIMALS = 6;
 
-// Get USDC balance
+// Get USDC balance with automatic refresh on transaction events
 export function useUSDCBalance(accountAddress?: `0x${string}`) {
   const addresses = useContractAddresses();
   const chainId = useChainId();
@@ -38,6 +38,28 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
       console.error("useUSDCBalance - Error fetching balance:", error);
     }
   }, [error]);
+
+  // Listen for transaction success events to refresh balance
+  useEffect(() => {
+    if (!accountAddress) return;
+
+    const handleTransactionSuccess = (event: any) => {
+      if (event.detail && event.detail.userAddress === accountAddress) {
+        console.log('💰 Refreshing USDC balance after transaction:', event.detail.type);
+        
+        // Refresh balance with multiple attempts
+        setTimeout(() => refetch(), 1000);  // Quick refresh
+        setTimeout(() => refetch(), 3000);  // Medium refresh
+        setTimeout(() => refetch(), 8000);  // Delayed refresh
+      }
+    };
+
+    window.addEventListener('transactionSuccess', handleTransactionSuccess);
+    
+    return () => {
+      window.removeEventListener('transactionSuccess', handleTransactionSuccess);
+    };
+  }, [accountAddress, refetch]);
   
   const formattedBalance = data 
     ? formatUnits(data as bigint, USDC_DECIMALS)
@@ -98,6 +120,20 @@ export function useUSDCApprove() {
       );
     } else if (isSuccess) {
       toast.success('USDC approved successfully!', { id: 'approveTx' });
+      
+      // Fire custom event for dashboard refresh
+      if (userAddress) {
+        const event = new CustomEvent('transactionSuccess', {
+          detail: {
+            type: 'usdcApproval',
+            userAddress,
+            hash,
+            timestamp: Date.now()
+          }
+        });
+        window.dispatchEvent(event);
+        console.log('🎉 USDC approval success event fired for:', userAddress);
+      }
     } else if (error) {
       console.error('USDC Approval Error Details:', error);
       const errorMessage = error.message.includes('Connector not connected') 
@@ -105,7 +141,7 @@ export function useUSDCApprove() {
         : `Approval Error: ${error.message}`;
       toast.error(errorMessage, { id: 'approveTx' });
     }
-  }, [isPending, isConfirming, isSuccess, error]);
+  }, [isPending, isConfirming, isSuccess, error, userAddress, hash]);
   
   return {
     approve: (spender: `0x${string}`, amount: string) => {
