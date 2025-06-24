@@ -144,219 +144,180 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="relative">
-      {/* Background */}
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)] bg-[size:24px_24px]" />
-      <div className="absolute top-1/4 -left-64 w-[500px] h-[500px] bg-[#4CAF50]/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-1/4 -right-64 w-[500px] h-[500px] bg-[#4CAF50]/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-      
-      <div className="relative space-y-8 pb-12">
-        {/* Header */}
-        <div className="mb-12 relative pl-8">
-          <div className="absolute -left-4 top-0 h-full w-[2px] bg-gradient-to-b from-[#4CAF50]/60 to-[#4CAF50]/0" />
-          
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="inline-block font-mono text-xs uppercase tracking-widest text-[#4CAF50] mb-3 relative group">
-                Investor Dashboard
-                <div className="absolute -left-8 top-1/2 w-4 h-[2px] bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/0 group-hover:w-6 transition-all duration-300" />
-              </span>
-              
-              <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
-                Investment Overview
-              </h1>
-              <p className="text-zinc-400 text-lg max-w-2xl">
-                Monitor your solar energy investments in real-time
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3 mt-6">
-              <div className="text-right">
-                <p className="text-xs text-zinc-500">Last updated</p>
-                <p className="text-xs text-[#4CAF50]">{formatLastUpdate(lastRefresh)}</p>
+    <div className="min-h-screen bg-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        
+        <div className="relative space-y-6 lg:space-y-8">
+          {/* Header */}
+          <div className="mb-6 lg:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Solar Investment Dashboard</h1>
+                <p className="text-zinc-400 text-sm sm:text-base">
+                  Monitor your solar energy investments in real-time
+                </p>
               </div>
-              <Button
-                onClick={refreshAllData}
-                disabled={isRefreshing}
-                variant="outline"
-                size="sm"
-                className="border-[#4CAF50]/30 text-[#4CAF50] hover:bg-[#4CAF50]/10"
-              >
-                {isRefreshing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                {isRefreshing ? 'Updating...' : 'Refresh'}
-              </Button>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-oga-green">
+                  <div className="w-2 h-2 bg-oga-green rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium">Live Data</span>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-zinc-500">Updated {formatLastUpdate(lastRefresh)}</p>
+                </div>
+                <Button
+                  onClick={refreshAllData}
+                  disabled={isRefreshing}
+                  variant="outline"
+                  size="sm"
+                  className="border-[#4CAF50]/30 text-[#4CAF50] hover:bg-[#4CAF50]/10"
+                >
+                  {isRefreshing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Wallet Connection Notice */}
-        {!isWalletConnected && (
-          <Alert className="mb-8 bg-[#4CAF50]/5 border border-[#4CAF50]/20 text-[#4CAF50] backdrop-blur-sm">
-            <Wallet className="h-4 w-4" />
-            <AlertDescription className="text-[#4CAF50]/90">
-              Connect your wallet to access your investment portfolio.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        <DashboardTabs
-          tabs={[
-            { value: "investments", label: "Investments" },
-          ]}
-          activeTab={activeTab}
-          onValueChange={setActiveTab}
-        >
-          <TabsContent value="investments" className="space-y-8">
-            {/* Top Cards - Wallet Balance + Investment Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Wallet Balance Card */}
-              <Card className="relative bg-gradient-to-br from-[#4CAF50]/20 via-black/70 to-[#4CAF50]/10 backdrop-blur-sm border border-[#4CAF50]/30 overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-[#4CAF50]/20 rounded-full blur-xl"></div>
-                {isRefreshing && (
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-[#4CAF50] rounded-full animate-pulse" />
-                )}
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Wallet Balance
-                  </CardTitle>
-                  <div className="w-8 h-8 bg-gradient-to-br from-oga-green/30 to-oga-green/50 rounded-lg flex items-center justify-center border border-oga-green/30">
-                    <DollarSign className="h-4 w-4 text-oga-green" />
-                  </div>
-                </CardHeader>
-                <CardContent className="relative">
-                  {isLoadingBalance ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="w-5 h-5 animate-spin text-oga-green" />
-                      <span className="text-white">Loading...</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span className="text-3xl font-bold text-white tracking-tight">
-                          {walletBalance.toLocaleString()}
-                        </span>
-                        <span className="text-oga-green text-sm font-semibold uppercase tracking-wider">USDC</span>
+          
+          {/* Wallet Connection Notice */}
+          {!isWalletConnected && (
+            <Alert className="mb-6 bg-[#4CAF50]/5 border border-[#4CAF50]/20 text-[#4CAF50] backdrop-blur-sm">
+              <Wallet className="h-4 w-4" />
+              <AlertDescription className="text-[#4CAF50]/90">
+                Connect your wallet to access your investment portfolio.
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          <DashboardTabs
+            tabs={[
+              { value: "investments", label: "Investments" },
+            ]}
+            activeTab={activeTab}
+            onValueChange={setActiveTab}
+          >
+            <TabsContent value="investments" className="space-y-6 lg:space-y-8">
+              {/* Top Cards - Clean Design like Investment Opportunities */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                {/* Wallet Balance Card */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4 text-center">
+                    <DollarSign className="w-6 h-6 text-oga-green mx-auto mb-2" />
+                    {isLoadingBalance ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-oga-green mx-auto" />
+                    ) : (
+                      <div className="text-lg font-bold text-white">
+                        {walletBalance.toLocaleString()}
                       </div>
-                      <p className="text-xs text-zinc-400">Available for investments</p>
+                    )}
+                    <p className="text-xs text-oga-green">Wallet Balance (USDC)</p>
+                  </CardContent>
+                </Card>
+
+                {/* Total Invested */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4 text-center">
+                    <Wallet className="w-6 h-6 text-oga-green mx-auto mb-2" />
+                    <div className="text-lg font-bold text-white">
+                      ${totalInvested.toLocaleString()}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    <p className="text-xs text-oga-green">Total Invested</p>
+                  </CardContent>
+                </Card>
 
-              {/* Total Invested */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-all duration-300">
-                {isRefreshing && (
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-[#4CAF50] rounded-full animate-pulse" />
-                )}
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Total Invested
-                  </CardTitle>
-                  <Wallet className="h-4 w-4 text-[#4CAF50]" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    ${totalInvested.toLocaleString()}
-                  </div>
-                  <div className="flex items-center mt-2">
-                    <ArrowUpRight className="h-3 w-3 text-[#4CAF50] mr-1" />
-                    <span className="text-xs text-[#4CAF50]">Pool investments</span>
-                  </div>
-                </CardContent>
-              </Card>
+                {/* Active Pools */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4 text-center">
+                    <Network className="w-6 h-6 text-oga-green mx-auto mb-2" />
+                    <div className="text-lg font-bold text-white">
+                      {activePools}
+                    </div>
+                    <p className="text-xs text-oga-green">Active Pools</p>
+                  </CardContent>
+                </Card>
 
-              {/* Active Pools */}
-              <Card className="relative bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20 hover:border-[#4CAF50]/50 transition-all duration-300">
-                {isRefreshing && (
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-[#4CAF50] rounded-full animate-pulse" />
-                )}
-                <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
-                  <CardTitle className="text-sm font-medium text-white">
-                    Active Pools
-                  </CardTitle>
-                  <Network className="h-4 w-4 text-[#4CAF50]" />
-                </CardHeader>
-                <CardContent className="relative">
-                  <div className="text-2xl font-bold text-white">
-                    {activePools}
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Pool investments
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                {/* Portfolio Value */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardContent className="p-4 text-center">
+                    <LineChart className="w-6 h-6 text-oga-green mx-auto mb-2" />
+                    <div className="text-lg font-bold text-white">
+                      ${(totalInvested * 1.12).toLocaleString()}
+                    </div>
+                    <p className="text-xs text-oga-green">Portfolio Value</p>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Pool Investment & Recent Transactions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Pool Investment Component */}
-              <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
+              {/* Pool Investment & Recent Transactions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Pool Investment Component */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <Network className="h-5 w-5 text-oga-green" />
+                      Solar Investment Pools
+                      {isRefreshing && <Loader2 className="h-4 w-4 animate-spin text-oga-green" />}
+                    </CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Invest in diversified solar energy pools
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PoolInvestmentCard onInvestmentUpdate={refreshAllData} />
+                  </CardContent>
+                </Card>
+
+                {/* Recent Transactions */}
+                <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <History className="h-5 w-5 text-oga-green" />
+                      Recent Activity
+                    </CardTitle>
+                    <CardDescription className="text-zinc-400">
+                      Your latest transactions and investments
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <TransactionList 
+                      transactions={recentTransactions} 
+                      maxItems={4}
+                      showDetails={false}
+                      title=""
+                      className=""
+                    />
+                    {recentTransactions.length === 0 && (
+                      <div className="text-center py-8 text-zinc-400">
+                        <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-sm">No transactions yet</p>
+                        <p className="text-xs">Start investing to see your activity</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Direct Project Investments */}
+              <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
-                    <Network className="h-5 w-5 text-[#4CAF50]" />
-                    Solar Investment Pools
-                    {isRefreshing && <Loader2 className="h-4 w-4 animate-spin text-[#4CAF50]" />}
+                    <BarChart3 className="h-5 w-5 text-oga-green" />
+                    Direct Project Investments
                   </CardTitle>
                   <CardDescription className="text-zinc-400">
-                    Invest in diversified solar energy pools
+                    Invest directly in high-value solar projects
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PoolInvestmentCard onInvestmentUpdate={refreshAllData} />
+                  <DirectProjectInvestmentList />
                 </CardContent>
               </Card>
-
-              {/* Recent Transactions */}
-              <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <History className="h-5 w-5 text-[#4CAF50]" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription className="text-zinc-400">
-                    Your latest transactions and investments
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <TransactionList 
-                    transactions={recentTransactions} 
-                    maxItems={4}
-                    showDetails={false}
-                    title=""
-                    className=""
-                  />
-                  {recentTransactions.length === 0 && (
-                    <div className="text-center py-8 text-zinc-400">
-                      <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No transactions yet</p>
-                      <p className="text-sm">Start investing to see your activity</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Direct Project Investments */}
-            <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-[#4CAF50]" />
-                  Direct Project Investments
-                </CardTitle>
-                <CardDescription className="text-zinc-400">
-                  Invest directly in high-value solar projects
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DirectProjectInvestmentList />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </DashboardTabs>
+            </TabsContent>
+          </DashboardTabs>
+        </div>
       </div>
     </div>
   );
