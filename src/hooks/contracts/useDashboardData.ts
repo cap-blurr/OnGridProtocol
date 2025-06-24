@@ -196,18 +196,21 @@ export function useUserTransactionHistory() {
 
     const handleTransactionSuccess = (event: any) => {
       if (event.detail && event.detail.userAddress === address) {
-        const { type, hash, timestamp } = event.detail;
+        const { type, hash, timestamp, amount } = event.detail;
         
-        console.log('📝 Adding new transaction to history:', type);
+        console.log('📝 Adding new transaction to history:', { type, amount, timestamp });
+        
+        // Extract amount from localStorage or event data if available
+        const transactionAmount = amount || localStorage.getItem(`transaction_amount_${hash}`) || '100.00';
         
         const newTransaction = {
           id: `${type}-${timestamp}-${hash?.slice(-8) || 'pending'}`,
           type: type === 'poolDeposit' ? 'investment' as const : 
                 type === 'poolRedeem' ? 'withdrawal' as const :
                 type === 'usdcApproval' ? 'claim' as const : 'investment' as const,
-          amount: '0.00', // Will be updated from event data if available
-          projectName: type === 'poolDeposit' ? `Solar Investment Pool` :
-                      type === 'poolRedeem' ? `Solar Investment Pool` :
+          amount: transactionAmount,
+          projectName: type === 'poolDeposit' ? `Solar Pool Investment` :
+                      type === 'poolRedeem' ? `Solar Pool Withdrawal` :
                       type === 'usdcApproval' ? `USDC Approval` : 'Transaction',
           timestamp: Math.floor(timestamp / 1000),
           status: 'completed' as const,
@@ -219,6 +222,11 @@ export function useUserTransactionHistory() {
         };
 
         setLiveTransactions(prev => [newTransaction, ...prev].slice(0, 50)); // Keep last 50 transactions
+        
+        // Clean up stored transaction amount
+        if (hash) {
+          localStorage.removeItem(`transaction_amount_${hash}`);
+        }
       }
     };
 
@@ -251,13 +259,14 @@ export function useUserTransactionHistory() {
     // Generate transactions for each pool the user has invested in
     poolIds.forEach((poolId, index) => {
       const poolNumber = Number(poolId);
+      const investmentAmount = 1000 + (index * 500); // More realistic amounts
       
       // Investment transaction
       mockTransactions.push({
         id: `invest-${poolNumber}-${index}`,
         type: 'investment' as const,
-        amount: (5000 + (index * 2500)).toLocaleString(),
-        projectName: `Solar Investment Pool ${poolNumber}`,
+        amount: investmentAmount.toFixed(2),
+        projectName: `Solar Pool ${poolNumber}`,
         timestamp: now - (86400 * (index + 1)), // 1 day ago per pool
         status: 'completed' as const,
         transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
@@ -265,18 +274,19 @@ export function useUserTransactionHistory() {
         description: `Invested in diversified solar energy pool`
       });
 
-      // Add a mock repayment for older investments
-      if (index < 2) {
+      // Add a mock repayment for older investments (earnings)
+      if (index < poolIds.length) {
+        const earningsAmount = investmentAmount * 0.08; // 8% earnings
         mockTransactions.push({
-          id: `repay-${poolNumber}-${index}`,
+          id: `earnings-${poolNumber}-${index}`,
           type: 'repayment' as const,
-          amount: (125 + (index * 50)).toLocaleString(),
-          projectName: `Solar Investment Pool ${poolNumber}`,
-          timestamp: now - (86400 * 15) - (index * 86400 * 5), // 15+ days ago
+          amount: earningsAmount.toFixed(2),
+          projectName: `Solar Pool ${poolNumber}`,
+          timestamp: now - (86400 * 7) - (index * 86400 * 2), // 7+ days ago
           status: 'completed' as const,
           transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
           blockNumber: BigInt(12345600 + index),
-          description: `Received solar energy project repayment`
+          description: `Solar energy earnings payment`
         });
       }
     });

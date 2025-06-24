@@ -112,6 +112,9 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
       return;
     }
     
+    // Store the deposit amount for transaction tracking
+    localStorage.setItem(`pending_deposit_amount`, depositAmount);
+    
     deposit(poolId, depositAmount);
   };
 
@@ -124,6 +127,10 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
       toast.error('You do not have enough shares to redeem this amount.');
       return;
     }
+    
+    // Store the redeem amount for transaction tracking
+    localStorage.setItem(`pending_redeem_amount`, redeemSharesAmount);
+    
     redeem(poolId, redeemSharesAmount);
   };
   
