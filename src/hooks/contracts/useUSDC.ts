@@ -127,16 +127,20 @@ export function useUSDCApprove() {
       
       // Fire custom event for dashboard refresh
       if (userAddress) {
-        const event = new CustomEvent('transactionSuccess', {
-          detail: {
-            type: 'usdcApproval',
-            userAddress,
-            hash,
-            timestamp: Date.now()
-          }
-        });
-        window.dispatchEvent(event);
-        console.log('🎉 USDC approval success event fired for:', userAddress);
+        try {
+          const event = new CustomEvent('transactionSuccess', {
+            detail: {
+              type: 'usdcApproval',
+              userAddress,
+              hash,
+              timestamp: Date.now()
+            }
+          });
+          window.dispatchEvent(event);
+          console.log('🎉 USDC approval success event fired for:', userAddress);
+        } catch (error) {
+          console.error('Error firing USDC approval success event:', error);
+        }
       }
     } else if (error) {
       console.error('USDC Approval Error Details:', error);

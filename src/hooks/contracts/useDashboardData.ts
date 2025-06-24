@@ -186,9 +186,24 @@ export function useUserTransactionHistory() {
     timestamp: number;
     status: 'completed' | 'pending' | 'failed';
     transactionHash: string;
-    blockNumber: bigint;
+    blockNumber: string; // Changed from bigint to string to avoid JSON.stringify issues
     description: string;
   }>>([]);
+
+  // Helper function to safely serialize transactions with BigInt handling
+  const serializeTransactions = (transactions: any[]) => {
+    return JSON.stringify(transactions, (key, value) => {
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+      return value;
+    });
+  };
+
+  // Helper function to safely parse transactions
+  const parseTransactions = (jsonString: string) => {
+    return JSON.parse(jsonString);
+  };
 
   // Load persisted transactions from localStorage on mount
   useEffect(() => {
@@ -198,7 +213,7 @@ export function useUserTransactionHistory() {
     const stored = localStorage.getItem(storageKey);
     if (stored) {
       try {
-        const parsedTransactions = JSON.parse(stored);
+        const parsedTransactions = parseTransactions(stored);
         setLiveTransactions(parsedTransactions);
         console.log('📜 Loaded persisted transactions:', parsedTransactions.length);
       } catch (error) {
@@ -212,8 +227,13 @@ export function useUserTransactionHistory() {
   useEffect(() => {
     if (!address || liveTransactions.length === 0) return;
     
-    const storageKey = `transactions_${address}`;
-    localStorage.setItem(storageKey, JSON.stringify(liveTransactions));
+    try {
+      const storageKey = `transactions_${address}`;
+      const serialized = serializeTransactions(liveTransactions);
+      localStorage.setItem(storageKey, serialized);
+    } catch (error) {
+      console.error('Error persisting transactions:', error);
+    }
   }, [address, liveTransactions]);
 
   // Listen for transaction success events to add new transactions
@@ -241,7 +261,7 @@ export function useUserTransactionHistory() {
           timestamp: Math.floor(timestamp / 1000),
           status: 'completed' as const,
           transactionHash: hash || '0x0000000000000000000000000000000000000000000000000000000000000000',
-          blockNumber: BigInt(0),
+          blockNumber: '0', // Store as string to avoid BigInt JSON issues
           description: type === 'poolDeposit' ? `Invested $${transactionAmount} in solar energy pool` :
                       type === 'poolRedeem' ? `Withdrew from solar energy pool` :
                       type === 'usdcApproval' ? `Approved USDC spending` : 'Transaction completed'
@@ -279,7 +299,7 @@ export function useUserTransactionHistory() {
     timestamp: number;
     status: 'completed' | 'pending' | 'failed';
       transactionHash: string;
-      blockNumber: bigint;
+      blockNumber: string; // Changed from bigint to string
       description: string;
     }> = [];
     const now = Math.floor(Date.now() / 1000);
@@ -301,7 +321,7 @@ export function useUserTransactionHistory() {
         timestamp: now - (86400 * (index + 1)) - Math.floor(Math.random() * 86400), // 1-2 days ago with some randomness
         status: 'completed' as const,
         transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-        blockNumber: BigInt(12345678 + index),
+        blockNumber: (12345678 + index).toString(), // Convert to string
         description: `Invested $${investmentAmount.toFixed(2)} in solar energy pool ${poolNumber}`
       });
 
@@ -321,7 +341,7 @@ export function useUserTransactionHistory() {
             timestamp: earningsDate,
             status: 'completed' as const,
             transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-            blockNumber: BigInt(12345600 + index + period),
+            blockNumber: (12345600 + index + period).toString(), // Convert to string
             description: `Solar energy earnings payment - Period ${period}`
           });
         }
@@ -337,7 +357,7 @@ export function useUserTransactionHistory() {
           timestamp: now - (86400 * (index + 1)) - 3600, // 1 hour before investment
           status: 'completed' as const,
           transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-          blockNumber: BigInt(12345670 + index),
+          blockNumber: (12345670 + index).toString(), // Convert to string
           description: `Approved USDC spending for solar pool investments`
         });
       }

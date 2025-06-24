@@ -147,30 +147,34 @@ export default function DashboardPage() {
   // Debug logging to see what data we're getting
   useEffect(() => {
     if (address && mounted) {
-      console.log('🔍 Dashboard Data Debug:', {
-        address,
-        isWalletConnected,
-        formattedTotalValue,
-        totalInvested,
-        poolIds,
-        activePools,
-        values,
-        shares,
-        usdcBalance,
-        walletBalance,
-        portfolioValue,
-        recentTransactions: recentTransactions.length
-      });
-      
-      // Log individual pool data
-      if (poolIds.length > 0) {
-        poolIds.forEach((poolId, index) => {
-          console.log(`📊 Pool ${poolId} data:`, {
-            poolId: Number(poolId),
-            shares: shares[index] ? formatUnits(shares[index], 6) : '0',
-            value: values[index] ? formatUnits(values[index], 6) : '0'
-          });
+      try {
+        console.log('🔍 Dashboard Data Debug:', {
+          address,
+          isWalletConnected,
+          formattedTotalValue,
+          totalInvested,
+          poolIds: poolIds.map(id => Number(id)), // Convert BigInt to number for logging
+          activePools,
+          values: values.map(val => formatUnits(val, 6)), // Convert BigInt to string for logging
+          shares: shares.map(share => formatUnits(share, 6)), // Convert BigInt to string for logging
+          usdcBalance,
+          walletBalance,
+          portfolioValue,
+          recentTransactions: recentTransactions.length
         });
+        
+        // Log individual pool data
+        if (poolIds.length > 0) {
+          poolIds.forEach((poolId, index) => {
+            console.log(`📊 Pool ${poolId} data:`, {
+              poolId: Number(poolId),
+              shares: shares[index] ? formatUnits(shares[index], 6) : '0',
+              value: values[index] ? formatUnits(values[index], 6) : '0'
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error in dashboard debug logging:', error);
       }
     }
   }, [address, mounted, isWalletConnected, formattedTotalValue, totalInvested, poolIds, activePools, values, shares, usdcBalance, walletBalance, portfolioValue, recentTransactions]);

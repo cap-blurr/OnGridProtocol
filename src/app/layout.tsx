@@ -1,45 +1,41 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { ToastProvider } from "@/providers/toast-provider";
-import Providers from "@/providers/providers";
+import { Providers } from "../providers/providers";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
-// Load B612 font family
-const b612 = localFont({
-  src: [
-    {
-      path: "./fonts/B612.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "./fonts/B612.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-b612",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OnGridProtocol",
-  description:
-    "Join us in transforming the energy sector through community-driven investments.",
+  title: "OnGrid Protocol - Solar Investment Platform",
+  description: "Invest in solar energy projects with blockchain transparency",
 };
 
-export default async function RootLayout({
+// Global BigInt serialization fix
+if (typeof window !== 'undefined') {
+  // Add BigInt support to JSON.stringify
+  (BigInt.prototype as any).toJSON = function() {
+    return this.toString();
+  };
+}
+
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${b612.variable} font-b612 bg-neutral-950 antialiased`}
-      >
+      <body className={inter.className}>
         <Providers>
-          {children}
-          <ToastProvider />
+          <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

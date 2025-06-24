@@ -259,20 +259,24 @@ export function useDepositToPool(poolId?: number) {
       
       // Fire custom event for dashboard refresh
       if (userAddress) {
-        const depositAmount = localStorage.getItem(`pending_deposit_amount`) || '0.00';
-        localStorage.removeItem(`pending_deposit_amount`); // Clean up
-        
-        const event = new CustomEvent('transactionSuccess', {
-          detail: {
-            type: 'poolDeposit',
-            userAddress,
-            hash,
-            timestamp: Date.now(),
-            amount: depositAmount
-          }
-        });
-        window.dispatchEvent(event);
-        console.log('🎉 Pool deposit success event fired for:', userAddress, 'amount:', depositAmount);
+        try {
+          const depositAmount = localStorage.getItem(`pending_deposit_amount`) || '0.00';
+          localStorage.removeItem(`pending_deposit_amount`); // Clean up
+          
+          const event = new CustomEvent('transactionSuccess', {
+            detail: {
+              type: 'poolDeposit',
+              userAddress,
+              hash,
+              timestamp: Date.now(),
+              amount: depositAmount
+            }
+          });
+          window.dispatchEvent(event);
+          console.log('🎉 Pool deposit success event fired for:', userAddress, 'amount:', depositAmount);
+        } catch (error) {
+          console.error('Error firing deposit success event:', error);
+        }
       }
     } else if (error) {
       // Clear any loading toast and show error
@@ -366,20 +370,24 @@ export function useRedeemFromPool() {
       
       // Fire custom event for dashboard refresh
       if (userAddress) {
-        const redeemAmount = localStorage.getItem(`pending_redeem_amount`) || '0.00';
-        localStorage.removeItem(`pending_redeem_amount`); // Clean up
-        
-        const event = new CustomEvent('transactionSuccess', {
-          detail: {
-            type: 'poolRedeem',
-            userAddress,
-            hash,
-            timestamp: Date.now(),
-            amount: redeemAmount
-          }
-        });
-        window.dispatchEvent(event);
-        console.log('🎉 Pool redemption success event fired for:', userAddress, 'amount:', redeemAmount);
+        try {
+          const redeemAmount = localStorage.getItem(`pending_redeem_amount`) || '0.00';
+          localStorage.removeItem(`pending_redeem_amount`); // Clean up
+          
+          const event = new CustomEvent('transactionSuccess', {
+            detail: {
+              type: 'poolRedeem',
+              userAddress,
+              hash,
+              timestamp: Date.now(),
+              amount: redeemAmount
+            }
+          });
+          window.dispatchEvent(event);
+          console.log('🎉 Pool redemption success event fired for:', userAddress, 'amount:', redeemAmount);
+        } catch (error) {
+          console.error('Error firing redeem success event:', error);
+        }
       }
     } else if (error) {
       // Clear any loading toast and show error
