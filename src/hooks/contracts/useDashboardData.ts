@@ -21,7 +21,7 @@ export function useInvestorDashboardData() {
     formattedTotalValue, 
     isLoading: loadingUserPools 
   } = useUserPoolInvestments(address);
-  
+
   // Get available projects and pools
   const { projects: highValueProjects, isLoading: loadingProjects } = useGetAllHighValueProjects();
   const { pools, isLoading: loadingPools } = useGetAllPools();
@@ -186,12 +186,12 @@ export function useUserTransactionHistory() {
     }
 
     const mockTransactions: Array<{
-      id: string;
+    id: string;
       type: 'investment' | 'withdrawal' | 'repayment' | 'claim';
-      amount: string;
-      projectName: string;
-      timestamp: number;
-      status: 'completed' | 'pending' | 'failed';
+    amount: string;
+    projectName: string;
+    timestamp: number;
+    status: 'completed' | 'pending' | 'failed';
       transactionHash: string;
       blockNumber: bigint;
       description: string;

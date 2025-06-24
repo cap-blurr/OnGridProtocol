@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import {
   DollarSign, 
-  TrendingUp, 
+  TrendingUp,
   Users,
   BarChart3,
   Wallet,
@@ -35,7 +35,7 @@ interface PoolInvestment {
 
 export default function InvestorPortfolio() {
   const { address: userAddress, isConnected } = useAccount();
-  
+
   // Get USDC balance
   const { formattedBalance: usdcBalance } = useUSDCBalance(userAddress);
 
@@ -45,15 +45,15 @@ export default function InvestorPortfolio() {
   // Transform pool investments
   const poolInvestments: PoolInvestment[] = poolIds.map((id, index) => ({
     poolId: Number(id),
-    shares: poolShares[index] || BigInt(0),
-    value: poolValues[index] || BigInt(0),
+        shares: poolShares[index] || BigInt(0),
+        value: poolValues[index] || BigInt(0),
     poolName: `Solar Pool ${Number(id)}`
   }));
 
   // Calculate simple portfolio totals
   const portfolioTotals = useMemo(() => {
     const poolTotal = poolValues.reduce((sum, value) => sum + Number(formatUnits(value, 6)), 0);
-    
+
     return {
       totalInvested: poolTotal,
       highValueTotal: 0, // No direct projects for now
@@ -151,8 +151,8 @@ export default function InvestorPortfolio() {
                 </p>
                 <Link href="/dashboard/investments/pools">
                   <Button className="bg-oga-green hover:bg-oga-green/80 text-black">
-                    Explore Pools
-                  </Button>
+                  Explore Pools
+                </Button>
                 </Link>
               </CardContent>
             </Card>

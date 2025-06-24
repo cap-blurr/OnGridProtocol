@@ -200,9 +200,9 @@ export default function InvestmentPools() {
                         {pool.status}
                       </Badge>
                       <Badge className={`text-xs ${
-                        pool.riskLevel === 'Low' ? 'bg-oga-green/20 text-oga-green border-oga-green/50' :
-                        pool.riskLevel === 'Medium' ? 'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50' :
-                        'bg-red-600/20 text-red-400 border-red-600/50'
+                          pool.riskLevel === 'Low' ? 'bg-oga-green/20 text-oga-green border-oga-green/50' :
+                          pool.riskLevel === 'Medium' ? 'bg-oga-yellow/20 text-oga-yellow border-oga-yellow/50' : 
+                          'bg-red-600/20 text-red-400 border-red-600/50'
                       }`}>
                         {pool.riskLevel} Risk
                       </Badge>
@@ -306,7 +306,7 @@ export default function InvestmentPools() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <PoolInvestmentCard />
+          <PoolInvestmentCard />
             </CardContent>
           </Card>
         </div>

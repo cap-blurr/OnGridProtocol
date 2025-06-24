@@ -54,7 +54,7 @@ export default function DashboardPage() {
     isLoading: isLoadingDashboard,
     hasInvestments 
   } = useEnhancedDashboardData();
-
+  
   // Get transaction history
   const { recentTransactions } = useUserTransactionHistory();
 
@@ -109,7 +109,7 @@ export default function DashboardPage() {
             </AlertDescription>
           </Alert>
         )}
-
+        
         <DashboardTabs
           tabs={[
             { value: "investments", label: "Investments" },
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <PoolInvestmentCard />
+            <PoolInvestmentCard />
               </CardContent>
             </Card>
 
@@ -299,7 +299,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DirectProjectInvestmentList />
+            <DirectProjectInvestmentList />
               </CardContent>
             </Card>
           </TabsContent>

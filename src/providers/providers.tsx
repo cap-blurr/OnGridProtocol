@@ -82,32 +82,36 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }));
 
   return (
-    <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
-      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
-      config={{
-        appearance: {
-          theme: 'dark',
+        <PrivyProvider
+          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'cmbauroii017tla0lzr7ip7d0'}
+          clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID}
+          config={{
+            appearance: {
+              theme: 'dark',
           accentColor: '#4CAF50',
-        },
-        embeddedWallets: {
+            },
+            embeddedWallets: {
           createOnLogin: 'users-without-wallets',
           requireUserPasswordOnCreate: false,
-        },
-        supportedChains: [baseSepolia],
+            },
+            supportedChains: [baseSepolia],
         loginMethods: ['email', 'sms','google','wallet'],
         defaultChain: baseSepolia,
         // Disable WalletConnect to avoid conflicts
-        walletConnectCloudProjectId: undefined,
-      }}
-    >
+        externalWallets: {
+          walletConnect: {
+            enabled: false,
+          },
+        },
+          }}
+        >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <UserTypeProvider>
             {children}
           </UserTypeProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
     </PrivyProvider>
   );
 }

@@ -60,22 +60,22 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
     if (!mounted || !ready || isStorageLoading) return;
 
     // Only handle authentication changes - avoid complex logic
-    if (authenticated && !hasCheckedAuth) {
-      setHasCheckedAuth(true);
-      
-      const savedType = localStorage.getItem('userType') as UserType;
-      
-      if (!savedType) {
-        setShowModal(true);
-      } else {
-        setUserTypeValue(savedType);
+      if (authenticated && !hasCheckedAuth) {
+        setHasCheckedAuth(true);
+        
+          const savedType = localStorage.getItem('userType') as UserType;
+          
+          if (!savedType) {
+              setShowModal(true);
+          } else {
+            setUserTypeValue(savedType);
         // Only redirect from home page - don't interrupt dashboard navigation
         if (window.location.pathname === '/') {
           setTimeout(() => {
-            const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
-            router.replace(path);
+                const path = savedType === 'developer' ? '/developer-dashboard' : '/dashboard';
+                router.replace(path);
           }, 100);
-        }
+          }
       }
     }
   }, [authenticated, ready, mounted, hasCheckedAuth, isStorageLoading, router]);
@@ -83,12 +83,12 @@ export function UserTypeProvider({ children }: { children: ReactNode }) {
   // Handle disconnection separately
   useEffect(() => {
     if (!authenticated && hasCheckedAuth) {
-      setHasCheckedAuth(false);
-      setUserTypeValue(null);
-      setShowModal(false);
-      setIsNavigating(false);
-      localStorage.removeItem('userType');
-      router.replace('/');
+          setHasCheckedAuth(false);
+          setUserTypeValue(null);
+          setShowModal(false);
+          setIsNavigating(false);
+          localStorage.removeItem('userType');
+          router.replace('/');
     }
   }, [authenticated, hasCheckedAuth, router]);
   const handleUserTypeSelection = (type: UserType) => {
