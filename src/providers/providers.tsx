@@ -1,13 +1,13 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
-import { WagmiProvider } from 'wagmi';
-import { createConfig, http, fallback } from 'wagmi';
+import { WagmiProvider, createConfig } from '@privy-io/wagmi';
+import { http, fallback } from 'wagmi';
 import { baseSepolia } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { UserTypeProvider } from './userType';
-import { injected, walletConnect } from 'wagmi/connectors';
+import { injected } from 'wagmi/connectors';
 
 // Multiple RPC endpoints for redundancy - prioritize CORS-friendly endpoints
 const baseSepoliaTransports = fallback([
@@ -42,14 +42,8 @@ const baseSepoliaTransports = fallback([
 ]);
 
 // Wagmi configuration for contract interactions - Enhanced for Privy v2 compatibility
-const config = createConfig({
+const wagmiConfig = createConfig({
   chains: [baseSepolia],
-  connectors: [
-    // Enhanced injected connector that properly detects Privy wallets
-    injected({
-      target: 'metaMask',
-    }),
-  ],
   transports: {
     [baseSepolia.id]: baseSepoliaTransports,
   },
@@ -105,7 +99,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         },
           }}
         >
-      <WagmiProvider config={config}>
+      <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <UserTypeProvider>
             {children}
