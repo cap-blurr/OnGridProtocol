@@ -38,12 +38,12 @@ import { TransactionList } from "@/components/dashboard/TransactionDetails";
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const { isConnected: isWalletConnected, address } = useAccount();
+  const { isConnected: isWalletConnected, address, isConnecting } = useAccount();
   const [activeTab, setActiveTab] = useState("investments");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
   
-  // Simplified data fetching
+  // Simplified data fetching - only when wallet is connected
   const { 
     poolIds, 
     shares, 
@@ -51,13 +51,13 @@ export default function DashboardPage() {
     formattedTotalValue,
     isLoading: isLoadingPools,
     refetch: refetchPoolData 
-  } = useUserPoolInvestments(address);
+  } = useUserPoolInvestments(isWalletConnected ? address : undefined);
   
   const { 
     formattedBalance: usdcBalance, 
     isLoading: isLoadingBalance,
     refetch: refetchBalance 
-  } = useUSDCBalance(address);
+  } = useUSDCBalance(isWalletConnected ? address : undefined);
   
   const { recentTransactions } = useUserTransactionHistory();
 
@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
   // Listen for transaction success events and refresh data
   useEffect(() => {
-    if (!address) return;
+    if (!address || !isWalletConnected) return;
 
     const handleTransactionSuccess = (event: any) => {
       if (event.detail && event.detail.userAddress === address) {
@@ -82,24 +82,43 @@ export default function DashboardPage() {
     return () => {
       window.removeEventListener('transactionSuccess', handleTransactionSuccess);
     };
-  }, [address]);
+  }, [address, isWalletConnected]);
 
-  // Unified refresh function
+  // Unified refresh function with multiple refresh waves for better data consistency
   const refreshAllData = async () => {
-    if (!address) return;
+    if (!address || !isWalletConnected) return;
     
     setIsRefreshing(true);
     try {
+      // Multiple refresh waves to ensure data consistency
+      const refreshWaves = [200, 1500, 4000, 10000]; // milliseconds
+      
+      for (const delay of refreshWaves) {
+        setTimeout(async () => {
+          try {
+            await Promise.all([
+              refetchPoolData(),
+              refetchBalance()
+            ]);
+            console.log(`✅ Refresh wave completed after ${delay}ms`);
+          } catch (error) {
+            console.error(`❌ Error in refresh wave at ${delay}ms:`, error);
+          }
+        }, delay);
+      }
+      
+      // Initial immediate refresh
       await Promise.all([
         refetchPoolData(),
         refetchBalance()
       ]);
+      
       setLastRefresh(Date.now());
       console.log('✅ Dashboard data refreshed');
     } catch (error) {
       console.error('❌ Error refreshing dashboard data:', error);
     } finally {
-      setIsRefreshing(false);
+      setTimeout(() => setIsRefreshing(false), 1000); // Keep loading indicator for a bit
     }
   };
 
@@ -156,6 +175,43 @@ export default function DashboardPage() {
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-oga-green mx-auto mb-4" />
           <p className="text-white">Initializing dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show wallet connection prompt if not connected
+  if (!isWalletConnected && !isConnecting) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="text-center">
+              <Wallet className="w-16 h-16 text-oga-green mx-auto mb-6" />
+              <h2 className="text-2xl font-bold text-white mb-4">Connect Your Wallet</h2>
+              <p className="text-zinc-400 mb-6 max-w-md">
+                Connect your wallet to view your solar investment portfolio and manage your funds.
+              </p>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="bg-oga-green hover:bg-oga-green/80 text-white"
+              >
+                Connect Wallet
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show connecting state
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-oga-green mx-auto mb-4" />
+          <p className="text-white">Connecting wallet...</p>
         </div>
       </div>
     );

@@ -174,7 +174,7 @@ export function usePoolInvestmentOpportunities() {
   };
 }
 
-// Enhanced transaction history hook with real-time updates
+// Enhanced transaction history hook with real-time updates and persistence
 export function useUserTransactionHistory() {
   const { address } = useAccount();
   const { poolIds } = useUserPoolInvestments(address);
@@ -190,6 +190,32 @@ export function useUserTransactionHistory() {
     description: string;
   }>>([]);
 
+  // Load persisted transactions from localStorage on mount
+  useEffect(() => {
+    if (!address) return;
+    
+    const storageKey = `transactions_${address}`;
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const parsedTransactions = JSON.parse(stored);
+        setLiveTransactions(parsedTransactions);
+        console.log('📜 Loaded persisted transactions:', parsedTransactions.length);
+      } catch (error) {
+        console.error('Error loading persisted transactions:', error);
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }, [address]);
+
+  // Persist transactions to localStorage whenever they change
+  useEffect(() => {
+    if (!address || liveTransactions.length === 0) return;
+    
+    const storageKey = `transactions_${address}`;
+    localStorage.setItem(storageKey, JSON.stringify(liveTransactions));
+  }, [address, liveTransactions]);
+
   // Listen for transaction success events to add new transactions
   useEffect(() => {
     if (!address) return;
@@ -200,33 +226,35 @@ export function useUserTransactionHistory() {
         
         console.log('📝 Adding new transaction to history:', { type, amount, timestamp });
         
-        // Extract amount from localStorage or event data if available
-        const transactionAmount = amount || localStorage.getItem(`transaction_amount_${hash}`) || '100.00';
+        // Use the actual amount from the event or localStorage
+        const transactionAmount = amount || '0.00';
         
         const newTransaction = {
           id: `${type}-${timestamp}-${hash?.slice(-8) || 'pending'}`,
           type: type === 'poolDeposit' ? 'investment' as const : 
                 type === 'poolRedeem' ? 'withdrawal' as const :
                 type === 'usdcApproval' ? 'claim' as const : 'investment' as const,
-          amount: transactionAmount,
+          amount: parseFloat(transactionAmount).toFixed(2),
           projectName: type === 'poolDeposit' ? `Solar Pool Investment` :
                       type === 'poolRedeem' ? `Solar Pool Withdrawal` :
                       type === 'usdcApproval' ? `USDC Approval` : 'Transaction',
           timestamp: Math.floor(timestamp / 1000),
           status: 'completed' as const,
           transactionHash: hash || '0x0000000000000000000000000000000000000000000000000000000000000000',
-          blockNumber: BigInt(0), // Will be updated when block is mined
-          description: type === 'poolDeposit' ? 'Invested in diversified solar energy pool' :
-                      type === 'poolRedeem' ? 'Withdrew from solar energy pool' :
-                      type === 'usdcApproval' ? 'Approved USDC spending' : 'Transaction completed'
+          blockNumber: BigInt(0),
+          description: type === 'poolDeposit' ? `Invested $${transactionAmount} in solar energy pool` :
+                      type === 'poolRedeem' ? `Withdrew from solar energy pool` :
+                      type === 'usdcApproval' ? `Approved USDC spending` : 'Transaction completed'
         };
 
-        setLiveTransactions(prev => [newTransaction, ...prev].slice(0, 50)); // Keep last 50 transactions
-        
-        // Clean up stored transaction amount
-        if (hash) {
-          localStorage.removeItem(`transaction_amount_${hash}`);
-        }
+        setLiveTransactions(prev => {
+          // Avoid duplicates
+          const exists = prev.some(tx => tx.id === newTransaction.id);
+          if (exists) return prev;
+          
+          const updated = [newTransaction, ...prev].slice(0, 50); // Keep last 50 transactions
+          return updated;
+        });
       }
     };
 

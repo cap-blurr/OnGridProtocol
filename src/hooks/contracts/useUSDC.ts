@@ -27,10 +27,14 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
     functionName: 'balanceOf',
     args: accountAddress ? [accountAddress] : undefined,
     chainId: 84532, // Base Sepolia
-    query: { 
-        enabled: !!accountAddress && !!addresses.usdc,
-      retry: 2,
-    },
+    query: {
+      enabled: !!accountAddress,
+      // More aggressive polling for balance updates
+      refetchInterval: 15000, // 15 seconds
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+    }
   });
 
   useEffect(() => {
@@ -45,12 +49,12 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
 
     const handleTransactionSuccess = (event: any) => {
       if (event.detail && event.detail.userAddress === accountAddress) {
-        console.log('💰 Refreshing USDC balance after transaction:', event.detail.type);
-        
-        // Refresh balance with multiple attempts
-        setTimeout(() => refetch(), 1000);  // Quick refresh
-        setTimeout(() => refetch(), 3000);  // Medium refresh
-        setTimeout(() => refetch(), 8000);  // Delayed refresh
+        console.log('💰 USDC balance update triggered by transaction');
+        // Multiple refresh attempts with different delays
+        setTimeout(() => refetch(), 500);   // Quick refresh
+        setTimeout(() => refetch(), 2000);  // Medium delay
+        setTimeout(() => refetch(), 5000);  // Longer delay
+        setTimeout(() => refetch(), 10000); // Final refresh
       }
     };
 
@@ -63,13 +67,13 @@ export function useUSDCBalance(accountAddress?: `0x${string}`) {
   
   const formattedBalance = data 
     ? formatUnits(data as bigint, USDC_DECIMALS)
-    : '0';
+    : '0.00';
     
   return {
     balance: data as bigint | undefined,
     formattedBalance,
     isLoading,
-    error, 
+    error,
     refetch
   };
 }

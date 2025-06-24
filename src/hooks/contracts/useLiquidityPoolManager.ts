@@ -42,31 +42,66 @@ export function useUserPoolInvestments(userAddress?: `0x${string}`) {
     abi: LiquidityPoolManagerABI.abi,
     functionName: 'getUserPoolInvestments',
     args: userAddress ? [userAddress] : undefined,
-    chainId: 84532,
     query: {
-      enabled: !!userAddress,
-    },
+      enabled: !!userAddress && !!addresses.liquidityPoolManagerProxy,
+      retry: 3,
+      retryDelay: 2000,
+      // More aggressive refresh for investment data
+      refetchInterval: 20000, // 20 seconds
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+    }
   });
-  
-  const poolInvestments = data as {
-    poolIds: bigint[];
-    shares: bigint[];
-    values: bigint[];
-  } | undefined;
-  
-  // Ensure arrays are properly defined before mapping
-  const poolIds = poolInvestments?.poolIds || [];
-  const shares = poolInvestments?.shares || [];
-  const values = poolInvestments?.values || [];
 
+  // Listen for transaction events to refresh investment data
+  useEffect(() => {
+    if (!userAddress) return;
+
+    const handleTransactionSuccess = (event: any) => {
+      if (event.detail && event.detail.userAddress === userAddress) {
+        const { type } = event.detail;
+        if (type === 'poolDeposit' || type === 'poolRedeem') {
+          console.log('📊 Pool investment data update triggered by:', type);
+          // Aggressive refresh pattern for investment updates
+          setTimeout(() => refetch(), 1000);  // 1 second
+          setTimeout(() => refetch(), 3000);  // 3 seconds  
+          setTimeout(() => refetch(), 7000);  // 7 seconds
+          setTimeout(() => refetch(), 15000); // 15 seconds
+          setTimeout(() => refetch(), 30000); // 30 seconds (final refresh)
+        }
+      }
+    };
+
+    window.addEventListener('transactionSuccess', handleTransactionSuccess);
+    
+    return () => {
+      window.removeEventListener('transactionSuccess', handleTransactionSuccess);
+    };
+  }, [userAddress, refetch]);
+  
+  const result = data as [bigint[], bigint[], bigint[]] | undefined;
+  
+  if (!result) {
+    return {
+      poolIds: [],
+      shares: [],
+      values: [],
+      formattedTotalValue: '0.00',
+      isLoading,
+      error,
+      refetch
+    };
+  }
+  
+  const [poolIds, shares, values] = result;
+  const totalValue = values.reduce((acc, value) => acc + value, BigInt(0));
+  
   return {
     poolIds,
     shares,
     values,
-    formattedValues: Array.isArray(values) ? values.map(value => formatUnits(value, USDC_DECIMALS)) : [],
-    totalValue: Array.isArray(values) ? values.reduce((sum, value) => sum + value, BigInt(0)) : BigInt(0),
-    formattedTotalValue: Array.isArray(values) && values.length > 0 ? 
-      formatUnits(values.reduce((sum, value) => sum + value, BigInt(0)), USDC_DECIMALS) : '0',
+    formattedTotalValue: formatUnits(totalValue, USDC_DECIMALS),
     isLoading,
     error,
     refetch
