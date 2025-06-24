@@ -114,6 +114,7 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
     
     // Store the deposit amount for transaction tracking
     localStorage.setItem(`pending_deposit_amount`, depositAmount);
+    console.log(`💾 Stored deposit amount for tracking: ${depositAmount}`);
     
     deposit(poolId, depositAmount);
   };
@@ -128,8 +129,13 @@ function PoolDetailCard({ poolId, liquidityPoolManagerAddress, onDepositSuccess,
       return;
     }
     
-    // Store the redeem amount for transaction tracking
-    localStorage.setItem(`pending_redeem_amount`, redeemSharesAmount);
+    // Calculate estimated USDC value for the shares being redeemed
+    const estimatedUSDC = redeemSharesAmount && poolTotalShares > BigInt(0) ? 
+      previewAssetsOnRedeem() : redeemSharesAmount;
+    
+    // Store the estimated redeem amount for transaction tracking
+    localStorage.setItem(`pending_redeem_amount`, estimatedUSDC);
+    console.log(`💾 Stored redeem amount for tracking: ${estimatedUSDC}`);
     
     redeem(poolId, redeemSharesAmount);
   };

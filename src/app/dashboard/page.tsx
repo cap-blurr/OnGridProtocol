@@ -35,6 +35,7 @@ import { useUserPoolInvestments } from "@/hooks/contracts/useLiquidityPoolManage
 import { useUSDCBalance } from "@/hooks/contracts/useUSDC";
 import { useUserTransactionHistory } from "@/hooks/contracts/useDashboardData";
 import { TransactionList } from "@/components/dashboard/TransactionDetails";
+import { formatUnits } from "viem";
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -145,18 +146,34 @@ export default function DashboardPage() {
   
   // Debug logging to see what data we're getting
   useEffect(() => {
-    if (address) {
-      console.log('Dashboard Data Debug:', {
+    if (address && mounted) {
+      console.log('🔍 Dashboard Data Debug:', {
         address,
+        isWalletConnected,
         formattedTotalValue,
         totalInvested,
         poolIds,
         activePools,
         values,
-        shares
+        shares,
+        usdcBalance,
+        walletBalance,
+        portfolioValue,
+        recentTransactions: recentTransactions.length
       });
+      
+      // Log individual pool data
+      if (poolIds.length > 0) {
+        poolIds.forEach((poolId, index) => {
+          console.log(`📊 Pool ${poolId} data:`, {
+            poolId: Number(poolId),
+            shares: shares[index] ? formatUnits(shares[index], 6) : '0',
+            value: values[index] ? formatUnits(values[index], 6) : '0'
+          });
+        });
+      }
     }
-  }, [address, formattedTotalValue, totalInvested, poolIds, activePools, values, shares]);
+  }, [address, mounted, isWalletConnected, formattedTotalValue, totalInvested, poolIds, activePools, values, shares, usdcBalance, walletBalance, portfolioValue, recentTransactions]);
 
   // Format last update time
   const formatLastUpdate = (timestamp: number) => {

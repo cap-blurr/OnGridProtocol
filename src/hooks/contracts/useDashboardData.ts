@@ -287,39 +287,64 @@ export function useUserTransactionHistory() {
     // Generate transactions for each pool the user has invested in
     poolIds.forEach((poolId, index) => {
       const poolNumber = Number(poolId);
-      const investmentAmount = 1000 + (index * 500); // More realistic amounts
+      // Base investment amounts on realistic pool sizes
+      const baseInvestmentAmount = 500 + (index * 300); // $500, $800, $1100, etc.
+      const randomVariation = Math.random() * 0.4 + 0.8; // 80% to 120% variation
+      const investmentAmount = baseInvestmentAmount * randomVariation;
       
-      // Investment transaction
+      // Investment transaction (recent)
       mockTransactions.push({
         id: `invest-${poolNumber}-${index}`,
         type: 'investment' as const,
         amount: investmentAmount.toFixed(2),
         projectName: `Solar Pool ${poolNumber}`,
-        timestamp: now - (86400 * (index + 1)), // 1 day ago per pool
+        timestamp: now - (86400 * (index + 1)) - Math.floor(Math.random() * 86400), // 1-2 days ago with some randomness
         status: 'completed' as const,
         transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
         blockNumber: BigInt(12345678 + index),
-        description: `Invested in diversified solar energy pool`
+        description: `Invested $${investmentAmount.toFixed(2)} in solar energy pool ${poolNumber}`
       });
 
-      // Add a mock repayment for older investments (earnings)
+      // Add periodic earnings for established investments
       if (index < poolIds.length) {
-        const earningsAmount = investmentAmount * 0.08; // 8% earnings
+        const periodsBack = Math.min(index + 1, 4); // Up to 4 earnings periods
+        
+        for (let period = 1; period <= periodsBack; period++) {
+          const earningsAmount = investmentAmount * 0.015 * period; // 1.5% per period, compounding
+          const earningsDate = now - (86400 * 7 * period) - (index * 86400); // Weekly earnings
+          
+          mockTransactions.push({
+            id: `earnings-${poolNumber}-${period}-${index}`,
+            type: 'repayment' as const,
+            amount: earningsAmount.toFixed(2),
+            projectName: `Solar Pool ${poolNumber}`,
+            timestamp: earningsDate,
+            status: 'completed' as const,
+            transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
+            blockNumber: BigInt(12345600 + index + period),
+            description: `Solar energy earnings payment - Period ${period}`
+          });
+        }
+      }
+
+      // Add some USDC approval transactions (less frequent)
+      if (index === 0) {
         mockTransactions.push({
-          id: `earnings-${poolNumber}-${index}`,
-          type: 'repayment' as const,
-          amount: earningsAmount.toFixed(2),
-          projectName: `Solar Pool ${poolNumber}`,
-          timestamp: now - (86400 * 7) - (index * 86400 * 2), // 7+ days ago
+          id: `approval-${poolNumber}-${index}`,
+          type: 'claim' as const,
+          amount: '0.00',
+          projectName: `USDC Approval`,
+          timestamp: now - (86400 * (index + 1)) - 3600, // 1 hour before investment
           status: 'completed' as const,
           transactionHash: `0x${Math.random().toString(16).substring(2, 66)}`,
-          blockNumber: BigInt(12345600 + index),
-          description: `Solar energy earnings payment`
+          blockNumber: BigInt(12345670 + index),
+          description: `Approved USDC spending for solar pool investments`
         });
       }
     });
 
-    return mockTransactions;
+    // Sort by timestamp (newest first)
+    return mockTransactions.sort((a, b) => b.timestamp - a.timestamp);
   }, [address, poolIds]);
 
   // Combine live transactions with base transactions and sort by timestamp
