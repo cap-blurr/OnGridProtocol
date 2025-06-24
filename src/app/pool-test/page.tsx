@@ -6,37 +6,55 @@ import { Button } from "@/components/ui/button";
 import { useAccount } from 'wagmi';
 import { useUSDCBalance } from '@/hooks/contracts/useUSDC';
 import { useUserPoolInvestments } from '@/hooks/contracts/useLiquidityPoolManager';
-import { useEnhancedDashboardData } from '@/hooks/contracts/useEnhancedDashboardData';
-import { Loader2, RefreshCw, CheckCircle, DollarSign } from 'lucide-react';
-import PoolInfoTest from '@/components/developer/PoolInfoTest';
+import { Loader2, Network, DollarSign } from 'lucide-react';
+import PoolInvestmentCard from '@/components/project/PoolInvestmentCard';
 
 export default function PoolTestPage() {
   const { address } = useAccount();
-  const [refreshCount, setRefreshCount] = useState(0);
-  const [lastEventTime, setLastEventTime] = useState<number>(0);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Test real-time data hooks
-  const { formattedBalance: usdcBalance, refetch: refetchBalance } = useUSDCBalance(address);
+  // Simplified data fetching
   const { 
     poolIds, 
-    formattedTotalValue, 
-    refetch: refetchPools 
+    formattedTotalValue,
+    isLoading: isLoadingPools,
+    refetch: refetchPoolData 
   } = useUserPoolInvestments(address);
   
-  const {
-    metrics,
-    isRefreshing,
-    lastRefresh,
-    refreshData
-  } = useEnhancedDashboardData();
+  const { 
+    formattedBalance: usdcBalance, 
+    isLoading: isLoadingBalance,
+    refetch: refetchBalance 
+  } = useUSDCBalance(address);
 
-  // Listen for transaction events
+  // Unified refresh function
+  const refreshAllData = async () => {
+    if (!address) return;
+    
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        refetchPoolData(),
+        refetchBalance()
+      ]);
+      setLastRefresh(Date.now());
+      console.log('✅ Pool test data refreshed');
+    } catch (error) {
+      console.error('❌ Error refreshing pool test data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Listen for transaction success events
   useEffect(() => {
+    if (!address) return;
+
     const handleTransactionSuccess = (event: any) => {
       if (event.detail && event.detail.userAddress === address) {
-        console.log('🎯 Test page caught transaction event:', event.detail);
-        setLastEventTime(Date.now());
-        setRefreshCount(prev => prev + 1);
+        console.log('🔄 Transaction detected in pool test, refreshing...');
+        refreshAllData();
       }
     };
 
@@ -47,164 +65,77 @@ export default function PoolTestPage() {
     };
   }, [address]);
 
-  const manualRefresh = async () => {
-    console.log('🔄 Manual refresh triggered');
-    await Promise.all([
-      refetchBalance(),
-      refetchPools(),
-      refreshData()
-    ]);
-  };
+  const totalInvested = Number(formattedTotalValue) || 0;
+  const activePools = poolIds.length;
+  const walletBalance = Number(usdcBalance) || 0;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Real-time Pool Test</h1>
-        <p className="text-zinc-400">Test real-time updates after pool deposits</p>
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-white mb-4">Pool Investment Test</h1>
+        <p className="text-zinc-400 text-lg">Test pool investments and data refresh</p>
       </div>
 
-      {/* Connection Status */}
-      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-        <CardHeader>
-          <CardTitle className="text-oga-green flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Connection Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-zinc-400">Wallet Connected:</span>
-              <span className={`ml-2 ${address ? 'text-oga-green' : 'text-red-400'}`}>
-                {address ? 'Yes' : 'No'}
-              </span>
-            </div>
-            <div>
-              <span className="text-zinc-400">Address:</span>
-              <span className="ml-2 text-oga-green font-mono text-xs">
-                {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Real-time Data Display */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-          <CardHeader>
-            <CardTitle className="text-oga-green flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              USDC Balance
-              {isRefreshing && <Loader2 className="h-4 w-4 animate-spin" />}
-            </CardTitle>
+        <Card className="bg-gradient-to-br from-[#4CAF50]/20 via-black/70 to-[#4CAF50]/10 backdrop-blur-sm border border-[#4CAF50]/30">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-white">Wallet Balance</CardTitle>
+            <DollarSign className="h-4 w-4 text-oga-green" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
-              {usdcBalance} USDC
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Real-time wallet balance
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-          <CardHeader>
-            <CardTitle className="text-oga-green flex items-center gap-2">
-              <RefreshCw className="h-5 w-5" />
-              Pool Investments
-              {isRefreshing && <Loader2 className="h-4 w-4 animate-spin" />}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
-              ${formattedTotalValue} USDC
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Across {poolIds.length} pool{poolIds.length !== 1 ? 's' : ''}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
-          <CardHeader>
-            <CardTitle className="text-oga-green flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              Event Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
-              {refreshCount}
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Events caught
-            </p>
-            {lastEventTime > 0 && (
-              <p className="text-xs text-oga-green mt-1">
-                Last: {new Date(lastEventTime).toLocaleTimeString()}
-              </p>
+            {isLoadingBalance ? (
+              <Loader2 className="w-5 h-5 animate-spin text-oga-green" />
+            ) : (
+              <div className="text-2xl font-bold text-white">${walletBalance.toLocaleString()} USDC</div>
             )}
           </CardContent>
         </Card>
+
+        <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-white">Total Invested</CardTitle>
+            <Network className="h-4 w-4 text-[#4CAF50]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">${totalInvested.toLocaleString()}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/20">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-white">Active Pools</CardTitle>
+            <Network className="h-4 w-4 text-[#4CAF50]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{activePools}</div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Manual Controls */}
-      <Card className="bg-black/40 backdrop-blur-sm border border-oga-green/30">
+      {/* Pool Investment Component */}
+      <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
         <CardHeader>
-          <CardTitle className="text-oga-green">Test Controls</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-white flex items-center gap-2">
+              <Network className="h-5 w-5 text-[#4CAF50]" />
+              Pool Investment Test
+            </CardTitle>
             <Button
-              onClick={manualRefresh}
+              onClick={refreshAllData}
               disabled={isRefreshing}
-              className="bg-oga-green hover:bg-oga-green/80 text-black"
-            >
-              {isRefreshing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Manual Refresh
-                </>
-              )}
-            </Button>
-            
-            <Button
-              onClick={() => {
-                // Fire a test event
-                const event = new CustomEvent('transactionSuccess', {
-                  detail: {
-                    type: 'poolDeposit',
-                    userAddress: address,
-                    hash: '0xtest123',
-                    timestamp: Date.now()
-                  }
-                });
-                window.dispatchEvent(event);
-              }}
               variant="outline"
-              className="border-oga-green/30 text-oga-green hover:bg-oga-green/10"
+              size="sm"
+              className="border-[#4CAF50]/30 text-[#4CAF50] hover:bg-[#4CAF50]/10"
             >
-              Fire Test Event
+              {isRefreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Refresh'}
             </Button>
           </div>
-          
-          <div className="text-xs text-zinc-400">
-            <p>Last dashboard refresh: {new Date(lastRefresh).toLocaleTimeString()}</p>
-            <p>Dashboard refreshing: {isRefreshing ? 'Yes' : 'No'}</p>
-            <p>Total investments: ${metrics?.totalInvested || 0}</p>
-          </div>
+        </CardHeader>
+        <CardContent>
+          <PoolInvestmentCard onInvestmentUpdate={refreshAllData} />
         </CardContent>
       </Card>
-
-      {/* Pool Investment Test Component */}
-      <PoolInfoTest />
     </div>
   );
 } 
