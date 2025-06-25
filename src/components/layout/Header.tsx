@@ -60,21 +60,21 @@ export default function Header({ isHome = false }: NavBarProps) {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled || isDashboard
-          ? "bg-gray-950 bg-opacity-30 backdrop-blur-lg backdrop-filter h-16"
-          : "bg-transparent backdrop-blur-lg backdrop-filter h-16"
+          ? "bg-black/20 h-16"
+          : "bg-transparent h-16"
       }`}
     >
       <nav className="mx-auto w-full max-w-screen-xl flex items-center justify-between h-full px-5">
-        <Link href="/" className="text-4xl font-bold text-white hover:opacity-90 transition-opacity">
+        <Link href="/" className="hover:opacity-90 transition-opacity">
           <Image 
             src="/ongrid-logo.png" 
-            alt="Ongrid-logo" 
+            alt="OnGrid Protocol" 
             width={120} 
             height={48}
             className="w-20 md:w-28 lg:w-32" 
           />
         </Link>
-        <div className="hidden md:flex space-x-12 text-white md:text-lg">
+        <div className="hidden md:flex space-x-8 text-white md:text-lg">
           {isHome ? (
             <>
               <ScrollLink
@@ -82,7 +82,7 @@ export default function Header({ isHome = false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="cursor-pointer hover:text-oga-green transition-colors font-medium"
               >
                 About
               </ScrollLink>
@@ -91,13 +91,13 @@ export default function Header({ isHome = false }: NavBarProps) {
                 smooth={true}
                 duration={800}
                 offset={-100}
-                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="cursor-pointer hover:text-oga-green transition-colors font-medium"
               >
                 How It Works
               </ScrollLink>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="cursor-pointer hover:text-oga-green transition-colors font-medium"
               >
                 Projects
               </Link>
@@ -106,19 +106,19 @@ export default function Header({ isHome = false }: NavBarProps) {
             <>
               <button
                 onClick={() => handleSectionNavigation('about')}
-                className="font-medium cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="font-medium cursor-pointer hover:text-oga-green transition-colors"
               >
                 About
               </button>
               <button
                 onClick={() => handleSectionNavigation('how-it-works')}
-                className="font-medium cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="font-medium cursor-pointer hover:text-oga-green transition-colors"
               >
                 How It Works
               </button>
               <Link
                 href="/projects"
-                className="cursor-pointer hover:text-[#4CAF50] transition-colors"
+                className="cursor-pointer hover:text-oga-green transition-colors font-medium"
               >
                 Projects
               </Link>

@@ -12,12 +12,12 @@ const config: Config = {
   theme: {
   	extend: {
   		fontFamily: {
-  			b612: [
-  				'var(--font-b612)',
+  			'space-grotesk': [
+  				'Space Grotesk',
   				'sans-serif'
   			],
   			sans: [
-  				'B612',
+  				'Space Grotesk',
   				'sans-serif'
   			]
   		},

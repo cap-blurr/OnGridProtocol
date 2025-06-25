@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,10 +8,11 @@
   --gradient-primary: linear-gradient(45deg, #3D9970 30%, #4CAF50 90%);
   --gradient-secondary: linear-gradient(45deg, #FFDC00 30%, #FFEB3B 90%);
   --gradient-accent: linear-gradient(45deg, #3D9970 30%, #FFDC00 90%);
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
 }
 
 body {
-  font-family: 'B612', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .gradient-text {
@@ -90,6 +93,40 @@ body {
 .wallet-connect-button {
   min-width: 120px;
   transition: all 0.2s ease-in-out;
+}
+
+/* Custom header styling for brand consistency */
+.brand-header {
+  background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(55,65,81,0.85) 50%, rgba(0,0,0,0.85) 100%);
+  border-bottom: 1px solid rgba(40, 167, 69, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.brand-header-scrolled {
+  background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(31,41,55,0.95) 50%, rgba(17,24,39,0.95) 100%);
+  border-bottom: 1px solid rgba(40, 167, 69, 0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* Creative green header animations */
+@keyframes green-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.header-green-flow {
+  background-size: 200% 200%;
+  animation: green-pulse 8s ease-in-out infinite;
+}
+
+/* Green glow effect for nav items */
+.nav-item-glow:hover {
+  text-shadow: 0 0 8px rgba(40, 167, 69, 0.6), 0 0 16px rgba(40, 167, 69, 0.3);
 }
 
 /* Smooth animations for mobile */
@@ -204,8 +241,19 @@ body {
 @layer base {
   * {
     @apply border-border;
+    font-family: 'Space Grotesk', sans-serif;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  button {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  input, textarea, select {
+    font-family: 'Space Grotesk', sans-serif;
   }
 }
