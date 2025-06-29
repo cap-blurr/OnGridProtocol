@@ -419,28 +419,29 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       case ProjectCreationStep.KYC_CHECK:
         return (
           <div className="flex flex-col items-center justify-center space-y-4 p-6">
-            <div className="rounded-full bg-gray-100 p-3">
-              <ShieldCheck className="h-6 w-6 text-gray-500" />
+            <div className="rounded-full bg-oga-green/10 p-3">
+              <ShieldCheck className="h-6 w-6 text-oga-green" />
             </div>
             {isCheckingKyc ? (
               <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin text-oga-green" />
                 <span>Checking KYC status...</span>
               </div>
             ) : isKycVerified ? (
               <div className="text-center">
-                <h3 className="font-medium">KYC Verified</h3>
+                <h3 className="font-medium text-oga-green">KYC Verified</h3>
                 <p className="text-sm text-gray-500">You are verified and can create projects</p>
               </div>
             ) : (
               <div className="text-center">
-                <h3 className="font-medium">KYC Required</h3>
+                <h3 className="font-medium text-red-500">KYC Required</h3>
                 <p className="text-sm text-gray-500">Please complete KYC verification before creating a project</p>
               </div>
             )}
             <Button 
               onClick={handleKycCheck}
               disabled={!isKycVerified || isCheckingKyc}
+              className="bg-oga-green hover:bg-oga-green-dark text-white transition-colors"
             >
               Continue
             </Button>
@@ -453,55 +454,64 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             {/* Left Column - Basic Info */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="projectName">Project Name</Label>
+                <Label htmlFor="projectName" className="text-gray-700 dark:text-gray-300">Project Name</Label>
                 <Input
                   id="projectName"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                   placeholder="Enter project name"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="projectDescription">Project Description</Label>
+                <Label htmlFor="projectDescription" className="text-gray-700 dark:text-gray-300">Project Description</Label>
                 <Textarea
                   id="projectDescription"
                   value={projectDescription}
                   onChange={(e) => setProjectDescription(e.target.value)}
                   placeholder="Describe your project"
-                  className="h-24"
+                  className="h-24 border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="projectLocation">Project Location</Label>
+                <Label htmlFor="projectLocation" className="text-gray-700 dark:text-gray-300">Project Location</Label>
                 <Input
                   id="projectLocation"
                   value={projectLocation}
                   onChange={(e) => setProjectLocation(e.target.value)}
                   placeholder="Enter project location"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="loanAmount">Loan Amount (USDC)</Label>
+                <Label htmlFor="loanAmount" className="text-gray-700 dark:text-gray-300">Loan Amount (USDC)</Label>
                 <Input
                   id="loanAmount"
                   value={loanAmount}
                   onChange={(e) => setLoanAmount(e.target.value)}
                   placeholder="Enter loan amount"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
+                {depositPercentage && (
+                  <p className="text-xs text-oga-green mt-1">
+                    Required deposit: {depositAmount} USDC ({depositPercentage}%)
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tenorDays">Loan Duration (Days)</Label>
+                <Label htmlFor="tenorDays" className="text-gray-700 dark:text-gray-300">Loan Duration (Days)</Label>
                 <Input
                   id="tenorDays"
                   value={tenorDays}
                   onChange={(e) => setTenorDays(e.target.value)}
                   placeholder="Enter loan duration in days"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
             </div>
@@ -509,63 +519,71 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             {/* Right Column - Technical Details */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="capacity">Capacity (MW)</Label>
+                <Label htmlFor="capacity" className="text-gray-700 dark:text-gray-300">Capacity (MW)</Label>
                 <Input
                   id="capacity"
                   value={capacity}
                   onChange={(e) => setCapacity(e.target.value)}
                   placeholder="Enter capacity in MW"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="expectedGeneration">Expected Annual Generation (MWh)</Label>
+                <Label htmlFor="expectedGeneration" className="text-gray-700 dark:text-gray-300">Expected Annual Generation (MWh)</Label>
                 <Input
                   id="expectedGeneration"
                   value={expectedGeneration}
                   onChange={(e) => setExpectedGeneration(e.target.value)}
                   placeholder="Enter expected generation"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="carbonCredits">Carbon Credits (per year)</Label>
+                <Label htmlFor="carbonCredits" className="text-gray-700 dark:text-gray-300">Carbon Credits (per year)</Label>
                 <Input
                   id="carbonCredits"
                   value={carbonCredits}
                   onChange={(e) => setCarbonCredits(e.target.value)}
                   placeholder="Enter estimated carbon credits"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="expectedROI">Expected ROI (%)</Label>
+                <Label htmlFor="expectedROI" className="text-gray-700 dark:text-gray-300">Expected ROI (%)</Label>
                 <Input
                   id="expectedROI"
                   value={expectedROI}
                   onChange={(e) => setExpectedROI(e.target.value)}
                   placeholder="Enter expected ROI"
                   type="number"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Label htmlFor="contactEmail" className="text-gray-700 dark:text-gray-300">Contact Email</Label>
                 <Input
                   id="contactEmail"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="Enter contact email"
                   type="email"
+                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
                 />
               </div>
             </div>
 
             <div className="col-span-1 md:col-span-2 flex justify-end">
-              <Button onClick={handleDetailsSubmit}>
+              <Button 
+                onClick={handleDetailsSubmit}
+                className="bg-oga-green hover:bg-oga-green-dark text-white transition-colors"
+              >
                 Continue <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -575,11 +593,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       case ProjectCreationStep.APPROVE:
         return (
           <div className="space-y-6 p-6">
-            <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
+            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
               <AlertCircle className="h-4 w-4 mr-2" />
-              <AlertTitle>USDC Approval Required</AlertTitle>
+              <AlertTitle>Approve USDC</AlertTitle>
               <AlertDescription>
-                You need to approve the DeveloperDepositEscrow contract to spend your USDC.
+                Please approve the required USDC deposit amount to continue.
               </AlertDescription>
             </Alert>
             
@@ -616,11 +634,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       case ProjectCreationStep.CREATE:
         return (
           <div className="space-y-6 p-6">
-            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
               <Check className="h-4 w-4 mr-2" />
-              <AlertTitle>Ready to Create Project</AlertTitle>
+              <AlertTitle>Ready to Create</AlertTitle>
               <AlertDescription>
-                Your USDC is approved. You can now create your project.
+                Your project is ready to be created on the blockchain.
               </AlertDescription>
             </Alert>
             
@@ -689,11 +707,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       case ProjectCreationStep.COMPLETE:
         return (
           <div className="space-y-6 p-6">
-            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
               <Check className="h-4 w-4 mr-2" />
-              <AlertTitle>Project Created Successfully!</AlertTitle>
+              <AlertTitle>Project Created Successfully</AlertTitle>
               <AlertDescription>
-                Your project has been created and is now {projectStatus?.toLowerCase()}.
+                Your project has been created and is now ready for funding.
               </AlertDescription>
             </Alert>
             
@@ -754,10 +772,13 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] sm:h-auto max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[900px] sm:h-auto max-h-[90vh] overflow-hidden flex flex-col bg-white dark:bg-gray-900 border border-oga-green/20">
+        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-oga-green/5 to-transparent">
+          <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <RefreshCw className="h-5 w-5 text-oga-green" />
+            Create New Project
+          </DialogTitle>
+          <DialogDescription className="text-gray-500 dark:text-gray-400">
             Fill in the project details to create a new funding request
           </DialogDescription>
         </DialogHeader>
@@ -766,9 +787,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
           {renderStepContent()}
         </div>
 
-        <div className="px-6 py-4 border-t">
-          <Progress value={getProgressValue()} className="h-2" />
-          <div className="mt-2 text-sm text-gray-500">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-transparent to-oga-green/5">
+          <Progress value={getProgressValue()} className="h-2 bg-gray-100 dark:bg-gray-800">
+            <div className="h-full bg-oga-green transition-all duration-300 ease-in-out" style={{ width: `${getProgressValue()}%` }} />
+          </Progress>
+          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Step {currentStep + 1} of {Object.keys(ProjectCreationStep).length / 2}
           </div>
         </div>
