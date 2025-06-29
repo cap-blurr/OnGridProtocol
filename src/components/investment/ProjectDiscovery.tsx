@@ -35,6 +35,7 @@ import { useVaultDetails, useProjectSummary } from '@/hooks/contracts/useDirectP
 import { useGetAllPools, usePoolInfo } from '@/hooks/contracts/useLiquidityPoolManager';
 import { InvestmentModal } from '@/components/project/investment-modal';
 import InvestmentForm from '@/components/project/InvestmentForm';
+import SolarProjectCard from '@/components/project/SolarProjectCard';
 
 interface HighValueProject {
   vaultAddress: `0x${string}`;
@@ -320,11 +321,20 @@ export default function ProjectDiscovery() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project, index) => (
-            <ProjectCard
-              key={project.vaultAddress || project.poolId}
-              project={project}
-              onInvestClick={() => handleInvestClick(project)}
-            />
+            project.type === 'high-value' ? (
+              <SolarProjectCard
+                key={project.vaultAddress}
+                vaultAddress={project.vaultAddress}
+                projectId={project.projectId}
+                onInvest={() => handleInvestClick(project)}
+              />
+            ) : (
+              <ProjectCard
+                key={project.poolId}
+                project={project}
+                onInvestClick={() => handleInvestClick(project)}
+              />
+            )
           ))}
         </div>
       )}

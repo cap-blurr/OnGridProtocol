@@ -329,11 +329,11 @@ export default function SolarDeveloperDashboard() {
             </Button>
             <Button
               onClick={handleCreateProject}
-              className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white"
+              className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-2 text-lg font-semibold"
               disabled={isLoadingKyc}
             >
-              <ArrowUpRight className="w-4 h-4 mr-2" />
-              Create New Project
+              <ArrowUpRight className="w-5 h-5 mr-2" />
+              🚀 Create New Solar Project
             </Button>
           </div>
         </div>
@@ -373,10 +373,10 @@ export default function SolarDeveloperDashboard() {
           tabs={[
             { value: "projects", label: "My Projects" },
             { value: "analytics", label: "Analytics" },
-            { value: "pool-test", label: "Pool Testing" },
             { value: "notifications", label: "Notifications" },
             { value: "repayment", label: "Repayment" },
             { value: "kyc", label: "KYC Status" },
+            { value: "pool-test", label: "⚠️ Pool Testing (Advanced)" },
           ]}
           activeTab={activeTab}
           onValueChange={setActiveTab}
@@ -400,12 +400,21 @@ export default function SolarDeveloperDashboard() {
                   <Sun className="h-16 w-16 mx-auto mb-4 text-zinc-600" />
                   <h3 className="text-lg font-semibold text-white mb-2">No Solar Projects Found</h3>
                   <p className="text-zinc-400 mb-4">Get started by creating your first solar energy project.</p>
+                  <Alert className="bg-blue-900/30 border-blue-700 text-blue-300 mb-4 text-left max-w-md mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>How to Create a Project</AlertTitle>
+                    <AlertDescription>
+                      Click the button below to start the project creation process. 
+                      This will open a step-by-step wizard to create your solar project.
+                    </AlertDescription>
+                  </Alert>
                   <Button
                     onClick={handleCreateProject}
-                    className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white"
+                    className="bg-gradient-to-r from-[#4CAF50] to-[#4CAF50]/90 hover:from-[#4CAF50]/90 hover:to-[#4CAF50] text-white px-6 py-3 text-lg font-semibold"
                     disabled={isLoadingKyc}
                   >
-                    Create Your First Project
+                    <ArrowUpRight className="w-5 h-5 mr-2" />
+                    🚀 Create Your First Solar Project
                   </Button>
                 </div>
               ) : (
@@ -571,21 +580,36 @@ export default function SolarDeveloperDashboard() {
           {/* Pool Testing Tab */}
           {activeTab === 'pool-test' && (
             <div className="mt-6">
+              <Alert className="bg-orange-900/30 border-orange-700 text-orange-300 mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>⚠️ WARNING: This is POOL INVESTMENT testing, NOT project creation!</AlertTitle>
+                <AlertDescription>
+                  <strong>If you want to CREATE a new solar project:</strong>
+                  <br />
+                  → Click the "Create New Project" button at the top of this page
+                  <br />
+                  <br />
+                  <strong>This tab is only for testing POOL INVESTMENTS (investing in existing pools).</strong>
+                  <br />
+                  Do not confuse pool investment with project creation!
+                </AlertDescription>
+              </Alert>
+              
               <Card className="bg-black/40 backdrop-blur-sm border border-[#4CAF50]/30">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-2">
                     <Database className="h-5 w-5 text-[#4CAF50]" />
-                    Pool Investment Testing
+                    Pool Investment Testing (For Investors)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
                       <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Pool Testing Interface</AlertTitle>
+                      <AlertTitle>Pool Investment Interface Only</AlertTitle>
                       <AlertDescription>
-                        Test the `getPoolInfo(poolId)` functionality and pool investment features with Pool ID 1. 
-                        This includes testing the new MockUSDC contract integration.
+                        This tests pool investment functionality for existing liquidity pools. 
+                        This is NOT for creating new projects - use the "Create New Project" button for that.
                       </AlertDescription>
                     </Alert>
                     
@@ -780,12 +804,13 @@ export default function SolarDeveloperDashboard() {
         </DashboardTabs>
       </div>
 
-      {isCreateProjectModalOpen && currentAddresses?.projectFactoryProxy && (
-        <CreateProjectModal
+              {isCreateProjectModalOpen && currentAddresses?.projectFactoryProxy && (
+                  <CreateProjectModal 
           isOpen={isCreateProjectModalOpen}
           onClose={() => setIsCreateProjectModalOpen(false)}
+          onProjectCreated={refetchProjects}
         />
-      )}
+        )}
     </div>
   );
 } 

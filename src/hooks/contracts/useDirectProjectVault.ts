@@ -1,10 +1,11 @@
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useContractAddresses } from './useDeveloperRegistry';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { formatUnits, parseUnits } from 'viem';
 import toast from 'react-hot-toast';
 import DirectProjectVaultABI from '@/contracts/abis/DirectProjectVault.json';
 import { USDC_DECIMALS } from './useUSDC';
+import { ipfsService, ProjectMetadata } from '@/lib/ipfs-service';
 
 // Hook to get vault details
 export function useVaultDetails(vaultAddress?: `0x${string}`) {
@@ -399,5 +400,75 @@ export function useInvestorDetails(vaultAddress?: `0x${string}`, investorAddress
     totalClaimable: details ? details.claimablePrincipalAmount + details.claimableInterestAmount : BigInt(0),
     isLoading,
     error
+  };
+}
+
+// Hook to get metadata CID from vault
+export function useVaultMetadataCID(vaultAddress?: `0x${string}`) {
+  const { data, isLoading, error } = useReadContract({
+    address: vaultAddress,
+    abi: DirectProjectVaultABI.abi,
+    functionName: 'metadataCID',
+    chainId: 84532,
+    query: {
+      enabled: !!vaultAddress,
+    },
+  });
+  
+  return {
+    metadataCID: data as string,
+    isLoading,
+    error
+  };
+}
+
+// Hook to get project metadata from IPFS
+export function useProjectMetadata(vaultAddress?: `0x${string}`) {
+  const [metadata, setMetadata] = useState<ProjectMetadata | null>(null);
+  const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
+  const [metadataError, setMetadataError] = useState<Error | null>(null);
+  
+  const { metadataCID, isLoading: isLoadingCID } = useVaultMetadataCID(vaultAddress);
+  
+  useEffect(() => {
+    const fetchMetadata = async () => {
+      if (!metadataCID) return;
+      
+      try {
+        setIsLoadingMetadata(true);
+        setMetadataError(null);
+        const projectMetadata = await ipfsService.getMetadata(metadataCID);
+        setMetadata(projectMetadata);
+      } catch (error) {
+        console.error('Error fetching project metadata:', error);
+        setMetadataError(error instanceof Error ? error : new Error('Failed to fetch metadata'));
+      } finally {
+        setIsLoadingMetadata(false);
+      }
+    };
+
+    fetchMetadata();
+  }, [metadataCID]);
+
+  return {
+    metadata,
+    metadataCID,
+    isLoading: isLoadingCID || isLoadingMetadata,
+    error: metadataError
+  };
+}
+
+// Hook that combines vault details with metadata
+export function useVaultWithMetadata(vaultAddress?: `0x${string}`) {
+  const vaultDetails = useVaultDetails(vaultAddress);
+  const vaultSummary = useProjectSummary(vaultAddress);
+  const { metadata, isLoading: isLoadingMetadata, error: metadataError } = useProjectMetadata(vaultAddress);
+  
+  return {
+    ...vaultDetails,
+    summary: vaultSummary,
+    metadata,
+    isLoading: vaultDetails.isLoading || vaultSummary.isLoading || isLoadingMetadata,
+    error: vaultDetails.error || vaultSummary.error || metadataError
   };
 } 

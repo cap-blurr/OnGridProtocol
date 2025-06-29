@@ -10,7 +10,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@wagmi/core'],
   },
   // Add webpack configuration for better memory handling
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     if (isServer) {
       config.externals = [...(config.externals || []), 'bufferutil', 'utf-8-validate'];
     }
@@ -22,6 +22,21 @@ const nextConfig = {
       net: false,
       tls: false,
     };
+
+    // Handle viem test utilities that may be missing
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /setIntervalMining\.js$/,
+      })
+    );
+
+    // Additional ignore for test directories in viem
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /\/test\//,
+        contextRegExp: /viem/,
+      })
+    );
     
     return config;
   },

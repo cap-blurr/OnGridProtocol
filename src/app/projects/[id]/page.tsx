@@ -35,10 +35,16 @@ import {
   CheckCircle,
   Edit,
   Settings,
-  Download
+  Download,
+  ExternalLink,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatUnits } from 'viem';
+import { useVaultWithMetadata } from '@/hooks/contracts/useDirectProjectVault';
+import { InvestmentModal } from '@/components/project/investment-modal';
 
 // Enhanced sample projects with more detailed data
 const SAMPLE_PROJECTS = [
@@ -200,6 +206,7 @@ export default function ProjectPage() {
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [isInvesting, setIsInvesting] = useState(false);
   const [investmentSuccess, setInvestmentSuccess] = useState(false);
+  const [showInvestmentModal, setShowInvestmentModal] = useState(false);
   
   const { authenticated, ready } = usePrivy();
   const { userType } = useUserType();
@@ -317,432 +324,472 @@ export default function ProjectPage() {
   const isDeveloper = userType === 'developer';
   const isProjectOwner = isDeveloper; // In real app, check if current user is the project developer
   
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <Link href="/projects" className="inline-flex items-center text-zinc-400 hover:text-white">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Projects
-        </Link>
-        
-        {isProjectOwner && (
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Project
-            </Button>
-            <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-              <Settings className="w-4 h-4 mr-2" />
-              Manage
-            </Button>
-          </div>
-        )}
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column - Project details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Project header */}
-          <Card className="bg-gray-900/50 border-gray-700 overflow-hidden">
-            <div className="relative h-64">
-              <Image 
-                src={project.image}
-                alt={project.title}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className={`${getStatusColor(project.status)} text-white`}>
-                        {project.status.toUpperCase()}
-                      </Badge>
-                      <Badge className={`${getRiskColor(project.riskLevel)} text-white`}>
-                        {project.riskLevel.toUpperCase()} RISK
-                      </Badge>
-                    </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">{project.title}</h1>
-                    <p className="text-zinc-300 flex items-center">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {project.location}
-                    </p>
-                  </div>
-                  <TypeIcon className="h-8 w-8 text-emerald-500" />
-                </div>
-              </div>
+  // Fetch comprehensive project data
+  const { 
+    loanAmount,
+    totalAssetsInvested,
+    isFundingClosed,
+    aprPercentage,
+    developer,
+    fundingPercentage,
+    summary,
+    metadata,
+    error
+  } = useVaultWithMetadata(project.vaultAddress);
+
+  if (error || !loanAmount) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">Project Not Found</h2>
+              <p className="text-zinc-400 mb-6">The requested project could not be loaded.</p>
+              <Button 
+                onClick={() => router.back()}
+                variant="outline"
+                className="border-zinc-700 text-zinc-300"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Go Back
+              </Button>
             </div>
-          </Card>
-
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardContent className="p-4 text-center">
-                <Zap className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Capacity</p>
-                <p className="text-lg font-semibold text-white">{project.capacity}</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardContent className="p-4 text-center">
-                <TrendingUp className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Expected ROI</p>
-                <p className="text-lg font-semibold text-white">{project.expectedReturns}%</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardContent className="p-4 text-center">
-                <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Investors</p>
-                <p className="text-lg font-semibold text-white">{project.totalInvestors}</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gray-900/50 border-gray-700">
-              <CardContent className="p-4 text-center">
-                <Leaf className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Carbon Credits</p>
-                <p className="text-lg font-semibold text-white">{project.carbonCredits.toLocaleString()}</p>
-              </CardContent>
-            </Card>
           </div>
-          
-          {/* Project tabs */}
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid grid-cols-4 bg-gray-900/50 border border-gray-700">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="impact">Impact</TabsTrigger>
-              <TabsTrigger value="financial">Financial</TabsTrigger>
-              <TabsTrigger value="updates">Updates</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Project Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 leading-relaxed">
-                    {project.longDescription}
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <div>
-                      <h4 className="font-semibold text-white mb-3">Project Details</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Developer:</span>
-                          <span className="text-white">{project.developerName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Technology:</span>
-                          <span className="text-white">{project.technology}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Timeline:</span>
-                          <span className="text-white">{project.timeline}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Start Date:</span>
-                          <span className="text-white">{project.startDate}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-white mb-3">Investment Range</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Minimum:</span>
-                          <span className="text-white">${project.minInvestment.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Maximum:</span>
-                          <span className="text-white">${project.maxInvestment.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Risk Level:</span>
-                          <span className="text-white capitalize">{project.riskLevel}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="impact" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Environmental Impact</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="text-center p-6 bg-green-900/20 rounded-lg">
-                      <Leaf className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-white mb-2">CO2 Reduction</h3>
-                      <p className="text-green-400 text-2xl font-bold">75,000</p>
-                      <p className="text-gray-400 text-sm">tons per year</p>
-                    </div>
-                    
-                    <div className="text-center p-6 bg-blue-900/20 rounded-lg">
-                      <Users className="w-12 h-12 text-blue-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-white mb-2">Beneficiaries</h3>
-                      <p className="text-blue-400 text-2xl font-bold">50,000</p>
-                      <p className="text-gray-400 text-sm">homes powered</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h4 className="font-semibold text-white mb-3">Additional Benefits</h4>
-                    <ul className="space-y-2 text-gray-300">
-                      <li>• Creates 150+ local jobs during construction</li>
-                      <li>• Provides 25 permanent operational jobs</li>
-                      <li>• Reduces local air pollution</li>
-                      <li>• Contributes to Nigeria's renewable energy goals</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="financial" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Financial Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-white mb-3">Investment Terms</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Expected APR:</span>
-                          <span className="text-emerald-400 font-semibold">{project.apr}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Investment Period:</span>
-                          <span className="text-white">{project.tenor}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Payment Frequency:</span>
-                          <span className="text-white">Quarterly</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-white mb-3">Risk Assessment</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Market Risk:</span>
-                          <span className="text-yellow-400">Medium</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Technology Risk:</span>
-                          <span className="text-green-400">Low</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Regulatory Risk:</span>
-                          <span className="text-green-400">Low</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="updates" className="space-y-6">
-              <Card className="bg-gray-900/50 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Project Updates</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {project.projectUpdates.map((update: any) => (
-                      <div key={update.id} className="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg">
-                        <div className="flex-shrink-0">
-                          {getUpdateTypeIcon(update.type)}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-semibold text-white">{update.title}</h4>
-                            <span className="text-sm text-gray-400">{update.date}</span>
-                          </div>
-                          <p className="text-gray-300 text-sm">{update.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
         </div>
-        
-        {/* Right column - Investment card */}
-        <div className="space-y-6">
-          <Card className="bg-gray-900/50 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Investment Opportunity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Funding Progress</span>
-                  <span className="text-white">
-                    ${(project.currentFunding / 1e6).toFixed(1)}M / ${(project.loanAmount / 1e6).toFixed(1)}M
-                  </span>
-                </div>
-                <Progress value={project.fundingPercentage} className="h-3" />
-                <p className="text-xs text-gray-400 mt-1">{project.fundingPercentage.toFixed(1)}% funded</p>
-              </div>
+      </div>
+    );
+  }
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-400">Expected Returns</p>
-                  <p className="text-emerald-400 font-semibold">{project.expectedReturns}% APR</p>
+  // Calculate project metrics
+  const fundingProgress = summary?.fundingProgressPercentage || fundingPercentage || 0;
+  const loanAmountFormatted = formatUnits(loanAmount, 6);
+  const totalRaisedFormatted = formatUnits(totalAssetsInvested || BigInt(0), 6);
+  const timeRemainingDays = summary?.timeRemainingSeconds ? Math.ceil(summary.timeRemainingSeconds / (24 * 60 * 60)) : 0;
+
+  // Use metadata if available, otherwise fallback values
+  const projectName = metadata?.name || `Solar Project #${id}`;
+  const projectDescription = metadata?.description || 'Renewable energy project creating sustainable value';
+  const projectLocation = metadata?.location || 'Location TBD';
+  const projectType = metadata?.projectType || 'solar';
+  const capacity = metadata?.capacity || 0;
+  const expectedROI = metadata?.financial?.expectedROI || aprPercentage || 0;
+  const carbonCredits = metadata?.carbonCreditsExpected || 0;
+  const expectedGeneration = metadata?.expectedAnnualGeneration || 0;
+
+  // Get project status
+  const getProjectStatus = () => {
+    if (isFundingClosed) {
+      return { label: "Active", color: "bg-green-600", icon: CheckCircle };
+    } else if (fundingProgress >= 100) {
+      return { label: "Funded", color: "bg-green-600", icon: CheckCircle };
+    } else if (timeRemainingDays > 0) {
+      return { label: "Funding Open", color: "bg-blue-600", icon: Clock };
+    } else {
+      return { label: "Funding Closed", color: "bg-gray-600", icon: AlertCircle };
+    }
+  };
+
+  const status = getProjectStatus();
+  const StatusIcon = status.icon;
+
+  return (
+    <div className="min-h-screen bg-black">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <Button 
+            onClick={() => router.back()}
+            variant="ghost"
+            className="mb-4 text-zinc-400 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-green-500/20 rounded-full">
+                  <Sun className="h-8 w-8 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-gray-400">Timeline</p>
-                  <p className="text-white font-semibold">{project.timeline}</p>
+                  <h1 className="text-3xl font-bold text-white">{projectName}</h1>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center text-zinc-400">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {projectLocation}
+                    </div>
+                    <Badge className={status.color}>
+                      <StatusIcon className="h-3 w-3 mr-1" />
+                      {status.label}
+                    </Badge>
+                  </div>
                 </div>
               </div>
+              
+              <p className="text-zinc-300 text-lg leading-relaxed max-w-3xl">
+                {projectDescription}
+              </p>
+            </div>
 
-              {authenticated && userType !== 'developer' && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+            {/* Investment Action */}
+            {!isFundingClosed && fundingProgress < 100 && timeRemainingDays > 0 && (
+              <div className="lg:min-w-[300px]">
+                <Card className="bg-zinc-900/50 border-green-600/50">
+                  <CardContent className="p-6">
+                    <div className="text-center mb-4">
+                      <p className="text-2xl font-bold text-white mb-2">
+                        ${Number(loanAmountFormatted).toLocaleString()}
+                      </p>
+                      <p className="text-zinc-400">Investment Target</p>
+                    </div>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-zinc-400">Progress</span>
+                        <span className="text-white">{fundingProgress.toFixed(1)}%</span>
+                      </div>
+                      <Progress value={Math.min(fundingProgress, 100)} className="h-3" />
+                      <div className="flex justify-between text-xs text-zinc-500">
+                        <span>${Number(totalRaisedFormatted).toLocaleString()} raised</span>
+                        <span>{timeRemainingDays} days left</span>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => setShowInvestmentModal(true)}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      size="lg"
+                    >
+                      <DollarSign className="h-5 w-5 mr-2" />
                       Invest Now
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 text-white">
-                    <DialogHeader>
-                      <DialogTitle>Invest in {project.title}</DialogTitle>
-                      <DialogDescription className="text-gray-400">
-                        Enter your investment amount to fund this renewable energy project
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    {investmentSuccess ? (
-                      <div className="text-center py-8">
-                        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-white mb-2">Investment Successful!</h3>
-                        <p className="text-gray-400">Your investment has been processed successfully.</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-400">Expected Returns</p>
-                            <p className="text-emerald-400 font-semibold">{project.expectedReturns}% APR</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-400">Investment Range</p>
-                            <p className="text-white font-semibold">${project.minInvestment} - ${project.maxInvestment}</p>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-400 mb-2">
-                            Investment Amount (USDC)
-                          </label>
-                          <Input
-                            type="number"
-                            placeholder={`Min: $${project.minInvestment}`}
-                            value={investmentAmount}
-                            onChange={(e) => setInvestmentAmount(e.target.value)}
-                            className="bg-gray-800 border-gray-600 text-white"
-                            min={project.minInvestment}
-                            max={project.maxInvestment}
-                          />
-                        </div>
-                        
-                        <div className="bg-gray-800 p-4 rounded-lg">
-                          <h4 className="font-semibold mb-2">Investment Summary</h4>
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">Investment Amount:</span>
-                              <span className="text-white">${investmentAmount || '0'} USDC</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">Expected Annual Return:</span>
-                              <span className="text-emerald-400">
-                                ${investmentAmount ? (parseFloat(investmentAmount) * project.expectedReturns / 100).toFixed(2) : '0'} USDC
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-400">Project Duration:</span>
-                              <span className="text-white">{project.timeline}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          onClick={handleInvest}
-                          disabled={!investmentAmount || parseFloat(investmentAmount) < project.minInvestment || parseFloat(investmentAmount) > project.maxInvestment || isInvesting}
-                          className="w-full bg-emerald-600 hover:bg-emerald-700"
-                        >
-                          {isInvesting ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Processing Investment...
-                            </>
-                          ) : (
-                            'Confirm Investment'
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </DialogContent>
-                </Dialog>
-              )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
 
-              {!authenticated && (
-                <div className="text-center py-4">
-                  <p className="text-gray-400 text-sm mb-4">Connect your wallet to invest</p>
-                  <Button variant="outline" className="w-full border-gray-600 text-gray-300">
-                    Connect Wallet
-                  </Button>
-                </div>
-              )}
-
-              {userType === 'developer' && (
-                <div className="text-center py-4">
-                  <p className="text-gray-400 text-sm">Developer view - Investment not available</p>
-                </div>
-              )}
+        {/* Key Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-4 text-center">
+              <Zap className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{capacity} MW</div>
+              <p className="text-xs text-zinc-400">Capacity</p>
             </CardContent>
           </Card>
+          
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-4 text-center">
+              <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-green-400">{expectedROI.toFixed(1)}%</div>
+              <p className="text-xs text-zinc-400">Expected ROI</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-4 text-center">
+              <Leaf className="w-8 h-8 text-green-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{carbonCredits.toLocaleString()}t</div>
+              <p className="text-xs text-zinc-400">CO₂ Avoided/Year</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-4 text-center">
+              <Target className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-white">{expectedGeneration.toLocaleString()}</div>
+              <p className="text-xs text-zinc-400">MWh/Year</p>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Developer Actions */}
-          {isProjectOwner && (
-            <Card className="bg-gray-900/50 border-gray-700">
+        {/* Detailed Information Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 bg-zinc-900/50">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="technical">Technical</TabsTrigger>
+            <TabsTrigger value="financial">Financial</TabsTrigger>
+            <TabsTrigger value="impact">Impact</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Project Information */}
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Info className="h-5 w-5 text-blue-400" />
+                    Project Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Project Type:</span>
+                      <Badge variant="secondary" className="capitalize">
+                        {projectType} Energy
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Location:</span>
+                      <span className="text-white">{projectLocation}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Developer:</span>
+                      <span className="text-white font-mono text-sm">
+                        {developer ? `${developer.slice(0, 6)}...${developer.slice(-4)}` : 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Project ID:</span>
+                      <span className="text-white">{id}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Funding Status */}
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-400" />
+                    Funding Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Target Amount:</span>
+                      <span className="text-white font-bold">
+                        ${Number(loanAmountFormatted).toLocaleString()} USDC
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Amount Raised:</span>
+                      <span className="text-green-400 font-bold">
+                        ${Number(totalRaisedFormatted).toLocaleString()} USDC
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Progress:</span>
+                      <span className="text-white">{fundingProgress.toFixed(1)}%</span>
+                    </div>
+                    {timeRemainingDays > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Time Remaining:</span>
+                        <span className="text-white">{timeRemainingDays} days</span>
+                      </div>
+                    )}
+                  </div>
+                  <Progress value={Math.min(fundingProgress, 100)} className="h-3" />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="technical" className="space-y-6">
+            <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
-                <CardTitle className="text-white">Project Management</CardTitle>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-yellow-400" />
+                  Technical Specifications
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full border-gray-600 text-gray-300">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Reports
-                </Button>
-                <Button variant="outline" className="w-full border-gray-600 text-gray-300">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Post Update
-                </Button>
-                <Button variant="outline" className="w-full border-gray-600 text-gray-300">
-                  <Users className="w-4 h-4 mr-2" />
-                  Manage Investors
-                </Button>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-white">Energy Production</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Capacity:</span>
+                        <span className="text-white">{capacity} MW</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Annual Generation:</span>
+                        <span className="text-white">{expectedGeneration.toLocaleString()} MWh</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Capacity Factor:</span>
+                        <span className="text-white">
+                          {capacity > 0 ? ((expectedGeneration / (capacity * 8760)) * 100).toFixed(1) : 0}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-white">Project Timeline</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Installation:</span>
+                        <span className="text-white">
+                          {metadata?.technical?.installationTimeline || '6-12 months'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-400">Maintenance:</span>
+                        <span className="text-white">
+                          {metadata?.technical?.maintenanceSchedule || 'Annual'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {metadata?.technical?.equipment && metadata.technical.equipment.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-white">Equipment & Technology</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {metadata.technical.equipment.map((item, index) => (
+                        <Badge key={index} variant="outline" className="justify-start">
+                          {item}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
-          )}
-        </div>
+          </TabsContent>
+
+          <TabsContent value="financial" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-green-400" />
+                    Investment Returns
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Expected ROI:</span>
+                      <span className="text-green-400 font-bold">{expectedROI.toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Payback Period:</span>
+                      <span className="text-white">
+                        {metadata?.financial?.paybackPeriod || 36} months
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Loan Term:</span>
+                      <span className="text-white">
+                        {Math.round((metadata?.financial?.tenor || 365) / 365)} years
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-blue-400" />
+                    Project Economics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Total Project Cost:</span>
+                      <span className="text-white font-bold">
+                        ${(metadata?.financial?.totalCost || Number(loanAmountFormatted)).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Financing Amount:</span>
+                      <span className="text-white">
+                        ${Number(loanAmountFormatted).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Revenue Model:</span>
+                      <span className="text-white">Power Purchase Agreement</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="impact" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Leaf className="h-5 w-5 text-green-400" />
+                    Environmental Impact
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">CO₂ Avoided (Annual):</span>
+                      <span className="text-green-400 font-bold">{carbonCredits.toLocaleString()} tons</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Equivalent Cars Off Road:</span>
+                      <span className="text-white">{Math.round(carbonCredits * 2.3).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Trees Equivalent:</span>
+                      <span className="text-white">{Math.round(carbonCredits * 45).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-zinc-900/50 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-400" />
+                    Social Impact
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Jobs Created:</span>
+                      <span className="text-white">25-50 during construction</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Permanent Jobs:</span>
+                      <span className="text-white">5-10 operations</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">Community Benefit:</span>
+                      <span className="text-white">Clean energy access</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Investment Modal */}
+        <InvestmentModal
+          open={showInvestmentModal}
+          onOpenChange={setShowInvestmentModal}
+          projectData={{
+            vaultAddress: project.vaultAddress,
+            projectId: id,
+            name: projectName,
+            loanAmount,
+            totalAssetsInvested,
+            fundingPercentage,
+            aprPercentage: expectedROI,
+            timeRemaining: timeRemainingDays,
+            isFundingClosed
+          }}
+          type="project"
+        />
       </div>
     </div>
   );

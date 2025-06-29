@@ -8,26 +8,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { UserTypeProvider } from './userType';
 
-// Use only Alchemy RPC URL to isolate issues - NO FALLBACKS
-const ALCHEMY_RPC_URL = 'https://base-sepolia.g.alchemy.com/v2/TjWdEzlbzj1Xr_Bj5K6Z2';
-
-// Create custom Base Sepolia chain to prevent default RPC usage
-const customBaseSepolia = {
-  ...baseSepolia,
-  rpcUrls: {
-    default: { http: [ALCHEMY_RPC_URL] },
-    public: { http: [ALCHEMY_RPC_URL] }, // Override public RPCs too
-  }
-};
-
+// Simple, reliable RPC configuration
 const config = createConfig({
-  chains: [customBaseSepolia],
+  chains: [baseSepolia],
   transports: {
-    [baseSepolia.id]: http(ALCHEMY_RPC_URL, {
-      // Strict configuration - no retries to prevent fallbacks
-      retryCount: 0,
-      timeout: 10000, // 10 second timeout
-    }),
+    [baseSepolia.id]: http(),
   },
 });
 
@@ -36,8 +21,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        retry: 3,
-        staleTime: 30000, // 30 seconds
       },
     },
   }));

@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "wagmi";
 import { useUSDCBalance, useUSDCAllowance, useUSDCApprove, USDC_DECIMALS, isApprovalNeeded } from "@/hooks/contracts/useUSDC";
-import { useContractAddresses } from "@/hooks/contracts/useDeveloperRegistry";
+import { useContractAddresses, useIsVerified } from "@/hooks/contracts/useDeveloperRegistry";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatUnits, parseUnits } from "ethers";
 import { 
@@ -26,39 +26,55 @@ import {
   FileText,
   DollarSign, 
   Clock,
-  RefreshCw
+  RefreshCw,
+  ShieldCheck
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import toast from "react-hot-toast";
-import ProjectFactoryABI from "@/contracts/abis/ProjectFactory.json";
 import { useProjectFactory } from "@/hooks/contracts/useProjectFactory";
-import { v4 as uuidv4 } from 'uuid';
 import { DEVELOPER_DEPOSIT_BPS, BASIS_POINTS_DENOMINATOR } from "@/lib/constants";
+import { ipfsService, ProjectMetadata } from '@/lib/ipfs-service';
 
 // Steps in the project creation flow
 enum ProjectCreationStep {
-  DETAILS = 0,
-  APPROVE = 1,
-  CREATE = 2,
-  COMPLETE = 3
+  KYC_CHECK = 0,
+  DETAILS = 1,
+  APPROVE = 2,
+  CREATE = 3,
+  COMPLETE = 4
 }
 
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onProjectCreated?: () => void; // Optional callback to refresh dashboard
 }
 
-export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
-  // Form state
+export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProjectModalProps) {
+  // Enhanced form state for comprehensive project metadata
   const [projectName, setProjectName] = useState<string>("");
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [projectLocation, setProjectLocation] = useState<string>("");
   const [loanAmount, setLoanAmount] = useState<string>("");
   const [tenorDays, setTenorDays] = useState<string>("365");
+  
+  // New technical fields
+  const [capacity, setCapacity] = useState<string>(""); // MW
+  const [expectedGeneration, setExpectedGeneration] = useState<string>(""); // MWh per year
+  const [carbonCredits, setCarbonCredits] = useState<string>(""); // per year
+  const [equipment, setEquipment] = useState<string>("Solar Panels, Inverters, Mounting Systems");
+  const [installationTimeline, setInstallationTimeline] = useState<string>("6 months");
+  const [maintenanceSchedule, setMaintenanceSchedule] = useState<string>("Annual inspections");
+  const [expectedROI, setExpectedROI] = useState<string>("12.5");
+  const [paybackPeriod, setPaybackPeriod] = useState<string>("36");
+  const [contactEmail, setContactEmail] = useState<string>("");
+  
+  // Auto-generated metadata CID - will be populated automatically
   const [metadataCID, setMetadataCID] = useState<string>("");
+  const [isGeneratingMetadata, setIsGeneratingMetadata] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<string>("0");
   const [depositPercentage, setDepositPercentage] = useState<number | null>(null);
-  const [currentStep, setCurrentStep] = useState<ProjectCreationStep>(ProjectCreationStep.DETAILS);
+  const [currentStep, setCurrentStep] = useState<ProjectCreationStep>(ProjectCreationStep.KYC_CHECK);
   const [newProjectId, setNewProjectId] = useState<string | null>(null);
   const [vaultAddress, setVaultAddress] = useState<string | null>(null);
   const [projectStatus, setProjectStatus] = useState<string | null>(null);
@@ -69,8 +85,11 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   // Get contract addresses
   const addresses = useContractAddresses();
 
+  // Check KYC verification status
+  const { data: isKycVerified, isLoading: isCheckingKyc } = useIsVerified(developerAddress);
+
   // Get USDC balance
-    const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance, isLoading: isLoadingUSDCBalance, error: errorUSDCBalance } =
+  const { balance: usdcBalance, formattedBalance: formattedUsdcBalance, refetch: refetchBalance } =
     useUSDCBalance(developerAddress);
 
   // Get USDC allowance for DeveloperDepositEscrow
@@ -85,7 +104,8 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     createProject, 
     isLoading: isCreating, 
     isSuccess: isCreateSuccess,
-    projectEvents 
+    projectEvents,
+    isKycVerified: hookKycVerified
   } = useProjectFactory().useCreateProject();
 
   // Monitor project events for completion
@@ -99,6 +119,8 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setVaultAddress(highValueVaultAddress);
         setProjectStatus("High-value Project Created");
         setCurrentStep(ProjectCreationStep.COMPLETE);
+        // Trigger dashboard refresh
+        onProjectCreated?.();
       } else if (latestEvent.type === 'low-value') {
         const { projectId, success, poolId } = latestEvent.data;
         setNewProjectId(projectId.toString());
@@ -110,6 +132,8 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         }
         
         setCurrentStep(ProjectCreationStep.COMPLETE);
+        // Trigger dashboard refresh
+        onProjectCreated?.();
       }
     }
   }, [projectEvents, currentStep]);
@@ -129,11 +153,10 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setDepositPercentage(percentage);
 
       } catch (err) {
-        console.error("Error calculating deposit amount for loanAmount:", loanAmount, err);
-        setDepositAmount("0"); // Reset on error
+        setDepositAmount("0"); 
         setDepositPercentage(null);
       }
-    } else if (loanAmount === "" || parseFloat(loanAmount) <= 0) { // Handle empty or zero loan amount
+    } else if (loanAmount === "" || parseFloat(loanAmount) <= 0) {
         setDepositAmount("0");
         setDepositPercentage(null);
     }
@@ -148,10 +171,19 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         setProjectLocation("");
         setLoanAmount("");
         setTenorDays("365");
+        setCapacity("");
+        setExpectedGeneration("");
+        setCarbonCredits("");
+        setEquipment("Solar Panels, Inverters, Mounting Systems");
+        setInstallationTimeline("6 months");
+        setMaintenanceSchedule("Annual inspections");
+        setExpectedROI("12.5");
+        setPaybackPeriod("36");
+        setContactEmail("");
         setMetadataCID("");
         setDepositAmount("0");
         setDepositPercentage(null);
-        setCurrentStep(ProjectCreationStep.DETAILS);
+        setCurrentStep(ProjectCreationStep.KYC_CHECK);
         setNewProjectId(null);
         setVaultAddress(null);
         setProjectStatus(null);
@@ -162,108 +194,150 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     }
   }, [isOpen, refetchBalance, refetchAllowance]);
 
+  // Auto-advance past KYC check if verified
+  useEffect(() => {
+    if (isKycVerified && currentStep === ProjectCreationStep.KYC_CHECK) {
+      setCurrentStep(ProjectCreationStep.DETAILS);
+    }
+  }, [isKycVerified, currentStep]);
+
   // Move to next step when approval succeeds
   useEffect(() => {
     if (isApproveSuccess && currentStep === ProjectCreationStep.APPROVE) {
-      refetchAllowance(); // Refresh allowance after approval
+      refetchAllowance();
       setCurrentStep(ProjectCreationStep.CREATE);
     }
   }, [isApproveSuccess, currentStep, refetchAllowance]);
+
+  const handleKycCheck = () => {
+    if (isKycVerified) {
+      setCurrentStep(ProjectCreationStep.DETAILS);
+    } else {
+      toast.error("Please complete KYC verification before creating a project");
+    }
+  };
   
-  const handleDetailsSubmit = async () => {
+  // Enhanced validation function
+  const validateProjectDetails = () => {
+    const errors: string[] = [];
+    
+    if (!projectName.trim()) errors.push("Project name is required");
+    if (!projectDescription.trim()) errors.push("Project description is required");
+    if (!projectLocation.trim()) errors.push("Project location is required");
+    if (!loanAmount || parseFloat(loanAmount) <= 0) errors.push("Valid loan amount is required");
+    if (!capacity || parseFloat(capacity) <= 0) errors.push("Project capacity (MW) is required");
+    if (!expectedGeneration || parseFloat(expectedGeneration) <= 0) errors.push("Expected annual generation (MWh) is required");
+    if (!carbonCredits || parseFloat(carbonCredits) < 0) errors.push("Carbon credits estimate is required");
+    if (!contactEmail.trim() || !contactEmail.includes('@')) errors.push("Valid contact email is required");
+    
+    const tenorValue = parseInt(tenorDays);
+    if (isNaN(tenorValue) || tenorValue <= 0 || tenorValue > 10000) {
+      errors.push("Tenor must be between 1 and 10,000 days");
+    }
+    
+    return errors;
+  };
+
+  // Auto-generate comprehensive IPFS metadata
+  const generateProjectMetadata = async (): Promise<string> => {
+    setIsGeneratingMetadata(true);
+    
     try {
-      // Basic validation (ensure these are comprehensive)
-      if (!projectName.trim()) {
-        toast.error("Please enter a project name");
-        return;
-      }
-      if (!projectDescription.trim()) {
-        toast.error("Please enter a project description");
-        return;
-      }
-      if (!projectLocation.trim()) {
-        toast.error("Please enter a project location");
-        return;
-      }
-      if (!loanAmount || parseFloat(loanAmount) <= 0) {
-        toast.error("Please enter a valid loan amount");
-        return;
-      }
-      const tenorValueParsed = parseInt(tenorDays);
-      if (isNaN(tenorValueParsed) || tenorValueParsed <= 0 || tenorValueParsed > 10000) { // Example max value
-        toast.error("Tenor must be a valid number between 1 and 10,000 days");
-        return;
-      }
-      const trimmedMetadataCIDOnSubmit = metadataCID.trim();
-      if (!trimmedMetadataCIDOnSubmit || trimmedMetadataCIDOnSubmit.length < 5) { // Basic CID check
-        toast.error("Please provide a valid metadata CID");
-        return;
-      }
+      const metadata: ProjectMetadata = {
+        name: projectName.trim(),
+        description: projectDescription.trim(),
+        location: projectLocation.trim(),
+        projectType: 'solar',
+        capacity: parseFloat(capacity),
+        expectedAnnualGeneration: parseFloat(expectedGeneration),
+        carbonCreditsExpected: parseFloat(carbonCredits),
+        developer: {
+          name: projectName.trim(), // Could be enhanced with separate developer name field
+          address: developerAddress || '',
+          contact: contactEmail.trim(),
+        },
+        technical: {
+          equipment: equipment.split(',').map(item => item.trim()),
+          installationTimeline: installationTimeline.trim(),
+          maintenanceSchedule: maintenanceSchedule.trim(),
+        },
+        financial: {
+          totalCost: parseFloat(loanAmount),
+          loanAmount: parseFloat(loanAmount),
+          tenor: parseInt(tenorDays),
+          expectedROI: parseFloat(expectedROI),
+          paybackPeriod: parseFloat(paybackPeriod),
+        },
+        images: [], // Could be enhanced with image upload
+        documents: [], // Could be enhanced with document upload
+        created: Date.now(),
+        version: '1.0.0',
+      };
 
-      // Add a check for loading balance state
-      if (isLoadingUSDCBalance) {
-        toast.error("Fetching USDC balance... Please wait and try again.");
-        return;
-      }
-      if (errorUSDCBalance || usdcBalance === undefined || usdcBalance === null) {
-        toast.error("Could not fetch USDC balance. Please check your connection or try again.");
-        console.error("USDC Balance fetch error or balance is undefined/null. Raw balance:", usdcBalance);
-        return;
-      }
-
-      let depositAmountBigInt: bigint;
-      try {
-        // Ensure depositAmount is a valid number string before parsing
-        if (isNaN(parseFloat(depositAmount)) || parseFloat(depositAmount) < 0) { // Allow 0 deposit if applicable
-            toast.error("Calculated deposit amount is invalid. Please check loan amount.");
-            return;
-        }
-        depositAmountBigInt = parseUnits(depositAmount, USDC_DECIMALS);
-      } catch (e) {
-        toast.error("Invalid deposit amount calculated. Please check loan amount.");
-        console.error("Error parsing depositAmount:", depositAmount, e);
-        return;
-      }
-            
-      if (depositAmountBigInt > usdcBalance) { 
-        toast.error(`Insufficient USDC balance. You need ${depositAmount} USDC for the deposit. Current balance: ${formattedUsdcBalance}`);
-        return;
-      }
-      
-      // Use isApprovalNeeded helper from useUSDC.ts
-      // depositAmount is a string in unit form (e.g., "500.00")
-      // usdcAllowance is a bigint
-      if (parseFloat(depositAmount) > 0 && isApprovalNeeded(usdcAllowance, depositAmount)) {
-        setCurrentStep(ProjectCreationStep.APPROVE);
-      } else {
-        // If deposit is 0 or approval is not needed, proceed to create
-        setCurrentStep(ProjectCreationStep.CREATE);
-      }
-    } catch (err) {
-      console.error("Error in form submission:", err);
-      toast.error("Invalid input values. Please check and try again.");
+      const cid = await ipfsService.uploadProjectMetadata(metadata);
+      console.log('✅ Metadata uploaded to IPFS:', cid);
+      return cid;
+    } catch (error) {
+      console.error('❌ Error generating metadata:', error);
+      throw new Error('Failed to generate project metadata');
+    } finally {
+      setIsGeneratingMetadata(false);
     }
   };
 
-  // Handle approval
+  // Enhanced details submission with automatic metadata generation
+  const handleDetailsSubmit = async () => {
+    try {
+      // Validate all inputs
+      const validationErrors = validateProjectDetails();
+      if (validationErrors.length > 0) {
+        toast.error(validationErrors[0]);
+        return;
+      }
+
+      // Generate IPFS metadata automatically
+      toast.loading("Generating project metadata...", { id: "metadata-gen" });
+      const metadataCID = await generateProjectMetadata();
+      toast.success("Project metadata generated successfully!", { id: "metadata-gen" });
+
+      // Store the generated CID for project creation
+      setMetadataCID(metadataCID);
+
+      // Check if approval is needed
+      if (parseFloat(depositAmount) > 0) {
+        const needsApproval = isApprovalNeeded(usdcAllowance, depositAmount);
+        if (needsApproval) {
+          setCurrentStep(ProjectCreationStep.APPROVE);
+        } else {
+          setCurrentStep(ProjectCreationStep.CREATE);
+        }
+      } else {
+        setCurrentStep(ProjectCreationStep.CREATE);
+      }
+    } catch (error) {
+      toast.error("Error preparing project details");
+      console.error(error);
+    }
+  };
+
   const handleApprove = () => {
     if (!developerAddress) {
       toast.error("Wallet not connected");
       return;
     }
     if (!addresses.developerDepositEscrow) {
-      toast.error("Developer Deposit Escrow address not found.");
+      toast.error("Developer Deposit Escrow address not found");
       return;
     }
     if (parseFloat(depositAmount) <= 0) {
-      toast.error("Deposit amount is zero or invalid, no approval needed.");
-      setCurrentStep(ProjectCreationStep.CREATE); // Move to create if deposit is 0
+      toast.error("Deposit amount is zero or invalid");
+      setCurrentStep(ProjectCreationStep.CREATE);
       return;
     }
-    // Approve exact calculated depositAmount
+    
     approve(
       addresses.developerDepositEscrow as `0x${string}`, 
-      depositAmount // depositAmount is already a string representation of the units
+      depositAmount
     );
   };
 
@@ -276,11 +350,12 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
     
     let formattedCID = metadataCID.trim();
     if (!formattedCID || formattedCID.length < 5) { 
-      toast.error("Metadata CID is required. Please go back to details and enter it.");
-      setCurrentStep(ProjectCreationStep.DETAILS); // Send user back
+      toast.error("Metadata CID is required");
+      setCurrentStep(ProjectCreationStep.DETAILS);
       return;
     }
-    // Optional: Remove 'ipfs://' prefix if your contract expects raw CID
+    
+    // Remove 'ipfs://' prefix if present as the hook will add it
     if (formattedCID.startsWith('ipfs://')) {
       formattedCID = formattedCID.replace('ipfs://', '');
     }
@@ -290,155 +365,306 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       const tenorDaysParsed = parseInt(tenorDays);
 
       if (isNaN(loanAmountParsed) || loanAmountParsed <= 0) {
-        toast.error("Invalid loan amount. Please go back and correct.");
+        toast.error("Invalid loan amount");
         setCurrentStep(ProjectCreationStep.DETAILS);
         return;
       }
-       if (isNaN(tenorDaysParsed) || tenorDaysParsed <= 0 || tenorDaysParsed > 10000) {
-        toast.error("Invalid loan tenor. Please go back and correct.");
+      if (isNaN(tenorDaysParsed) || tenorDaysParsed <= 0 || tenorDaysParsed > 10000) {
+        toast.error("Invalid loan tenor");
         setCurrentStep(ProjectCreationStep.DETAILS);
         return;
       }
 
+      // Calculate intelligent funding deadline based on project size
+      // Larger projects get more time to attract investors
+      let fundingDeadlineSeconds: number;
+      if (loanAmountParsed >= 1000000) {
+        // Large projects (>= $1M): 60 days
+        fundingDeadlineSeconds = 60 * 24 * 60 * 60;
+      } else if (loanAmountParsed >= 500000) {
+        // Medium projects ($500K - $1M): 45 days
+        fundingDeadlineSeconds = 45 * 24 * 60 * 60;
+      } else if (loanAmountParsed >= 100000) {
+        // Small projects ($100K - $500K): 30 days
+        fundingDeadlineSeconds = 30 * 24 * 60 * 60;
+      } else {
+        // Very small projects (<$100K): 21 days
+        fundingDeadlineSeconds = 21 * 24 * 60 * 60;
+      }
+
+      // Create parameters in the format expected by the hook (as per integration guide)
       const params = {
-        loanAmountRequested: parseUnits(loanAmount, USDC_DECIMALS),
-        requestedTenor: BigInt(tenorDaysParsed), // Use parsed and validated tenor
+        loanAmountRequested: loanAmount, // Keep as string, hook will convert
+        requestedTenor: tenorDays, // Keep as string, hook will convert
+        fundingDeadline: fundingDeadlineSeconds.toString(), // Dynamic deadline in seconds
         metadataCID: formattedCID
       };
       
-      console.log("Creating project with parameters (handleCreateProject):", {
-        loanAmountRequested: params.loanAmountRequested.toString(),
-        requestedTenor: params.requestedTenor.toString(),
-        metadataCID: params.metadataCID
+      console.log('🚀 Creating project with intelligent funding deadline:', {
+        loanAmount: `$${loanAmountParsed.toLocaleString()}`,
+        fundingDeadlineDays: Math.ceil(fundingDeadlineSeconds / (24 * 60 * 60)),
+        metadataCID: formattedCID
       });
       
       createProject(params);
     } catch (err) {
-      console.error("Error creating project:", err);
-      if (err instanceof Error && err.message.includes("invalid BigNumberish string")) {
-        toast.error("Failed to create project: Invalid numeric input for amounts or tenor.");
-      } else {
-        toast.error(`Failed to create project: ${(err as Error).message}`);
-      }
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      toast.error(`Failed to create project: ${errorMessage}`);
     }
   };
 
   // Content for each step
   const renderStepContent = () => {
     switch (currentStep) {
+      case ProjectCreationStep.KYC_CHECK:
+        return (
+          <div className="space-y-6">
+            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <ShieldCheck className="h-4 w-4 mr-2" />
+              <AlertTitle>KYC Check</AlertTitle>
+              <AlertDescription>
+                Please complete KYC verification before proceeding.
+              </AlertDescription>
+            </Alert>
+            
+            <Button 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={handleKycCheck}
+              disabled={isCheckingKyc}
+            >
+              {isCheckingKyc ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Checking KYC...
+                </>
+              ) : (
+                <>
+                  Proceed
+                </>
+              )}
+            </Button>
+          </div>
+        );
+        
       case ProjectCreationStep.DETAILS:
         return (
           <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="projectName" className="text-zinc-300">Project Name</Label>
-              <Input 
-                id="projectName" 
-                value={projectName} 
-                onChange={(e) => setProjectName(e.target.value)} 
-                placeholder="e.g., Sunny Meadows Solar Farm" 
-                className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-              />
-            </div>
+            <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <AlertTitle>Project Details</AlertTitle>
+              <AlertDescription>
+                Provide comprehensive details about your solar energy project. All information will be stored securely on IPFS.
+              </AlertDescription>
+            </Alert>
             
-            <div className="space-y-2">
-              <Label htmlFor="projectDescription" className="text-zinc-300">Project Description</Label>
-              <Textarea 
-                id="projectDescription" 
-                value={projectDescription} 
-                onChange={(e) => setProjectDescription(e.target.value)} 
-                placeholder="Describe your project, its impact, and goals." 
-                className="min-h-[80px] bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="projectLocation" className="text-zinc-300">Project Location</Label>
-              <Input 
-                id="projectLocation" 
-                value={projectLocation} 
-                onChange={(e) => setProjectLocation(e.target.value)} 
-                placeholder="e.g., California, USA" 
-                className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="loanAmount" className="text-zinc-300">Loan Amount (USDC)</Label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="loanAmount" 
-                  value={loanAmount} 
-                  onChange={(e) => setLoanAmount(e.target.value)} 
-                  type="number" 
-                  placeholder="Enter total project cost" 
-                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+            {/* Basic Project Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="projectName" className="text-zinc-300">Project Name *</Label>
+                  <Input 
+                    id="projectName" 
+                    value={projectName} 
+                    onChange={(e) => setProjectName(e.target.value)} 
+                    placeholder="e.g., Sunny Valley Solar Farm" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="projectLocation" className="text-zinc-300">Location *</Label>
+                  <Input 
+                    id="projectLocation" 
+                    value={projectLocation} 
+                    onChange={(e) => setProjectLocation(e.target.value)} 
+                    placeholder="e.g., California, USA" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="projectDescription" className="text-zinc-300">Project Description *</Label>
+                <Textarea 
+                  id="projectDescription" 
+                  value={projectDescription} 
+                  onChange={(e) => setProjectDescription(e.target.value)} 
+                  placeholder="Describe your solar energy project, its impact, and goals..." 
+                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600 min-h-[100px]" 
                 />
               </div>
-              <p className="text-xs text-zinc-500">
-                This is the total project cost (100% of financing needed)
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="tenorDays" className="text-zinc-300">Loan Tenor (Days)</Label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+              
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail" className="text-zinc-300">Contact Email *</Label>
                 <Input 
-                  id="tenorDays" 
-                  value={tenorDays} 
-                  onChange={(e) => setTenorDays(e.target.value)} 
-                  type="number" 
-                  placeholder="Loan duration in days" 
-                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  id="contactEmail" 
+                  type="email"
+                  value={contactEmail} 
+                  onChange={(e) => setContactEmail(e.target.value)} 
+                  placeholder="your@email.com" 
+                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
                 />
               </div>
-              <p className="text-xs text-zinc-500">
-                Duration of the loan in days (e.g., 365 for one year)
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="metadataCID" className="text-zinc-300">Project Metadata CID</Label>
-              <div className="relative">
-                <FileText className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                <Input 
-                  id="metadataCID" 
-                  value={metadataCID} 
-                  onChange={(e) => setMetadataCID(e.target.value)}
-                  placeholder="Enter IPFS CID for project metadata (e.g., Qm... or bafy...)" 
-                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                />
-              </div>
-              <p className="text-xs text-zinc-500">
-                Manually provide the IPFS Content ID (CID) for your project's metadata JSON.
-              </p>
             </div>
 
-            {/* Deposit calculation summary */}
-            {depositAmount !== "0" && depositAmount !== "Error" && depositAmount !== "Calculating..." && depositPercentage !== null && (
-              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300 flex flex-col space-y-2">
-                <div className="flex items-start">
-                  <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
-                  <div>
-                    <AlertTitle>Deposit Requirement ({depositPercentage}%)</AlertTitle>
-                    <AlertDescription>
-                      You will need to deposit {depositAmount} USDC.
-                    </AlertDescription>
+            {/* Technical Specifications */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Technical Specifications</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="capacity" className="text-zinc-300">Capacity (MW) *</Label>
+                  <Input 
+                    id="capacity" 
+                    type="number" 
+                    step="0.1"
+                    value={capacity} 
+                    onChange={(e) => setCapacity(e.target.value)} 
+                    placeholder="e.g., 5.0" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="expectedGeneration" className="text-zinc-300">Annual Generation (MWh) *</Label>
+                  <Input 
+                    id="expectedGeneration" 
+                    type="number"
+                    value={expectedGeneration} 
+                    onChange={(e) => setExpectedGeneration(e.target.value)} 
+                    placeholder="e.g., 12000" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="carbonCredits" className="text-zinc-300">Carbon Credits/Year *</Label>
+                  <Input 
+                    id="carbonCredits" 
+                    type="number"
+                    value={carbonCredits} 
+                    onChange={(e) => setCarbonCredits(e.target.value)} 
+                    placeholder="e.g., 5000" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="installationTimeline" className="text-zinc-300">Installation Timeline</Label>
+                  <Input 
+                    id="installationTimeline" 
+                    value={installationTimeline} 
+                    onChange={(e) => setInstallationTimeline(e.target.value)} 
+                    placeholder="e.g., 6 months" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="maintenanceSchedule" className="text-zinc-300">Maintenance Schedule</Label>
+                  <Input 
+                    id="maintenanceSchedule" 
+                    value={maintenanceSchedule} 
+                    onChange={(e) => setMaintenanceSchedule(e.target.value)} 
+                    placeholder="e.g., Annual inspections" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="equipment" className="text-zinc-300">Equipment List</Label>
+                <Input 
+                  id="equipment" 
+                  value={equipment} 
+                  onChange={(e) => setEquipment(e.target.value)} 
+                  placeholder="e.g., Solar Panels, Inverters, Mounting Systems" 
+                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                />
+                <p className="text-xs text-zinc-500">Separate items with commas</p>
+              </div>
+            </div>
+
+            {/* Financial Details */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Financial Details</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="loanAmount" className="text-zinc-300">Total Project Cost (USDC) *</Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                    <Input 
+                      id="loanAmount" 
+                      value={loanAmount} 
+                      onChange={(e) => setLoanAmount(e.target.value)} 
+                      type="number" 
+                      placeholder="e.g., 500000" 
+                      className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                    />
+                  </div>
+                  {depositPercentage && (
+                    <p className="text-xs text-zinc-500">
+                      Required deposit: {depositAmount} USDC ({depositPercentage}%)
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="tenorDays" className="text-zinc-300">Loan Tenor (Days) *</Label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                    <Input 
+                      id="tenorDays" 
+                      value={tenorDays} 
+                      onChange={(e) => setTenorDays(e.target.value)} 
+                      type="number" 
+                      placeholder="365" 
+                      className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                    />
                   </div>
                 </div>
-                <div className="text-xs text-emerald-500 mt-1">
-                  <div className="flex justify-between">
-                    <span>Your USDC Balance:</span>
-                    <span>{formattedUsdcBalance} USDC</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Current USDC Allowance for Escrow:</span>
-                    <span>{formattedAllowance} USDC</span>
-                  </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expectedROI" className="text-zinc-300">Expected ROI (%)</Label>
+                  <Input 
+                    id="expectedROI" 
+                    type="number" 
+                    step="0.1"
+                    value={expectedROI} 
+                    onChange={(e) => setExpectedROI(e.target.value)} 
+                    placeholder="12.5" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
                 </div>
-              </Alert>
-            )}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="paybackPeriod" className="text-zinc-300">Payback Period (Months)</Label>
+                  <Input 
+                    id="paybackPeriod" 
+                    type="number"
+                    value={paybackPeriod} 
+                    onChange={(e) => setPaybackPeriod(e.target.value)} 
+                    placeholder="36" 
+                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <Check className="h-4 w-4 mr-2" />
+              <AlertTitle>Automatic IPFS Metadata</AlertTitle>
+              <AlertDescription>
+                Your project metadata will be automatically generated and stored on IPFS. No need to manually create or input a metadata CID.
+              </AlertDescription>
+            </Alert>
           </div>
         );
         
@@ -496,11 +722,19 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
             
             <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Loan Amount:</span>
-                <span className="text-white">{loanAmount} USDC</span>
+                <span className="text-zinc-400">Project Name:</span>
+                <span className="text-white font-medium">{projectName}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Deposit Amount:</span>
+                <span className="text-zinc-400">Capacity:</span>
+                <span className="text-white">{capacity} MW</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Loan Amount:</span>
+                <span className="text-white">${parseFloat(loanAmount).toLocaleString()} USDC</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Required Deposit:</span>
                 <span className="text-white">{depositAmount} USDC</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -508,8 +742,24 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
                 <span className="text-white">{tenorDays} days</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Metadata CID:</span>
-                <span className="text-white truncate max-w-[200px]">{metadataCID}</span>
+                <span className="text-zinc-400">Funding Deadline:</span>
+                <span className="text-white">
+                  {(() => {
+                    const amount = parseFloat(loanAmount);
+                    if (amount >= 1000000) return "60 days";
+                    if (amount >= 500000) return "45 days";
+                    if (amount >= 100000) return "30 days";
+                    return "21 days";
+                  })()} (auto-calculated)
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Expected Generation:</span>
+                <span className="text-white">{expectedGeneration} MWh/year</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">IPFS Metadata:</span>
+                <span className="text-emerald-400 text-xs">✅ Generated automatically</span>
               </div>
             </div>
             
@@ -546,17 +796,33 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
             <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Project ID:</span>
-                <span className="text-white">{newProjectId}</span>
+                <span className="text-white font-mono">{newProjectId}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Project Name:</span>
+                <span className="text-white font-medium">{projectName}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Total Funding:</span>
+                <span className="text-white">${parseFloat(loanAmount).toLocaleString()} USDC</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">Capacity:</span>
+                <span className="text-white">{capacity} MW</span>
               </div>
               {vaultAddress && (
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Vault Address:</span>
-                  <span className="text-white truncate max-w-[200px]">{vaultAddress}</span>
+                  <span className="text-white font-mono text-xs truncate max-w-[200px]">{vaultAddress}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Status:</span>
-                <span className="text-white">{projectStatus}</span>
+                <span className="text-emerald-400 font-medium">{projectStatus}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-zinc-400">IPFS Metadata:</span>
+                <span className="text-emerald-400 font-mono text-xs">ipfs://{metadataCID}</span>
               </div>
             </div>
             
@@ -574,6 +840,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
   // Progress based on current step
   const getProgressValue = () => {
     switch (currentStep) {
+      case ProjectCreationStep.KYC_CHECK: return 10;
       case ProjectCreationStep.DETAILS: return 25;
       case ProjectCreationStep.APPROVE: return 50;
       case ProjectCreationStep.CREATE: return 75;
@@ -608,6 +875,20 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         
         {/* Bottom actions */}
         <DialogFooter className="flex items-center justify-between">
+          {currentStep === ProjectCreationStep.KYC_CHECK && (
+            <>
+              <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleKycCheck} 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center"
+              >
+                Next
+                <ArrowRight size={16} className="ml-2" />
+              </Button>
+            </>
+          )}
           {currentStep === ProjectCreationStep.DETAILS && (
             <>
               <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">

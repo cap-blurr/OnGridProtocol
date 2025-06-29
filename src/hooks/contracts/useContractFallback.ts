@@ -30,7 +30,9 @@ export function useContractFallback() {
     const originalConsoleError = console.error;
     const originalFetch = window.fetch;
     
-    // Override fetch to catch RPC errors early
+    // TEMPORARILY DISABLED: Override fetch to catch RPC errors early
+    // This is disabled during Alchemy-only testing to prevent fallback interference
+    /*
     window.fetch = async (input, init) => {
       try {
         const response = await originalFetch(input, init);
@@ -66,8 +68,11 @@ export function useContractFallback() {
         throw error;
       }
     };
+    */
     
-    // Monitor console errors
+    // TEMPORARILY DISABLED: Monitor console errors
+    // This is disabled during Alchemy-only testing to prevent fallback interference
+    /*
     console.error = (...args) => {
       const message = args.join(' ');
       if (message.includes('CORS') || 
@@ -84,6 +89,7 @@ export function useContractFallback() {
       }
       originalConsoleError.apply(console, args);
     };
+    */
     
     return () => {
       window.removeEventListener('online', handleOnline);
