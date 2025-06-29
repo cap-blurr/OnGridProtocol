@@ -33,7 +33,6 @@ import { Progress } from "@/components/ui/progress";
 import toast from "react-hot-toast";
 import { useProjectFactory } from "@/hooks/contracts/useProjectFactory";
 import { DEVELOPER_DEPOSIT_BPS, BASIS_POINTS_DENOMINATOR } from "@/lib/constants";
-import { ipfsService, ProjectMetadata } from '@/lib/ipfs-service';
 
 // Steps in the project creation flow
 enum ProjectCreationStep {
@@ -47,31 +46,16 @@ enum ProjectCreationStep {
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onProjectCreated?: () => void; // Optional callback to refresh dashboard
 }
 
-export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProjectModalProps) {
-  // Enhanced form state for comprehensive project metadata
+export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
+  // Form state
   const [projectName, setProjectName] = useState<string>("");
   const [projectDescription, setProjectDescription] = useState<string>("");
   const [projectLocation, setProjectLocation] = useState<string>("");
   const [loanAmount, setLoanAmount] = useState<string>("");
   const [tenorDays, setTenorDays] = useState<string>("365");
-  
-  // New technical fields
-  const [capacity, setCapacity] = useState<string>(""); // MW
-  const [expectedGeneration, setExpectedGeneration] = useState<string>(""); // MWh per year
-  const [carbonCredits, setCarbonCredits] = useState<string>(""); // per year
-  const [equipment, setEquipment] = useState<string>("Solar Panels, Inverters, Mounting Systems");
-  const [installationTimeline, setInstallationTimeline] = useState<string>("6 months");
-  const [maintenanceSchedule, setMaintenanceSchedule] = useState<string>("Annual inspections");
-  const [expectedROI, setExpectedROI] = useState<string>("12.5");
-  const [paybackPeriod, setPaybackPeriod] = useState<string>("36");
-  const [contactEmail, setContactEmail] = useState<string>("");
-  
-  // Auto-generated metadata CID - will be populated automatically
   const [metadataCID, setMetadataCID] = useState<string>("");
-  const [isGeneratingMetadata, setIsGeneratingMetadata] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<string>("0");
   const [depositPercentage, setDepositPercentage] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState<ProjectCreationStep>(ProjectCreationStep.KYC_CHECK);
@@ -119,8 +103,6 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         setVaultAddress(highValueVaultAddress);
         setProjectStatus("High-value Project Created");
         setCurrentStep(ProjectCreationStep.COMPLETE);
-        // Trigger dashboard refresh
-        onProjectCreated?.();
       } else if (latestEvent.type === 'low-value') {
         const { projectId, success, poolId } = latestEvent.data;
         setNewProjectId(projectId.toString());
@@ -132,8 +114,6 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         }
         
         setCurrentStep(ProjectCreationStep.COMPLETE);
-        // Trigger dashboard refresh
-        onProjectCreated?.();
       }
     }
   }, [projectEvents, currentStep]);
@@ -171,15 +151,6 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         setProjectLocation("");
         setLoanAmount("");
         setTenorDays("365");
-        setCapacity("");
-        setExpectedGeneration("");
-        setCarbonCredits("");
-        setEquipment("Solar Panels, Inverters, Mounting Systems");
-        setInstallationTimeline("6 months");
-        setMaintenanceSchedule("Annual inspections");
-        setExpectedROI("12.5");
-        setPaybackPeriod("36");
-        setContactEmail("");
         setMetadataCID("");
         setDepositAmount("0");
         setDepositPercentage(null);
@@ -208,7 +179,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       setCurrentStep(ProjectCreationStep.CREATE);
     }
   }, [isApproveSuccess, currentStep, refetchAllowance]);
-  
+
   const handleKycCheck = () => {
     if (isKycVerified) {
       setCurrentStep(ProjectCreationStep.DETAILS);
@@ -217,91 +188,35 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     }
   };
   
-  // Enhanced validation function
-  const validateProjectDetails = () => {
-    const errors: string[] = [];
-    
-    if (!projectName.trim()) errors.push("Project name is required");
-    if (!projectDescription.trim()) errors.push("Project description is required");
-    if (!projectLocation.trim()) errors.push("Project location is required");
-    if (!loanAmount || parseFloat(loanAmount) <= 0) errors.push("Valid loan amount is required");
-    if (!capacity || parseFloat(capacity) <= 0) errors.push("Project capacity (MW) is required");
-    if (!expectedGeneration || parseFloat(expectedGeneration) <= 0) errors.push("Expected annual generation (MWh) is required");
-    if (!carbonCredits || parseFloat(carbonCredits) < 0) errors.push("Carbon credits estimate is required");
-    if (!contactEmail.trim() || !contactEmail.includes('@')) errors.push("Valid contact email is required");
-    
-    const tenorValue = parseInt(tenorDays);
-    if (isNaN(tenorValue) || tenorValue <= 0 || tenorValue > 10000) {
-      errors.push("Tenor must be between 1 and 10,000 days");
-    }
-    
-    return errors;
-  };
-
-  // Auto-generate comprehensive IPFS metadata
-  const generateProjectMetadata = async (): Promise<string> => {
-    setIsGeneratingMetadata(true);
-    
-    try {
-      const metadata: ProjectMetadata = {
-        name: projectName.trim(),
-        description: projectDescription.trim(),
-        location: projectLocation.trim(),
-        projectType: 'solar',
-        capacity: parseFloat(capacity),
-        expectedAnnualGeneration: parseFloat(expectedGeneration),
-        carbonCreditsExpected: parseFloat(carbonCredits),
-        developer: {
-          name: projectName.trim(), // Could be enhanced with separate developer name field
-          address: developerAddress || '',
-          contact: contactEmail.trim(),
-        },
-        technical: {
-          equipment: equipment.split(',').map(item => item.trim()),
-          installationTimeline: installationTimeline.trim(),
-          maintenanceSchedule: maintenanceSchedule.trim(),
-        },
-        financial: {
-          totalCost: parseFloat(loanAmount),
-          loanAmount: parseFloat(loanAmount),
-          tenor: parseInt(tenorDays),
-          expectedROI: parseFloat(expectedROI),
-          paybackPeriod: parseFloat(paybackPeriod),
-        },
-        images: [], // Could be enhanced with image upload
-        documents: [], // Could be enhanced with document upload
-        created: Date.now(),
-        version: '1.0.0',
-      };
-
-      const cid = await ipfsService.uploadProjectMetadata(metadata);
-      console.log('✅ Metadata uploaded to IPFS:', cid);
-      return cid;
-    } catch (error) {
-      console.error('❌ Error generating metadata:', error);
-      throw new Error('Failed to generate project metadata');
-    } finally {
-      setIsGeneratingMetadata(false);
-    }
-  };
-
-  // Enhanced details submission with automatic metadata generation
   const handleDetailsSubmit = async () => {
     try {
-      // Validate all inputs
-      const validationErrors = validateProjectDetails();
-      if (validationErrors.length > 0) {
-        toast.error(validationErrors[0]);
+      // Validation
+      if (!projectName.trim()) {
+        toast.error("Please enter a project name");
         return;
       }
-
-      // Generate IPFS metadata automatically
-      toast.loading("Generating project metadata...", { id: "metadata-gen" });
-      const metadataCID = await generateProjectMetadata();
-      toast.success("Project metadata generated successfully!", { id: "metadata-gen" });
-
-      // Store the generated CID for project creation
-      setMetadataCID(metadataCID);
+      if (!projectDescription.trim()) {
+        toast.error("Please enter a project description");
+        return;
+      }
+      if (!projectLocation.trim()) {
+        toast.error("Please enter a project location");
+        return;
+      }
+      if (!loanAmount || parseFloat(loanAmount) <= 0) {
+        toast.error("Please enter a valid loan amount");
+        return;
+      }
+      const tenorValueParsed = parseInt(tenorDays);
+      if (isNaN(tenorValueParsed) || tenorValueParsed <= 0 || tenorValueParsed > 10000) {
+        toast.error("Tenor must be a valid number between 1 and 10,000 days");
+        return;
+      }
+      const trimmedMetadataCID = metadataCID.trim();
+      if (!trimmedMetadataCID || trimmedMetadataCID.length < 5) {
+        toast.error("Please provide a valid metadata CID");
+        return;
+      }
 
       // Check if approval is needed
       if (parseFloat(depositAmount) > 0) {
@@ -315,8 +230,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         setCurrentStep(ProjectCreationStep.CREATE);
       }
     } catch (error) {
-      toast.error("Error preparing project details");
-      console.error(error);
+      toast.error("Error validating project details");
     }
   };
 
@@ -375,36 +289,13 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         return;
       }
 
-      // Calculate intelligent funding deadline based on project size
-      // Larger projects get more time to attract investors
-      let fundingDeadlineSeconds: number;
-      if (loanAmountParsed >= 1000000) {
-        // Large projects (>= $1M): 60 days
-        fundingDeadlineSeconds = 60 * 24 * 60 * 60;
-      } else if (loanAmountParsed >= 500000) {
-        // Medium projects ($500K - $1M): 45 days
-        fundingDeadlineSeconds = 45 * 24 * 60 * 60;
-      } else if (loanAmountParsed >= 100000) {
-        // Small projects ($100K - $500K): 30 days
-        fundingDeadlineSeconds = 30 * 24 * 60 * 60;
-      } else {
-        // Very small projects (<$100K): 21 days
-        fundingDeadlineSeconds = 21 * 24 * 60 * 60;
-      }
-
-      // Create parameters in the format expected by the hook (as per integration guide)
+      // Create parameters in the format expected by the hook
       const params = {
         loanAmountRequested: loanAmount, // Keep as string, hook will convert
         requestedTenor: tenorDays, // Keep as string, hook will convert
-        fundingDeadline: fundingDeadlineSeconds.toString(), // Dynamic deadline in seconds
+        fundingDeadline: "2592000", // 30 days in seconds
         metadataCID: formattedCID
       };
-      
-      console.log('🚀 Creating project with intelligent funding deadline:', {
-        loanAmount: `$${loanAmountParsed.toLocaleString()}`,
-        fundingDeadlineDays: Math.ceil(fundingDeadlineSeconds / (24 * 60 * 60)),
-        metadataCID: formattedCID
-      });
       
       createProject(params);
     } catch (err) {
@@ -418,186 +309,158 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     switch (currentStep) {
       case ProjectCreationStep.KYC_CHECK:
         return (
-          <div className="flex flex-col items-center justify-center space-y-4 p-6">
-            <div className="rounded-full bg-oga-green/10 p-3">
-              <ShieldCheck className="h-6 w-6 text-oga-green" />
-            </div>
-            {isCheckingKyc ? (
-              <div className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin text-oga-green" />
-                <span>Checking KYC status...</span>
-              </div>
-            ) : isKycVerified ? (
-              <div className="text-center">
-                <h3 className="font-medium text-oga-green">KYC Verified</h3>
-                <p className="text-sm text-gray-500">You are verified and can create projects</p>
-              </div>
-            ) : (
-              <div className="text-center">
-                <h3 className="font-medium text-red-500">KYC Required</h3>
-                <p className="text-sm text-gray-500">Please complete KYC verification before creating a project</p>
-              </div>
-            )}
+          <div className="space-y-6">
+            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
+              <ShieldCheck className="h-4 w-4 mr-2" />
+              <AlertTitle>KYC Check</AlertTitle>
+              <AlertDescription>
+                Please complete KYC verification before proceeding.
+              </AlertDescription>
+            </Alert>
+            
             <Button 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handleKycCheck}
-              disabled={!isKycVerified || isCheckingKyc}
-              className="bg-oga-green hover:bg-oga-green-dark text-white transition-colors"
+              disabled={isCheckingKyc}
             >
-              Continue
+              {isCheckingKyc ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Checking KYC...
+                </>
+              ) : (
+                <>
+                  Proceed
+                </>
+              )}
             </Button>
           </div>
         );
         
       case ProjectCreationStep.DETAILS:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 max-h-[70vh] overflow-y-auto">
-            {/* Left Column - Basic Info */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="projectName" className="text-gray-700 dark:text-gray-300">Project Name</Label>
-                <Input
-                  id="projectName"
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  placeholder="Enter project name"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="projectName" className="text-zinc-300">Project Name</Label>
+              <Input 
+                id="projectName" 
+                value={projectName} 
+                onChange={(e) => setProjectName(e.target.value)} 
+                placeholder="e.g., Sunny Meadows Solar Farm" 
+                className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="projectDescription" className="text-zinc-300">Project Description</Label>
+              <Textarea 
+                id="projectDescription" 
+                value={projectDescription} 
+                onChange={(e) => setProjectDescription(e.target.value)} 
+                placeholder="Describe your project, its impact, and goals." 
+                className="min-h-[80px] bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="projectLocation" className="text-zinc-300">Project Location</Label>
+              <Input 
+                id="projectLocation" 
+                value={projectLocation} 
+                onChange={(e) => setProjectLocation(e.target.value)} 
+                placeholder="e.g., California, USA" 
+                className="h-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="loanAmount" className="text-zinc-300">Loan Amount (USDC)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <Input 
+                  id="loanAmount" 
+                  value={loanAmount} 
+                  onChange={(e) => setLoanAmount(e.target.value)} 
+                  type="number" 
+                  placeholder="Enter total project cost" 
+                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="projectDescription" className="text-gray-700 dark:text-gray-300">Project Description</Label>
-                <Textarea
-                  id="projectDescription"
-                  value={projectDescription}
-                  onChange={(e) => setProjectDescription(e.target.value)}
-                  placeholder="Describe your project"
-                  className="h-24 border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
+              <p className="text-xs text-zinc-500">
+                This is the total project cost (100% of financing needed)
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="tenorDays" className="text-zinc-300">Loan Tenor (Days)</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <Input 
+                  id="tenorDays" 
+                  value={tenorDays} 
+                  onChange={(e) => setTenorDays(e.target.value)} 
+                  type="number" 
+                  placeholder="Loan duration in days" 
+                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="projectLocation" className="text-gray-700 dark:text-gray-300">Project Location</Label>
-                <Input
-                  id="projectLocation"
-                  value={projectLocation}
-                  onChange={(e) => setProjectLocation(e.target.value)}
-                  placeholder="Enter project location"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
+              <p className="text-xs text-zinc-500">
+                Duration of the loan in days (e.g., 365 for one year)
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="metadataCID" className="text-zinc-300">Project Metadata CID</Label>
+              <div className="relative">
+                <FileText className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                <Input 
+                  id="metadataCID" 
+                  value={metadataCID} 
+                  onChange={(e) => setMetadataCID(e.target.value)}
+                  placeholder="Enter IPFS CID for project metadata (e.g., Qm... or bafy...)" 
+                  className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="loanAmount" className="text-gray-700 dark:text-gray-300">Loan Amount (USDC)</Label>
-                <Input
-                  id="loanAmount"
-                  value={loanAmount}
-                  onChange={(e) => setLoanAmount(e.target.value)}
-                  placeholder="Enter loan amount"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-                {depositPercentage && (
-                  <p className="text-xs text-oga-green mt-1">
-                    Required deposit: {depositAmount} USDC ({depositPercentage}%)
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tenorDays" className="text-gray-700 dark:text-gray-300">Loan Duration (Days)</Label>
-                <Input
-                  id="tenorDays"
-                  value={tenorDays}
-                  onChange={(e) => setTenorDays(e.target.value)}
-                  placeholder="Enter loan duration in days"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
+              <p className="text-xs text-zinc-500">
+                Manually provide the IPFS Content ID (CID) for your project's metadata JSON.
+              </p>
             </div>
 
-            {/* Right Column - Technical Details */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="capacity" className="text-gray-700 dark:text-gray-300">Capacity (MW)</Label>
-                <Input
-                  id="capacity"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                  placeholder="Enter capacity in MW"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="expectedGeneration" className="text-gray-700 dark:text-gray-300">Expected Annual Generation (MWh)</Label>
-                <Input
-                  id="expectedGeneration"
-                  value={expectedGeneration}
-                  onChange={(e) => setExpectedGeneration(e.target.value)}
-                  placeholder="Enter expected generation"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="carbonCredits" className="text-gray-700 dark:text-gray-300">Carbon Credits (per year)</Label>
-                <Input
-                  id="carbonCredits"
-                  value={carbonCredits}
-                  onChange={(e) => setCarbonCredits(e.target.value)}
-                  placeholder="Enter estimated carbon credits"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="expectedROI" className="text-gray-700 dark:text-gray-300">Expected ROI (%)</Label>
-                <Input
-                  id="expectedROI"
-                  value={expectedROI}
-                  onChange={(e) => setExpectedROI(e.target.value)}
-                  placeholder="Enter expected ROI"
-                  type="number"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail" className="text-gray-700 dark:text-gray-300">Contact Email</Label>
-                <Input
-                  id="contactEmail"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="Enter contact email"
-                  type="email"
-                  className="border-gray-300 focus:border-oga-green focus:ring-oga-green/20 bg-white dark:bg-gray-900"
-                />
-              </div>
-            </div>
-
-            <div className="col-span-1 md:col-span-2 flex justify-end">
-              <Button 
-                onClick={handleDetailsSubmit}
-                className="bg-oga-green hover:bg-oga-green-dark text-white transition-colors"
-              >
-                Continue <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            {/* Deposit calculation summary */}
+            {depositAmount !== "0" && depositAmount !== "Error" && depositAmount !== "Calculating..." && depositPercentage !== null && (
+              <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300 flex flex-col space-y-2">
+                <div className="flex items-start">
+                  <AlertCircle className="h-4 w-4 mr-2 mt-0.5" />
+                  <div>
+                    <AlertTitle>Deposit Requirement ({depositPercentage}%)</AlertTitle>
+                    <AlertDescription>
+                      You will need to deposit {depositAmount} USDC.
+                    </AlertDescription>
+                  </div>
+                </div>
+                <div className="text-xs text-emerald-500 mt-1">
+                  <div className="flex justify-between">
+                    <span>Your USDC Balance:</span>
+                    <span>{formattedUsdcBalance} USDC</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Current USDC Allowance for Escrow:</span>
+                    <span>{formattedAllowance} USDC</span>
+                  </div>
+                </div>
+              </Alert>
+            )}
           </div>
         );
         
       case ProjectCreationStep.APPROVE:
         return (
-          <div className="space-y-6 p-6">
-            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
+          <div className="space-y-6">
+            <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
               <AlertCircle className="h-4 w-4 mr-2" />
-              <AlertTitle>Approve USDC</AlertTitle>
+              <AlertTitle>USDC Approval Required</AlertTitle>
               <AlertDescription>
-                Please approve the required USDC deposit amount to continue.
+                You need to approve the DeveloperDepositEscrow contract to spend your USDC.
               </AlertDescription>
             </Alert>
             
@@ -633,30 +496,22 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         
       case ProjectCreationStep.CREATE:
         return (
-          <div className="space-y-6 p-6">
-            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
+          <div className="space-y-6">
+            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4 mr-2" />
-              <AlertTitle>Ready to Create</AlertTitle>
+              <AlertTitle>Ready to Create Project</AlertTitle>
               <AlertDescription>
-                Your project is ready to be created on the blockchain.
+                Your USDC is approved. You can now create your project.
               </AlertDescription>
             </Alert>
             
             <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Project Name:</span>
-                <span className="text-white font-medium">{projectName}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Capacity:</span>
-                <span className="text-white">{capacity} MW</span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Loan Amount:</span>
-                <span className="text-white">${parseFloat(loanAmount).toLocaleString()} USDC</span>
+                <span className="text-white">{loanAmount} USDC</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Required Deposit:</span>
+                <span className="text-zinc-400">Deposit Amount:</span>
                 <span className="text-white">{depositAmount} USDC</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -664,24 +519,8 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                 <span className="text-white">{tenorDays} days</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Funding Deadline:</span>
-                <span className="text-white">
-                  {(() => {
-                    const amount = parseFloat(loanAmount);
-                    if (amount >= 1000000) return "60 days";
-                    if (amount >= 500000) return "45 days";
-                    if (amount >= 100000) return "30 days";
-                    return "21 days";
-                  })()} (auto-calculated)
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Expected Generation:</span>
-                <span className="text-white">{expectedGeneration} MWh/year</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">IPFS Metadata:</span>
-                <span className="text-emerald-400 text-xs">✅ Generated automatically</span>
+                <span className="text-zinc-400">Metadata CID:</span>
+                <span className="text-white truncate max-w-[200px]">{metadataCID}</span>
               </div>
             </div>
             
@@ -706,45 +545,29 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         
       case ProjectCreationStep.COMPLETE:
         return (
-          <div className="space-y-6 p-6">
-            <Alert className="bg-oga-green/10 border-oga-green text-oga-green">
+          <div className="space-y-6">
+            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4 mr-2" />
-              <AlertTitle>Project Created Successfully</AlertTitle>
+              <AlertTitle>Project Created Successfully!</AlertTitle>
               <AlertDescription>
-                Your project has been created and is now ready for funding.
+                Your project has been created and is now {projectStatus?.toLowerCase()}.
               </AlertDescription>
             </Alert>
             
             <div className="p-4 border border-zinc-800 rounded-lg space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Project ID:</span>
-                <span className="text-white font-mono">{newProjectId}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Project Name:</span>
-                <span className="text-white font-medium">{projectName}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Total Funding:</span>
-                <span className="text-white">${parseFloat(loanAmount).toLocaleString()} USDC</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">Capacity:</span>
-                <span className="text-white">{capacity} MW</span>
+                <span className="text-white">{newProjectId}</span>
               </div>
               {vaultAddress && (
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Vault Address:</span>
-                  <span className="text-white font-mono text-xs truncate max-w-[200px]">{vaultAddress}</span>
+                  <span className="text-white truncate max-w-[200px]">{vaultAddress}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">Status:</span>
-                <span className="text-emerald-400 font-medium">{projectStatus}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">IPFS Metadata:</span>
-                <span className="text-emerald-400 font-mono text-xs">ipfs://{metadataCID}</span>
+                <span className="text-white">{projectStatus}</span>
               </div>
             </div>
             
@@ -772,29 +595,60 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] sm:h-auto max-h-[90vh] overflow-hidden flex flex-col bg-white dark:bg-gray-900 border border-oga-green/20">
-        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-oga-green/5 to-transparent">
-          <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <RefreshCw className="h-5 w-5 text-oga-green" />
+      <DialogContent className="bg-black/90 backdrop-blur-sm border border-emerald-800/30 text-white max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <RefreshCw className="h-5 w-5 text-emerald-500" />
             Create New Project
           </DialogTitle>
-          <DialogDescription className="text-gray-500 dark:text-gray-400">
-            Fill in the project details to create a new funding request
+          <DialogDescription className="text-zinc-400">
+            Create a new solar energy project for funding.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="flex-1 overflow-hidden">
-          {renderStepContent()}
-        </div>
-
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-r from-transparent to-oga-green/5">
-          <Progress value={getProgressValue()} className="h-2 bg-gray-100 dark:bg-gray-800">
-            <div className="h-full bg-oga-green transition-all duration-300 ease-in-out" style={{ width: `${getProgressValue()}%` }} />
-          </Progress>
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Step {currentStep + 1} of {Object.keys(ProjectCreationStep).length / 2}
+        
+        {/* Progress indicator */}
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-zinc-500 mb-1">
+            <span>Progress</span>
+            <span>{getProgressValue()}%</span>
           </div>
+          <Progress value={getProgressValue()} className="h-1 bg-zinc-800" indicatorClassName="bg-emerald-500" />
         </div>
+        
+        {/* Step content */}
+        {renderStepContent()}
+        
+        {/* Bottom actions */}
+        <DialogFooter className="flex items-center justify-between">
+          {currentStep === ProjectCreationStep.KYC_CHECK && (
+            <>
+              <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleKycCheck} 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center"
+              >
+                Next
+                <ArrowRight size={16} className="ml-2" />
+              </Button>
+            </>
+          )}
+          {currentStep === ProjectCreationStep.DETAILS && (
+            <>
+              <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleDetailsSubmit} 
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center"
+              >
+                Next
+                <ArrowRight size={16} className="ml-2" />
+              </Button>
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

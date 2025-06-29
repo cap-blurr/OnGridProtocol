@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount, usePublicClient, useReadContract, useWatchContractEvent } from 'wagmi';
+import { useAccount, usePublicClient, useReadContract } from 'wagmi';
 import { Abi, Log, formatUnits, parseAbiItem, GetLogsReturnType } from 'viem';
 import { getAddresses, NetworkAddresses } from '@/contracts/addresses';
 import ProjectFactoryABIFile from '@/contracts/abis/ProjectFactory.json';
@@ -231,38 +231,6 @@ export function useDeveloperProjects() {
       console.log("useDeveloperProjects: Finished project fetch (isLoading set to false).");
     }
   }, [developerAddress, publicClient, currentAddresses]); // Keep dependencies minimal and stable
-
-  // Auto-refresh when new ProjectCreated events are detected
-  useWatchContractEvent({
-    address: currentAddresses?.projectFactoryProxy,
-    abi: projectFactoryAbi,
-    eventName: 'ProjectCreated',
-    args: developerAddress ? { developer: developerAddress } : undefined,
-    onLogs: (logs) => {
-      console.log("🔄 New ProjectCreated event detected, refreshing projects...");
-      // Small delay to ensure the transaction is fully processed
-      setTimeout(() => {
-        fetchProjects();
-      }, 2000);
-    },
-    enabled: !!developerAddress && !!currentAddresses?.projectFactoryProxy,
-  });
-
-  // Auto-refresh when new LowValueProjectSubmitted events are detected
-  useWatchContractEvent({
-    address: currentAddresses?.projectFactoryProxy,
-    abi: projectFactoryAbi,
-    eventName: 'LowValueProjectSubmitted',
-    args: developerAddress ? { developer: developerAddress } : undefined,
-    onLogs: (logs) => {
-      console.log("🔄 New LowValueProjectSubmitted event detected, refreshing projects...");
-      // Small delay to ensure the transaction is fully processed
-      setTimeout(() => {
-        fetchProjects();
-      }, 2000);
-    },
-    enabled: !!developerAddress && !!currentAddresses?.projectFactoryProxy,
-  });
 
   useEffect(() => {
     if (developerAddress && publicClient && currentAddresses) {

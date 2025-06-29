@@ -806,10 +806,9 @@ export default function SolarDeveloperDashboard() {
 
               {isCreateProjectModalOpen && currentAddresses?.projectFactoryProxy && (
                   <CreateProjectModal 
-          isOpen={isCreateProjectModalOpen}
-          onClose={() => setIsCreateProjectModalOpen(false)}
-          onProjectCreated={refetchProjects}
-        />
+            isOpen={isCreateProjectModalOpen}
+            onClose={() => setIsCreateProjectModalOpen(false)}
+          />
         )}
     </div>
   );
