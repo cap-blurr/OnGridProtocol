@@ -208,7 +208,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       setCurrentStep(ProjectCreationStep.CREATE);
     }
   }, [isApproveSuccess, currentStep, refetchAllowance]);
-
+  
   const handleKycCheck = () => {
     if (isKycVerified) {
       setCurrentStep(ProjectCreationStep.DETAILS);
@@ -369,7 +369,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         setCurrentStep(ProjectCreationStep.DETAILS);
         return;
       }
-      if (isNaN(tenorDaysParsed) || tenorDaysParsed <= 0 || tenorDaysParsed > 10000) {
+       if (isNaN(tenorDaysParsed) || tenorDaysParsed <= 0 || tenorDaysParsed > 10000) {
         toast.error("Invalid loan tenor");
         setCurrentStep(ProjectCreationStep.DETAILS);
         return;
@@ -418,259 +418,163 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     switch (currentStep) {
       case ProjectCreationStep.KYC_CHECK:
         return (
-          <div className="space-y-6">
-            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
-              <ShieldCheck className="h-4 w-4 mr-2" />
-              <AlertTitle>KYC Check</AlertTitle>
-              <AlertDescription>
-                Please complete KYC verification before proceeding.
-              </AlertDescription>
-            </Alert>
-            
+          <div className="flex flex-col items-center justify-center space-y-4 p-6">
+            <div className="rounded-full bg-gray-100 p-3">
+              <ShieldCheck className="h-6 w-6 text-gray-500" />
+            </div>
+            {isCheckingKyc ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Checking KYC status...</span>
+              </div>
+            ) : isKycVerified ? (
+              <div className="text-center">
+                <h3 className="font-medium">KYC Verified</h3>
+                <p className="text-sm text-gray-500">You are verified and can create projects</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <h3 className="font-medium">KYC Required</h3>
+                <p className="text-sm text-gray-500">Please complete KYC verification before creating a project</p>
+              </div>
+            )}
             <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handleKycCheck}
-              disabled={isCheckingKyc}
+              disabled={!isKycVerified || isCheckingKyc}
             >
-              {isCheckingKyc ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Checking KYC...
-                </>
-              ) : (
-                <>
-                  Proceed
-                </>
-              )}
+              Continue
             </Button>
           </div>
         );
         
       case ProjectCreationStep.DETAILS:
         return (
-          <div className="space-y-6">
-            <Alert className="bg-blue-900/30 border-blue-700 text-blue-300">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              <AlertTitle>Project Details</AlertTitle>
-              <AlertDescription>
-                Provide comprehensive details about your solar energy project. All information will be stored securely on IPFS.
-              </AlertDescription>
-            </Alert>
-            
-            {/* Basic Project Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 max-h-[70vh] overflow-y-auto">
+            {/* Left Column - Basic Info */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="projectName" className="text-zinc-300">Project Name *</Label>
-                  <Input 
-                    id="projectName" 
-                    value={projectName} 
-                    onChange={(e) => setProjectName(e.target.value)} 
-                    placeholder="e.g., Sunny Valley Solar Farm" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="projectLocation" className="text-zinc-300">Location *</Label>
-                  <Input 
-                    id="projectLocation" 
-                    value={projectLocation} 
-                    onChange={(e) => setProjectLocation(e.target.value)} 
-                    placeholder="e.g., California, USA" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-              </div>
-              
               <div className="space-y-2">
-                <Label htmlFor="projectDescription" className="text-zinc-300">Project Description *</Label>
-                <Textarea 
-                  id="projectDescription" 
-                  value={projectDescription} 
-                  onChange={(e) => setProjectDescription(e.target.value)} 
-                  placeholder="Describe your solar energy project, its impact, and goals..." 
-                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600 min-h-[100px]" 
+                <Label htmlFor="projectName">Project Name</Label>
+                <Input
+                  id="projectName"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="Enter project name"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="contactEmail" className="text-zinc-300">Contact Email *</Label>
-                <Input 
-                  id="contactEmail" 
+                <Label htmlFor="projectDescription">Project Description</Label>
+                <Textarea
+                  id="projectDescription"
+                  value={projectDescription}
+                  onChange={(e) => setProjectDescription(e.target.value)}
+                  placeholder="Describe your project"
+                  className="h-24"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="projectLocation">Project Location</Label>
+                <Input
+                  id="projectLocation"
+                  value={projectLocation}
+                  onChange={(e) => setProjectLocation(e.target.value)}
+                  placeholder="Enter project location"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="loanAmount">Loan Amount (USDC)</Label>
+                <Input
+                  id="loanAmount"
+                  value={loanAmount}
+                  onChange={(e) => setLoanAmount(e.target.value)}
+                  placeholder="Enter loan amount"
+                  type="number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tenorDays">Loan Duration (Days)</Label>
+                <Input
+                  id="tenorDays"
+                  value={tenorDays}
+                  onChange={(e) => setTenorDays(e.target.value)}
+                  placeholder="Enter loan duration in days"
+                  type="number"
+                />
+              </div>
+            </div>
+
+            {/* Right Column - Technical Details */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="capacity">Capacity (MW)</Label>
+                <Input
+                  id="capacity"
+                  value={capacity}
+                  onChange={(e) => setCapacity(e.target.value)}
+                  placeholder="Enter capacity in MW"
+                  type="number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="expectedGeneration">Expected Annual Generation (MWh)</Label>
+                <Input
+                  id="expectedGeneration"
+                  value={expectedGeneration}
+                  onChange={(e) => setExpectedGeneration(e.target.value)}
+                  placeholder="Enter expected generation"
+                  type="number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="carbonCredits">Carbon Credits (per year)</Label>
+                <Input
+                  id="carbonCredits"
+                  value={carbonCredits}
+                  onChange={(e) => setCarbonCredits(e.target.value)}
+                  placeholder="Enter estimated carbon credits"
+                  type="number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="expectedROI">Expected ROI (%)</Label>
+                <Input
+                  id="expectedROI"
+                  value={expectedROI}
+                  onChange={(e) => setExpectedROI(e.target.value)}
+                  placeholder="Enter expected ROI"
+                  type="number"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Input
+                  id="contactEmail"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="Enter contact email"
                   type="email"
-                  value={contactEmail} 
-                  onChange={(e) => setContactEmail(e.target.value)} 
-                  placeholder="your@email.com" 
-                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
                 />
               </div>
             </div>
 
-            {/* Technical Specifications */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Technical Specifications</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="capacity" className="text-zinc-300">Capacity (MW) *</Label>
-                  <Input 
-                    id="capacity" 
-                    type="number" 
-                    step="0.1"
-                    value={capacity} 
-                    onChange={(e) => setCapacity(e.target.value)} 
-                    placeholder="e.g., 5.0" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="expectedGeneration" className="text-zinc-300">Annual Generation (MWh) *</Label>
-                  <Input 
-                    id="expectedGeneration" 
-                    type="number"
-                    value={expectedGeneration} 
-                    onChange={(e) => setExpectedGeneration(e.target.value)} 
-                    placeholder="e.g., 12000" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="carbonCredits" className="text-zinc-300">Carbon Credits/Year *</Label>
-                  <Input 
-                    id="carbonCredits" 
-                    type="number"
-                    value={carbonCredits} 
-                    onChange={(e) => setCarbonCredits(e.target.value)} 
-                    placeholder="e.g., 5000" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="installationTimeline" className="text-zinc-300">Installation Timeline</Label>
-                  <Input 
-                    id="installationTimeline" 
-                    value={installationTimeline} 
-                    onChange={(e) => setInstallationTimeline(e.target.value)} 
-                    placeholder="e.g., 6 months" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="maintenanceSchedule" className="text-zinc-300">Maintenance Schedule</Label>
-                  <Input 
-                    id="maintenanceSchedule" 
-                    value={maintenanceSchedule} 
-                    onChange={(e) => setMaintenanceSchedule(e.target.value)} 
-                    placeholder="e.g., Annual inspections" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="equipment" className="text-zinc-300">Equipment List</Label>
-                <Input 
-                  id="equipment" 
-                  value={equipment} 
-                  onChange={(e) => setEquipment(e.target.value)} 
-                  placeholder="e.g., Solar Panels, Inverters, Mounting Systems" 
-                  className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                />
-                <p className="text-xs text-zinc-500">Separate items with commas</p>
-              </div>
+            <div className="col-span-1 md:col-span-2 flex justify-end">
+              <Button onClick={handleDetailsSubmit}>
+                Continue <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-
-            {/* Financial Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Financial Details</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="loanAmount" className="text-zinc-300">Total Project Cost (USDC) *</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                    <Input 
-                      id="loanAmount" 
-                      value={loanAmount} 
-                      onChange={(e) => setLoanAmount(e.target.value)} 
-                      type="number" 
-                      placeholder="e.g., 500000" 
-                      className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                    />
-                  </div>
-                  {depositPercentage && (
-                    <p className="text-xs text-zinc-500">
-                      Required deposit: {depositAmount} USDC ({depositPercentage}%)
-                    </p>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="tenorDays" className="text-zinc-300">Loan Tenor (Days) *</Label>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                    <Input 
-                      id="tenorDays" 
-                      value={tenorDays} 
-                      onChange={(e) => setTenorDays(e.target.value)} 
-                      type="number" 
-                      placeholder="365" 
-                      className="h-10 pl-10 bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="expectedROI" className="text-zinc-300">Expected ROI (%)</Label>
-                  <Input 
-                    id="expectedROI" 
-                    type="number" 
-                    step="0.1"
-                    value={expectedROI} 
-                    onChange={(e) => setExpectedROI(e.target.value)} 
-                    placeholder="12.5" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="paybackPeriod" className="text-zinc-300">Payback Period (Months)</Label>
-                  <Input 
-                    id="paybackPeriod" 
-                    type="number"
-                    value={paybackPeriod} 
-                    onChange={(e) => setPaybackPeriod(e.target.value)} 
-                    placeholder="36" 
-                    className="bg-zinc-900/70 border-zinc-700 text-white focus:border-emerald-600" 
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
-              <Check className="h-4 w-4 mr-2" />
-              <AlertTitle>Automatic IPFS Metadata</AlertTitle>
-              <AlertDescription>
-                Your project metadata will be automatically generated and stored on IPFS. No need to manually create or input a metadata CID.
-              </AlertDescription>
-            </Alert>
           </div>
         );
         
       case ProjectCreationStep.APPROVE:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 p-6">
             <Alert className="bg-yellow-900/30 border-yellow-700 text-yellow-300">
               <AlertCircle className="h-4 w-4 mr-2" />
               <AlertTitle>USDC Approval Required</AlertTitle>
@@ -711,7 +615,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         
       case ProjectCreationStep.CREATE:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 p-6">
             <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4 mr-2" />
               <AlertTitle>Ready to Create Project</AlertTitle>
@@ -784,7 +688,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         
       case ProjectCreationStep.COMPLETE:
         return (
-          <div className="space-y-6">
+          <div className="space-y-6 p-6">
             <Alert className="bg-emerald-900/30 border-emerald-700 text-emerald-300">
               <Check className="h-4 w-4 mr-2" />
               <AlertTitle>Project Created Successfully!</AlertTitle>
@@ -850,60 +754,24 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black/90 backdrop-blur-sm border border-emerald-800/30 text-white max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <RefreshCw className="h-5 w-5 text-emerald-500" />
-            Create New Project
-          </DialogTitle>
-          <DialogDescription className="text-zinc-400">
-            Create a new solar energy project for funding.
+      <DialogContent className="sm:max-w-[900px] sm:h-auto max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle>Create New Project</DialogTitle>
+          <DialogDescription>
+            Fill in the project details to create a new funding request
           </DialogDescription>
         </DialogHeader>
-        
-        {/* Progress indicator */}
-        <div className="mb-4">
-          <div className="flex justify-between text-xs text-zinc-500 mb-1">
-            <span>Progress</span>
-            <span>{getProgressValue()}%</span>
-          </div>
-          <Progress value={getProgressValue()} className="h-1 bg-zinc-800" indicatorClassName="bg-emerald-500" />
+
+        <div className="flex-1 overflow-hidden">
+          {renderStepContent()}
         </div>
-        
-        {/* Step content */}
-        {renderStepContent()}
-        
-        {/* Bottom actions */}
-        <DialogFooter className="flex items-center justify-between">
-          {currentStep === ProjectCreationStep.KYC_CHECK && (
-            <>
-              <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleKycCheck} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center"
-              >
-                Next
-                <ArrowRight size={16} className="ml-2" />
-              </Button>
-            </>
-          )}
-          {currentStep === ProjectCreationStep.DETAILS && (
-            <>
-              <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-400">
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleDetailsSubmit} 
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center"
-              >
-                Next
-                <ArrowRight size={16} className="ml-2" />
-              </Button>
-            </>
-          )}
-        </DialogFooter>
+
+        <div className="px-6 py-4 border-t">
+          <Progress value={getProgressValue()} className="h-2" />
+          <div className="mt-2 text-sm text-gray-500">
+            Step {currentStep + 1} of {Object.keys(ProjectCreationStep).length / 2}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
